@@ -104,11 +104,26 @@ namespace YourNetworkingTools
 			set { m_extraData = value; }
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * Awake
+		 */
+        public override void Awake()
+        {
+#if ENABLE_WORLDSENSE || ENABLE_OCULUS
+            if (MenuScreenController.Instance.MainCamera2D != null) MenuScreenController.Instance.MainCamera2D.SetActive(false);
+            if (MenuScreenController.Instance.VRComponents != null) MenuScreenController.Instance.VRComponents.SetActive(true);
+#else
+            if (MenuScreenController.Instance.MainCamera2D != null) MenuScreenController.Instance.MainCamera2D.SetActive(true);
+            if (MenuScreenController.Instance.VRComponents != null) MenuScreenController.Instance.VRComponents.SetActive(false);
+#endif
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Initialitzation listener
 		 */
-		public override void Start()
+        public override void Start()
 		{
 			base.Start();
 
@@ -131,9 +146,6 @@ namespace YourNetworkingTools
 
 #if ENABLE_WORLDSENSE || ENABLE_OCULUS
             KeysEventInputController.Instance.EnableActionOnMouseDown = false;
-
-            MenuScreenController.Instance.MainCamera2D.SetActive(false);
-            MenuScreenController.Instance.VRComponents.SetActive(true);
             Invoke("StartSplashScreen", 0.2f);
 #else
             StartSplashScreen();
