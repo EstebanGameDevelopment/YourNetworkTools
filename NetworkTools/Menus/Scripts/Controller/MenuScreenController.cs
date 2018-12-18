@@ -24,10 +24,10 @@ namespace YourNetworkingTools
 		// ----------------------------------------------	
 		public const string EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE = "EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE";
 
-		// ----------------------------------------------
-		// SINGLETON
-		// ----------------------------------------------	
-		private static MenuScreenController instance;
+        // ----------------------------------------------
+        // SINGLETON
+        // ----------------------------------------------	
+        private static MenuScreenController instance;
 
 		public static MenuScreenController Instance
 		{
@@ -219,6 +219,10 @@ namespace YourNetworkingTools
 		 */
         protected void ProcessConnectionEvents(string _nameEvent, params object[] _list)
         {
+            if (_nameEvent == ScreenLoadingView.EVENT_SCREENLOADING_LOAD_OR_JOIN_GAME)
+            {
+                CreateOrJoinRoomInServer((bool)_list[0], false);
+            }
             if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_CONNECTED_ROOM)
             {
                 NetworkEventController.Instance.MenuController_SaveNumberOfPlayers((int)_list[0]);
@@ -394,49 +398,63 @@ namespace YourNetworkingTools
 		/* 
 		 * Create for real the room in server
 		 */
-		public void CreateOrJoinRoomInServer(bool _checkScreenGameOptions)
+		public void CreateOrJoinRoomInServer(bool _checkScreenGameOptions, bool _considerAssetBundle = true)
 		{
-			if (NetworkEventController.Instance.MenuController_LoadNumberOfPlayers() == MultiplayerConfiguration.VALUE_FOR_JOINING)
-			{
-				if (_checkScreenGameOptions && (MenuScreenController.Instance.ScreenGameOptions.Length > 0))
-				{
-					UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,MenuScreenController.Instance.ScreenGameOptions, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-				}
-				else
-				{
-					UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-					MultiplayerConfiguration.SaveExtraData(m_extraData);
-					if (!YourNetworkTools.GetIsLocalGame())
-					{
+            bool checkLoadGameScene = true;
+            if ((UIEventController.Instance.URLAssetBundle.Length > 0) && (_considerAssetBundle))
+            {
+                checkLoadGameScene = false;
+            }
+
+            if (NetworkEventController.Instance.MenuController_LoadNumberOfPlayers() == MultiplayerConfiguration.VALUE_FOR_JOINING)
+            {
+                if (_checkScreenGameOptions && (MenuScreenController.Instance.ScreenGameOptions.Length > 0))
+                {
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, MenuScreenController.Instance.ScreenGameOptions, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                }
+                else
+                {
+                    if (!YourNetworkTools.GetIsLocalGame())
+                    {
+                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                        MultiplayerConfiguration.SaveExtraData(m_extraData);
                         JoinARoomInServer();
-					}
-					else
-					{
-						NetworkEventController.Instance.MenuController_LoadGameScene(TargetGameScene);
-					}
-				}
-			}
-			else
-			{
-				if (!YourNetworkTools.GetIsLocalGame())
-				{
-					if (m_isFriendsRoom)
-					{
-						NetworkEventController.Instance.MenuController_CreateNewFacebookRoom(m_friends, m_friendsIDs, m_extraData);
-					}
-					else
-					{
-						CreateRoomInServer(m_numberOfPlayers, m_extraData);
-					}
-				}
-				else
-				{
-					MultiplayerConfiguration.SaveExtraData(m_extraData);
-					UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-					NetworkEventController.Instance.MenuController_LoadGameScene(TargetGameScene);
-				}
-			}
-		}
+                    }
+                    else
+                    {
+                        if (checkLoadGameScene)
+                        {
+                            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                            MultiplayerConfiguration.SaveExtraData(m_extraData);
+                            NetworkEventController.Instance.MenuController_LoadGameScene(TargetGameScene);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (!YourNetworkTools.GetIsLocalGame())
+                {
+                    if (m_isFriendsRoom)
+                    {
+                        NetworkEventController.Instance.MenuController_CreateNewFacebookRoom(m_friends, m_friendsIDs, m_extraData);
+                    }
+                    else
+                    {
+                        CreateRoomInServer(m_numberOfPlayers, m_extraData);
+                    }
+                }
+                else
+                {
+                    if (checkLoadGameScene)
+                    {
+                        MultiplayerConfiguration.SaveExtraData(m_extraData);
+                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                        NetworkEventController.Instance.MenuController_LoadGameScene(TargetGameScene);
+                    }
+                }
+            }
+        }
 
 
 		// -------------------------------------------
