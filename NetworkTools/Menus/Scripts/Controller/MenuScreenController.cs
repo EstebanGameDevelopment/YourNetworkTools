@@ -414,15 +414,15 @@ namespace YourNetworkingTools
                 }
                 else
                 {
-                    if (!YourNetworkTools.GetIsLocalGame())
+                    if (checkLoadGameScene)
                     {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-                        MultiplayerConfiguration.SaveExtraData(m_extraData);
-                        JoinARoomInServer();
-                    }
-                    else
-                    {
-                        if (checkLoadGameScene)
+                        if (!YourNetworkTools.GetIsLocalGame())
+                        {
+                            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                            MultiplayerConfiguration.SaveExtraData(m_extraData);
+                            JoinARoomInServer();
+                        }
+                        else
                         {
                             UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
                             MultiplayerConfiguration.SaveExtraData(m_extraData);
@@ -433,20 +433,20 @@ namespace YourNetworkingTools
             }
             else
             {
-                if (!YourNetworkTools.GetIsLocalGame())
+                if (checkLoadGameScene)
                 {
-                    if (m_isFriendsRoom)
+                    if (!YourNetworkTools.GetIsLocalGame())
                     {
-                        NetworkEventController.Instance.MenuController_CreateNewFacebookRoom(m_friends, m_friendsIDs, m_extraData);
+                        if (m_isFriendsRoom)
+                        {
+                            NetworkEventController.Instance.MenuController_CreateNewFacebookRoom(m_friends, m_friendsIDs, m_extraData);
+                        }
+                        else
+                        {
+                            CreateRoomInServer(m_numberOfPlayers, m_extraData);
+                        }
                     }
                     else
-                    {
-                        CreateRoomInServer(m_numberOfPlayers, m_extraData);
-                    }
-                }
-                else
-                {
-                    if (checkLoadGameScene)
                     {
                         MultiplayerConfiguration.SaveExtraData(m_extraData);
                         UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
