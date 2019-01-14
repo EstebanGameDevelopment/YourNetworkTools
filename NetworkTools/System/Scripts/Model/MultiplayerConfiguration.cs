@@ -45,6 +45,7 @@ namespace YourNetworkingTools
         public const string AR_ENABLE_BACKGROUND = "AR_ENABLE_BACKGROUND";
 
         public const string DIRECTOR_MODE_COOCKIE = "DIRECTOR_MODE_COOCKIE";
+        public const string SPECTATOR_MODE_COOCKIE = "SPECTATOR_MODE_COOCKIE";
 
         public const string BUFFER_SIZE_SEND_COOCKIE = "BUFFER_SIZE_SEND_COOCKIE";
         public const string BUFFER_SIZE_RECEIVE_COOCKIE = "BUFFER_SIZE_RECEIVE_COOCKIE";
@@ -59,6 +60,9 @@ namespace YourNetworkingTools
 
         public const int DIRECTOR_MODE_DISABLED = 0;
         public const int DIRECTOR_MODE_ENABLED = 1;
+
+        public const int SPECTATOR_MODE_DISABLED = 0;
+        public const int SPECTATOR_MODE_ENABLED = 1;
 
         // -------------------------------------------
         /* 
@@ -257,6 +261,24 @@ namespace YourNetworkingTools
         public static int LoadDirectorMode(int _directorMode)
         {
             return PlayerPrefs.GetInt(DIRECTOR_MODE_COOCKIE, _directorMode);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Will save the spectator mode activation
+		 */
+        public static void SaveSpectatorMode(int _spectatorMode)
+        {
+            PlayerPrefs.SetInt(SPECTATOR_MODE_COOCKIE, _spectatorMode);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Will load the spectator mode activation
+		 */
+        public static int LoadSpectatorMode(int _spectatorMode)
+        {
+            return PlayerPrefs.GetInt(SPECTATOR_MODE_COOCKIE, _spectatorMode);
         }
 
 
