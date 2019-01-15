@@ -159,7 +159,7 @@ namespace YourNetworkingTools
 			catch (Exception e)
 			{
 #if DEBUG_MODE_DISPLAY_LOG
-				Debug.LogError("ClientTCPEventsController::Init::CONNECTION ERROR WITH SERVER[" + m_host + "]::Socket error: " + e);
+				Debug.LogError("ClientTCPEventsController::Init::CONNECTION ERROR WITH SERVER[" + m_host + ":" + _port + "]::Socket error: " + e);
 #endif
 			}
 		}

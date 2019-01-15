@@ -225,8 +225,11 @@ namespace YourNetworkingTools
             }
             if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_CONNECTED_ROOM)
             {
-                NetworkEventController.Instance.MenuController_SaveNumberOfPlayers((int)_list[0]);
-                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
+                if (NetworkEventController.Instance.MenuController_LoadNumberOfPlayers() != MultiplayerConfiguration.VALUE_FOR_JOINING)
+                {
+                    NetworkEventController.Instance.MenuController_SaveNumberOfPlayers((int)_list[0]);
+                }
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
                 NetworkEventController.Instance.MenuController_LoadGameScene(TargetGameScene);
             }
             if (_nameEvent == EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE)
@@ -318,7 +321,7 @@ namespace YourNetworkingTools
         /* 
 		 * Create the room in server
 		 */
-        public void CreateRoomInServer(int _finalNumberOfPlayers, string _extraData)
+        public void CreateRoomInServer(int _finalNumberOfPlayers, string _extraData, bool _checkScreenGameOptions = false)
 		{
 			// NUMBER OF PLAYERS
 			int finalNumberOfPlayers = _finalNumberOfPlayers;
@@ -339,9 +342,9 @@ namespace YourNetworkingTools
 				}
 				else
 				{
-                    if (ScreenGameOptions.Length > 0)
+                    if ((ScreenGameOptions.Length > 0) && !_checkScreenGameOptions)
 					{
-						UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenGameOptions, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+						UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenGameOptions, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
 					}
 					else
 					{
@@ -443,7 +446,7 @@ namespace YourNetworkingTools
                         }
                         else
                         {
-                            CreateRoomInServer(m_numberOfPlayers, m_extraData);
+                            CreateRoomInServer(m_numberOfPlayers, m_extraData, _checkScreenGameOptions);
                         }
                     }
                     else
