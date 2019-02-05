@@ -33,10 +33,13 @@ namespace YourNetworkingTools
 		public const bool ENABLE_ARCORE_CLOUD_SHARED		= false;
 		public const bool ENABLE_ARCORE_START_GAME_WORLD	= true;
 
-		// ----------------------------------------------
-		// SINGLETON
-		// ----------------------------------------------	
-		private static CloudGameAnchorController _instance;
+        public const string EVENT_6DOF_REQUEST_SCALE_MOVEMENT_XZ = "EVENT_6DOF_REQUEST_SCALE_MOVEMENT_XZ";
+        public const string EVENT_6DOF_UPDATE_SCALE_MOVEMENT_XZ = "EVENT_6DOF_UPDATE_SCALE_MOVEMENT_XZ";
+
+        // ----------------------------------------------
+        // SINGLETON
+        // ----------------------------------------------	
+        private static CloudGameAnchorController _instance;
 
 		public static CloudGameAnchorController Instance
 		{
