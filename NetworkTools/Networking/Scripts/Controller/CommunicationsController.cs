@@ -205,30 +205,37 @@ namespace YourNetworkingTools
 		 */
 		public static string MessageEvent(int _idConnection, string _eventName, int _idOriginConnection, int _idTargetConnection, params object[] _list)
 		{
-			string eventData = "";
-			for (int i = 0; i < _list.Length; i++)
-			{
-				if (_list[i] is string)
-				{
-					eventData += (string)_list[i];
-					if (i + 1 < _list.Length)
-					{
-						eventData += TOKEN_PARAMETER_SEPARATOR;
-					}
-				}
-				else
-				{
-					Debug.LogError("CommunicationsController::MessageEvent::ERROR::THE NETWORK EVENTS SHOULD ALWAYS HAVE STRING DATA::CONFLICTE IN[" + i + "]=" + _list[i] + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-					return null;
-				}
-			}
+            if (_list != null)
+            {
+                string eventData = "";
+                for (int i = 0; i < _list.Length; i++)
+                {
+                    if (_list[i] is string)
+                    {
+                        eventData += (string)_list[i];
+                        if (i + 1 < _list.Length)
+                        {
+                            eventData += TOKEN_PARAMETER_SEPARATOR;
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("CommunicationsController::MessageEvent::ERROR::THE NETWORK EVENTS SHOULD ALWAYS HAVE STRING DATA::CONFLICTE IN[" + i + "]=" + _list[i] + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                        return null;
+                    }
+                }
 
-			return CreateJSONMessage(_idConnection, MESSAGE_TYPE_EVENT,
-									DATAFIELD_EVENT, _eventName,
-									DATAFIELD_ORIGIN_ID, _idOriginConnection.ToString(),
-									DATAFIELD_TARGET_ID, _idTargetConnection.ToString(),
-									DATAFIELD_DATA, eventData);
-		}
+                return CreateJSONMessage(_idConnection, MESSAGE_TYPE_EVENT,
+                                        DATAFIELD_EVENT, _eventName,
+                                        DATAFIELD_ORIGIN_ID, _idOriginConnection.ToString(),
+                                        DATAFIELD_TARGET_ID, _idTargetConnection.ToString(),
+                                        DATAFIELD_DATA, eventData);
+            }
+            else
+            {
+                return null;
+            }
+        }
 
 		// -------------------------------------------
 		/* 
@@ -578,7 +585,10 @@ namespace YourNetworkingTools
 					if (m_isServer)
 					{
 						string messageNetworkEvent = MessageEvent(m_networkID, nameEvent, idOriginConnection, idTargetConnection, dataEvent);
-						NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_PLAYERCONNECTIONCONTROLLER_RPC_MESSAGE, idTargetConnection, idOriginConnection, messageNetworkEvent);
+                        if (messageNetworkEvent != null)
+                        {
+                            NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_PLAYERCONNECTIONCONTROLLER_RPC_MESSAGE, idTargetConnection, idOriginConnection, messageNetworkEvent);
+                        }						
 					}
 					break;
 			}
@@ -627,19 +637,22 @@ namespace YourNetworkingTools
 			{
 				RegisterPrefabFromClass((string)_list[0], (string)_list[1], (string)_list[2]);
 			}
-			// IF IT'S A NETWORK MESSAGE THEN SEND IT BY BROADCAST
-			if (!_isLocalEvent)
-			{
-				string messageNetworkEvent = MessageEvent(_networkOriginID, _nameEvent, _networkOriginID, _networkTargetID, _list);
-				if (m_isServer)
-				{
-					NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_PLAYERCONNECTIONCONTROLLER_RPC_MESSAGE, -1, m_networkID, messageNetworkEvent);
-				}
-				else
-				{
-					NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_PLAYERCONNECTIONCONTROLLER_COMMAND_MESSAGE, messageNetworkEvent);
-				}
-			}
+            // IF IT'S A NETWORK MESSAGE THEN SEND IT BY BROADCAST
+            if (!_isLocalEvent)
+            {
+                string messageNetworkEvent = MessageEvent(_networkOriginID, _nameEvent, _networkOriginID, _networkTargetID, _list);
+                if (messageNetworkEvent != null)
+                {
+                    if (m_isServer)
+                    {
+                        NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_PLAYERCONNECTIONCONTROLLER_RPC_MESSAGE, -1, m_networkID, messageNetworkEvent);
+                    }
+                    else
+                    {
+                        NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_PLAYERCONNECTIONCONTROLLER_COMMAND_MESSAGE, messageNetworkEvent);
+                    }
+                }
+            }
 		}
 
 
