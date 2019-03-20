@@ -68,7 +68,7 @@ namespace YourNetworkingTools
 		// PRIVATE MEMBERS
 		// ----------------------------------------------
 		private bool m_isInited = false;
-		private bool m_isServer = true;
+		private bool m_isServer = false;
 		private int m_networkID = -1;
 		private bool m_visualInterfaceActivated = false;
 		private List<PlayerConnectionData> m_playersConnections = new List<PlayerConnectionData>();
