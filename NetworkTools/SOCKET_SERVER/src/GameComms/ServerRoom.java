@@ -22,6 +22,7 @@ public class ServerRoom extends Thread {
 	public static String EVENT_CLIENT_TCP_REPONSE_ALIVE 			= "EVENT_CLIENT_TCP_REPONSE_ALIVE";
 	public static String EVENT_STREAMSERVER_REPORT_CLOSED_STREAM 	= "EVENT_STREAMSERVER_REPORT_CLOSED_STREAM";
 	public static String EVENT_SYSTEM_PLAYER_HAS_BEEN_DESTROYED		= "EVENT_SYSTEM_PLAYER_HAS_BEEN_DESTROYED";
+	public static String EVENT_CLIENT_TCP_CLOSE_CURRENT_ROOM		= "EVENT_CLIENT_TCP_CLOSE_CURRENT_ROOM";
 
 	public static String EVENT_SERVERROOM_DESTROYED 	= "EVENT_SERVERROOM_DESTROYED";
 	
@@ -303,7 +304,16 @@ public class ServerRoom extends Thread {
 		}
 		else
 		{
-			BroadCastEvent(_event);	
+			if (_event.indexOf(EVENT_CLIENT_TCP_CLOSE_CURRENT_ROOM)!=-1)
+			{
+				IsRoomOpen = false;
+				m_totalPlayers = m_listClients.size();
+				if (ServerGame.EnableLogMessages) System.out.println("ServerRoom::ProcessEvent:CLOSING ROOM WITH "+ m_totalPlayers + " PLAYERS");
+			}
+			else
+			{
+				BroadCastEvent(_event);	
+			}
 		}
 	}
 	
