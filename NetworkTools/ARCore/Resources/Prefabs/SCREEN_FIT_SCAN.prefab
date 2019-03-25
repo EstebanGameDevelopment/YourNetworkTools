@@ -22,7 +22,6 @@ GameObject:
   - component: {fileID: 223891309438277288}
   - component: {fileID: 114812983449677604}
   - component: {fileID: 114437679972699690}
-  - component: {fileID: 114855121556020514}
   m_Layer: 5
   m_Name: SCREEN_FIT_SCAN
   m_TagString: Untagged
@@ -102,18 +101,6 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
---- !u!114 &114855121556020514
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1296815135120190}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc7b3f33de044fe4fa1e8f9079860509, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SelectorGraphic: {fileID: 0}
 --- !u!114 &114877531839200808
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -154,7 +141,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1763822974891056}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: -765806418, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
   m_Name: 
@@ -260,8 +247,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1, y: 12.9}
-  m_SizeDelta: {x: 348.6, y: 422.3}
+  m_AnchoredPosition: {x: 11.4, y: 12.9}
+  m_SizeDelta: {x: 842.3, y: 422.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &225142623772917866
 CanvasGroup:

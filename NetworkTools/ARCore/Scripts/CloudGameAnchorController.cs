@@ -184,7 +184,7 @@ namespace YourNetworkingTools
             if (GameObject.FindObjectOfType<LanguageController>() != null)
             {
                 LanguageController.Instance.Initialize();
-                TextMessage.text = LanguageController.Instance.GetText("arcore.message.to.synchronize");
+                TextMessage.text = LanguageController.Instance.GetText("message.scanning.world.please.wait");
             }
 
 			ResetStatus();
