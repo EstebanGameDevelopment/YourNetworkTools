@@ -19,6 +19,8 @@ namespace YourNetworkingTools
     {
         public const bool DEBUG_MODE = true;
 
+        public const string NUMBER_OF_LEVELS_COOCKIE = "NUMBER_OF_LEVELS_COOCKIE";
+
         public const string NUMBER_OF_PLAYERS_COOCKIE = "NUMBER_OF_PLAYERS_COOCKIE";
         public const int VALUE_FOR_JOINING = -1000;
 
@@ -80,6 +82,24 @@ namespace YourNetworkingTools
         public static int LoadNumberOfPlayers()
         {
             return PlayerPrefs.GetInt(NUMBER_OF_PLAYERS_COOCKIE, -1);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Will save the data the total number of level that has the app
+		 */
+        public static void SaveTotalNumberOfLevels(int _levels)
+        {
+            PlayerPrefs.SetInt(NUMBER_OF_LEVELS_COOCKIE, _levels);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Will load the the total number of levels that has the app
+		 */
+        public static int LoadTotalNumberOfLevels()
+        {
+            return PlayerPrefs.GetInt(NUMBER_OF_LEVELS_COOCKIE, -1);
         }
 
         // -------------------------------------------

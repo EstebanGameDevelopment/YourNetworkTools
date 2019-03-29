@@ -36,6 +36,11 @@ namespace YourNetworkingTools
         public const string EVENT_6DOF_REQUEST_SCALE_MOVEMENT_XZ = "EVENT_6DOF_REQUEST_SCALE_MOVEMENT_XZ";
         public const string EVENT_6DOF_UPDATE_SCALE_MOVEMENT_XZ = "EVENT_6DOF_UPDATE_SCALE_MOVEMENT_XZ";
 
+        public const string EVENT_6DOF_REQUEST_LEVEL_NUMBER     = "EVENT_6DOF_REQUEST_LEVEL_NUMBER";
+        public const string EVENT_6DOF_RESPONSE_LEVEL_NUMBER    = "EVENT_6DOF_RESPONSE_LEVEL_NUMBER";
+        public const string EVENT_6DOF_CHANGE_LEVEL             = "EVENT_6DOF_CHANGE_LEVEL";
+        public const string EVENT_6DOF_CHANGED_LEVEL_COMPLETED  = "EVENT_6DOF_CHANGED_LEVEL_COMPLETED";
+
         // ----------------------------------------------
         // SINGLETON
         // ----------------------------------------------	
