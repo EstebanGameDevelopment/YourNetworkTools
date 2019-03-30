@@ -90,6 +90,8 @@ namespace YourNetworkingTools
                 m_container.Find("Button_Minus").GetComponent<Button>().onClick.AddListener(DecreasePlayerNumber);
             }
 
+            UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);
+
             m_container.Find("PlayerValue").GetComponent<InputField>().text = "2";
 #if ENABLE_OCULUS || ENABLE_WORLDSENSE
             m_container.Find("PlayerValue").GetComponent<InputField>().text = "1";
@@ -130,7 +132,9 @@ namespace YourNetworkingTools
 		public override bool Destroy()
 		{
 			if (base.Destroy()) return true;
-			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
+
+            UIEventController.Instance.UIEvent -= OnMenuEvent;
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
 			return false;
 		}
 

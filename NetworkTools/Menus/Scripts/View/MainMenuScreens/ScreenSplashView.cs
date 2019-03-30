@@ -52,6 +52,8 @@ namespace YourNetworkingTools
                 m_container.Find("Button_Store").GetComponent<Button>().onClick.AddListener(GoToStore);
             }
 
+            UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);
+            
             if (!isThereButtons)
             {
                 StartCoroutine(ShowSplashDelay());

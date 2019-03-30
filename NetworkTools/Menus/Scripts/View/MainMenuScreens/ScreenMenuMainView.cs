@@ -161,6 +161,8 @@ namespace YourNetworkingTools
 		*/
 		protected override void OnMenuEvent(string _nameEvent, params object[] _list)
 		{
+            base.OnMenuEvent(_nameEvent, _list);
+
 			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
 			{
 				ExitPressed();
