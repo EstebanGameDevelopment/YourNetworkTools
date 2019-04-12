@@ -126,11 +126,13 @@ namespace YourNetworkingTools
         private string m_nameRoomLobby = "";
 		private bool m_isLobbyMode = false;
 		private string m_targetScene = "";
+        private bool m_checkIgnoreEvent = false;
+        private string m_nameIgnoreEvent = "";
 
-		// ----------------------------------------------
-		// GETTERS/SETTERS
-		// ----------------------------------------------
-		public string NameRoomLobby
+        // ----------------------------------------------
+        // GETTERS/SETTERS
+        // ----------------------------------------------
+        public string NameRoomLobby
 		{
 			get { return m_nameRoomLobby; }
 		}
@@ -170,14 +172,32 @@ namespace YourNetworkingTools
 			}
 		}
 
+        // -------------------------------------------
+        /* 
+		 * CheckToIgnoreEvent
+		 */
+        private bool CheckToApplyEvent(string _nameEvent)
+        {
+            if (m_checkIgnoreEvent)
+            {
+                if (m_nameIgnoreEvent == _nameEvent)
+                {
+                    m_checkIgnoreEvent = false;
+                    m_nameIgnoreEvent = "";
+                    return false;
+                }
+            }
+            return true;
+        }
+
 		// -------------------------------------------
 		/* 
 		 * Will dispatch a network event
 		 */
 		public void DispatchNetworkEvent(string _nameEvent, params string[] _list)
 		{
-			// Debug.Log("[NETWORK]_nameEvent=" + _nameEvent);
-			if (NetworkEvent != null) NetworkEvent(_nameEvent, false, YourNetworkTools.Instance.GetUniversalNetworkID(), -1, _list);
+            // Debug.Log("[NETWORK]_nameEvent=" + _nameEvent);
+            if ((NetworkEvent != null) && CheckToApplyEvent(_nameEvent))  NetworkEvent(_nameEvent, false, YourNetworkTools.Instance.GetUniversalNetworkID(), -1, _list);
 		}
 
 		// -------------------------------------------
@@ -186,8 +206,8 @@ namespace YourNetworkingTools
 		 */
 		public void DispatchCustomNetworkEvent(string _nameEvent, bool _isLocalEvent, int _networkOriginID, int _networkTargetID, params string[] _list)
 		{
-			// Debug.Log("[NETWORK]_nameEvent=" + _nameEvent);
-			if (NetworkEvent != null) NetworkEvent(_nameEvent, _isLocalEvent, _networkOriginID, _networkTargetID, _list);
+            // Debug.Log("[NETWORK]_nameEvent=" + _nameEvent);
+            if ((NetworkEvent != null) && CheckToApplyEvent(_nameEvent)) NetworkEvent(_nameEvent, _isLocalEvent, _networkOriginID, _networkTargetID, _list);
 		}
 
 		// -------------------------------------------
@@ -196,8 +216,8 @@ namespace YourNetworkingTools
 		 */
 		public void DispatchLocalEvent(string _nameEvent, params object[] _list)
 		{
-			// Debug.Log("_nameEvent=" + _nameEvent);
-			if (NetworkEvent != null) NetworkEvent(_nameEvent, true, -99, -99, _list);
+            // Debug.Log("_nameEvent=" + _nameEvent);
+            if ((NetworkEvent != null) && CheckToApplyEvent(_nameEvent)) NetworkEvent(_nameEvent, true, -99, -99, _list);
 		}
 
 		// -------------------------------------------
@@ -206,7 +226,10 @@ namespace YourNetworkingTools
 		 */
 		public void DelayLocalEvent(string _nameEvent, float _time, params object[] _list)
 		{
-			m_listEvents.Add(new AppEventData(_nameEvent, AppEventData.CONFIGURATION_INTERNAL_EVENT, true, -99, _time, _list));
+            if ((NetworkEvent != null) && CheckToApplyEvent(_nameEvent))
+            {
+                m_listEvents.Add(new AppEventData(_nameEvent, AppEventData.CONFIGURATION_INTERNAL_EVENT, true, -99, _time, _list));
+            }                
 		}
 
 		// -------------------------------------------
@@ -215,7 +238,10 @@ namespace YourNetworkingTools
 		 */
 		public void DelayBasicEvent(AppEventData _timeEvent)
 		{
-			m_listEvents.Add(new AppEventData(_timeEvent.NameEvent, AppEventData.CONFIGURATION_INTERNAL_EVENT, _timeEvent.IsLocalEvent, _timeEvent.NetworkID, _timeEvent.Time, _timeEvent.ListParameters));
+            if ((NetworkEvent != null) && CheckToApplyEvent(_timeEvent.NameEvent))
+            {
+                m_listEvents.Add(new AppEventData(_timeEvent.NameEvent, AppEventData.CONFIGURATION_INTERNAL_EVENT, _timeEvent.IsLocalEvent, _timeEvent.NetworkID, _timeEvent.Time, _timeEvent.ListParameters));
+            }
 		}
 
 		// -------------------------------------------
@@ -224,7 +250,10 @@ namespace YourNetworkingTools
 		 */
 		public void DelayNetworkEvent(string _nameEvent, float _time, params string[] _list)
 		{
-			m_listEvents.Add(new AppEventData(_nameEvent, AppEventData.CONFIGURATION_INTERNAL_EVENT, false, YourNetworkTools.Instance.GetUniversalNetworkID(), _time, _list));
+            if ((NetworkEvent != null) && CheckToApplyEvent(_nameEvent))
+            {
+                m_listEvents.Add(new AppEventData(_nameEvent, AppEventData.CONFIGURATION_INTERNAL_EVENT, false, YourNetworkTools.Instance.GetUniversalNetworkID(), _time, _list));
+            }
 		}
 
         // -------------------------------------------
@@ -233,7 +262,10 @@ namespace YourNetworkingTools
 		 */
         public void PriorityDelayNetworkEvent(string _nameEvent, float _time, params string[] _list)
         {
-            m_listPriorityEvents.Insert(0, new AppEventData(_nameEvent, AppEventData.CONFIGURATION_INTERNAL_EVENT, false, YourNetworkTools.Instance.GetUniversalNetworkID(), _time, _list));
+            if ((NetworkEvent != null) && CheckToApplyEvent(_nameEvent))
+            {
+                m_listPriorityEvents.Insert(0, new AppEventData(_nameEvent, AppEventData.CONFIGURATION_INTERNAL_EVENT, false, YourNetworkTools.Instance.GetUniversalNetworkID(), _time, _list));
+            }
         }
 
         // -------------------------------------------
@@ -440,20 +472,73 @@ namespace YourNetworkingTools
 			SceneManager.LoadScene(m_targetScene);
 		}
 
-		// -------------------------------------------
-		/* 
+
+        // -------------------------------------------
+        /* 
+		 * ClearNetworkEvents
+		 */
+        public void ClearNetworkEvents(string _nameEvent = "", bool _applyFutureEvent = false)
+        {
+            if (_nameEvent.Length == 0)
+            {
+                for (int i = 0; i < m_listPriorityEvents.Count; i++)
+                {
+                    m_listPriorityEvents[i].Time = -1000;
+                }
+                for (int i = 0; i < m_listEvents.Count; i++)
+                {
+                    m_listEvents[i].Time = -1000;
+                }
+            }
+            else
+            {
+                if (_applyFutureEvent)
+                {
+                    m_nameIgnoreEvent = _nameEvent;
+                    m_checkIgnoreEvent = true;
+                }
+
+                for (int i = 0; i < m_listPriorityEvents.Count; i++)
+                {
+                    AppEventData eventData = m_listPriorityEvents[i];
+                    if (eventData.NameEvent == _nameEvent)
+                    {
+                        eventData.Time = -1000;
+                        m_nameIgnoreEvent = "";
+                        m_checkIgnoreEvent = false;
+                    }
+                }
+                for (int i = 0; i < m_listEvents.Count; i++)
+                {
+                    AppEventData eventData = m_listEvents[i];
+                    if (eventData.NameEvent == _nameEvent)
+                    {
+                        eventData.Time = -1000;
+                        m_nameIgnoreEvent = "";
+                        m_checkIgnoreEvent = false;
+                    }
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Will process the queue of delayed events 
 		 */
-		void Update()
+        void Update()
 		{
             // PRIORITY DELAYED EVENTS
             for (int i = 0; i < m_listPriorityEvents.Count; i++)
             {
                 AppEventData eventData = m_listPriorityEvents[i];
+                float previousTime = eventData.Time;
                 eventData.Time -= Time.deltaTime;
                 if (eventData.Time <= 0)
                 {
-                    NetworkEvent(eventData.NameEvent, eventData.IsLocalEvent, eventData.NetworkID, -1, eventData.ListParameters);
+                    if (previousTime >= 0)
+                    {
+                        NetworkEvent(eventData.NameEvent, eventData.IsLocalEvent, eventData.NetworkID, -1, eventData.ListParameters);
+                    }
                     eventData.Destroy();
                     m_listPriorityEvents.RemoveAt(i);
                     return;
@@ -464,10 +549,14 @@ namespace YourNetworkingTools
             for (int i = 0; i < m_listEvents.Count; i++)
 			{
 				AppEventData eventData = m_listEvents[i];
-				eventData.Time -= Time.deltaTime;
+                float previousTime = eventData.Time;
+                eventData.Time -= Time.deltaTime;
 				if (eventData.Time <= 0)
 				{
- 					NetworkEvent(eventData.NameEvent, eventData.IsLocalEvent, eventData.NetworkID, -1, eventData.ListParameters);
+                    if (previousTime >= 0)
+                    {
+                        NetworkEvent(eventData.NameEvent, eventData.IsLocalEvent, eventData.NetworkID, -1, eventData.ListParameters);
+                    }
 					eventData.Destroy();
 					m_listEvents.RemoveAt(i);
 					return;
