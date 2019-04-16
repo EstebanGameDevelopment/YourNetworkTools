@@ -220,7 +220,7 @@ namespace YourNetworkingTools
                     }
                     else
                     {
-                        Debug.LogError("CommunicationsController::MessageEvent::ERROR::THE NETWORK EVENTS SHOULD ALWAYS HAVE STRING DATA::CONFLICTE IN[" + i + "]=" + _list[i] + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                        Debug.LogError("CommunicationsController::MessageEvent::ERROR::EVENTNAME["+ _eventName + "] THE NETWORK EVENTS SHOULD ALWAYS HAVE STRING DATA::CONFLICTE IN[" + i + "]=" + _list[i] + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                         return null;
                     }
                 }
