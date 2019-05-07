@@ -535,12 +535,12 @@ namespace YourNetworkingTools
                 eventData.Time -= Time.deltaTime;
                 if (eventData.Time <= 0)
                 {
+                    m_listPriorityEvents.RemoveAt(i);
                     if (previousTime >= 0)
                     {
                         NetworkEvent(eventData.NameEvent, eventData.IsLocalEvent, eventData.NetworkID, -1, eventData.ListParameters);
                     }
                     eventData.Destroy();
-                    m_listPriorityEvents.RemoveAt(i);
                     return;
                 }
             }
@@ -553,12 +553,12 @@ namespace YourNetworkingTools
                 eventData.Time -= Time.deltaTime;
 				if (eventData.Time <= 0)
 				{
+                    m_listEvents.RemoveAt(i);
                     if (previousTime >= 0)
                     {
                         NetworkEvent(eventData.NameEvent, eventData.IsLocalEvent, eventData.NetworkID, -1, eventData.ListParameters);
                     }
 					eventData.Destroy();
-					m_listEvents.RemoveAt(i);
 					return;
 				}
 			}
