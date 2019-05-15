@@ -5,6 +5,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using YourCommonTools;
 
 namespace YourNetworkingTools
 {
@@ -36,8 +37,15 @@ namespace YourNetworkingTools
 		{
 			Debug.Log("NetworkDiscoveryUNET::START!!!!");
 
-			// Initializes NetworkDiscovery.
-			Initialize();
+#if ENABLE_CONFUSION
+            broadcastData = Utilities.RandomCodeGeneration(UnityEngine.Random.Range(0, 10).ToString());
+            broadcastKey = UnityEngine.Random.Range(2000, 6000);
+            broadcastPort = UnityEngine.Random.Range(20000, 90000);
+            broadcastSubVersion = UnityEngine.Random.Range(1, 9);
+#endif
+
+            // Initializes NetworkDiscovery.
+            Initialize();
 
 			if (!CheckComponents())
 			{

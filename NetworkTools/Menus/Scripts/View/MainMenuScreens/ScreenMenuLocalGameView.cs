@@ -82,7 +82,7 @@ namespace YourNetworkingTools
 		/* 
 		 * CreateGamePressed
 		 */
-		private void CreateGamePressed()
+		public void CreateGamePressed()
 		{
 			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
 			if (MenuScreenController.Instance.ForceFixedPlayers != -1)
