@@ -140,8 +140,12 @@ namespace YourNetworkingTools
 		 */
 		public bool IsLocalPlayer()
 		{
-			return (CommunicationsController.Instance.NetworkID == NetID);
-		}
+#if !ENABLE_CONFUSION
+            return (CommunicationsController.Instance.NetworkID == NetID);
+#else
+            return true;
+#endif
+        }
 
 		// -------------------------------------------
 		/* 

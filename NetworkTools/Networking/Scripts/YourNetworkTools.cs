@@ -68,8 +68,12 @@ namespace YourNetworkingTools
 			{
 				if (IsLocalGame)
 				{
-					return CommunicationsController.Instance.IsServer;
-				}
+#if !ENABLE_CONFUSION
+                    return CommunicationsController.Instance.IsServer;
+#else
+                    return true;
+#endif
+                }
 				else
 				{
 					return ClientTCPEventsController.Instance.IsServer();
@@ -129,8 +133,9 @@ namespace YourNetworkingTools
 
 			if (IsLocalGame)
 			{
-				// INSTANTIATE LOCAL NETWORK PREFAB MANAGERS
-				for (int j = 0; j < LocalNetworkPrefabManagers.Length; j++)
+#if !ENABLE_CONFUSION
+                // INSTANTIATE LOCAL NETWORK PREFAB MANAGERS
+                for (int j = 0; j < LocalNetworkPrefabManagers.Length; j++)
 				{
 					Utilities.AddChild(transform, LocalNetworkPrefabManagers[j]);
 				}
@@ -165,7 +170,10 @@ namespace YourNetworkingTools
 						worldObjectController.AppWorldObjects[i] = prefabToNetwork;
 					}
 				}
-			}
+#else
+                NetworkEventController.Instance.DelayLocalEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_LOCAL_COMPLETED, 0.2f, 1);
+#endif
+            }
 			else
 			{
 				// CONNECT TO THE SERVER
@@ -217,8 +225,12 @@ namespace YourNetworkingTools
 		{
 			if (IsLocalGame)
 			{
-				return CommunicationsController.Instance.NetworkID;
-			}
+#if !ENABLE_CONFUSION
+                return CommunicationsController.Instance.NetworkID;
+#else
+                return 1;
+#endif
+            }
 			else
 			{
 				return ClientTCPEventsController.Instance.UniqueNetworkID;
