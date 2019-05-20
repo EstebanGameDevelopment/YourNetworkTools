@@ -296,7 +296,23 @@ namespace YourNetworkingTools
                     {
                         pages = (List<PageInformation>)_list[3];
                     }
-                    YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[0]), pages, 1.5f, -1, false, -1, (UIScreenTypePreviousAction)_list[1]);
+                    float scaleScreen = -1;
+                    if (_list.Length > 4)
+                    {
+                        if (_list[4] is float)
+                        {
+                            scaleScreen = (float)_list[4];
+                        }
+                    }
+                    bool isTemporalScreen = true;
+                    if (_list.Length > 5)
+                    {
+                        if (_list[5] is bool)
+                        {
+                            isTemporalScreen = (bool)_list[5];
+                        }
+                    }
+                    YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[0]), pages, 1.5f, -1, false, scaleScreen, (UIScreenTypePreviousAction)_list[1], isTemporalScreen);
                     if ((string)_list[0] == ScreenCreateRoomView.SCREEN_NAME)
                     {
                         UIEventController.Instance.DispatchUIEvent(ScreenCreateRoomView.EVENT_SCREENCREATEROOM_CREATE_RANDOM_NAME);
@@ -310,9 +326,17 @@ namespace YourNetworkingTools
                     string description = (string)_list[3];
                     Sprite image = (Sprite)_list[4];
                     string eventData = (string)_list[5];
+                    float scaleScreen = -1;
+                    if (_list.Length > 6)
+                    {
+                        if (_list[6] is float)
+                        {
+                            scaleScreen = (float)_list[6];
+                        }
+                    }
                     List<PageInformation> pages = new List<PageInformation>();
                     pages.Add(new PageInformation(title, description, image, eventData, "", ""));
-                    YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[0]), pages, 1.5f, -1, false, -1, previousAction);
+                    YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[0]), pages, 1.5f, -1, false, scaleScreen, previousAction);
                 }
                 if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_LOAD_NEW_SCENE)
                 {
