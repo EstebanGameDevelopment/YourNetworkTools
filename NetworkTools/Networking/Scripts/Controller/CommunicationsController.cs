@@ -20,10 +20,15 @@ namespace YourNetworkingTools
 	 */
 	public class CommunicationsController : MonoBehaviour
 	{
-		// ----------------------------------------------
-		// CONSTANTS
-		// ----------------------------------------------	
-		public const string MESSAGE_TYPE_NEW_CONNECTION = "NEW_CONNECTION";
+        // ----------------------------------------------
+        // CONSTANTS
+        // ----------------------------------------------	
+        public const string EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER = "EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER";
+
+        // ----------------------------------------------
+        // CONSTANTS
+        // ----------------------------------------------	
+        public const string MESSAGE_TYPE_NEW_CONNECTION = "NEW_CONNECTION";
 		public const string MESSAGE_TYPE_DISCONNECTION = "DISCONNECTION";
 		public const string MESSAGE_TYPE_INFORMATION = "INFORMATION";
 		public const string MESSAGE_TYPE_REGISTER_PREFAB = "REGISTER_PREFAB";
@@ -83,7 +88,10 @@ namespace YourNetworkingTools
 		public bool IsServer
 		{
 			get { return m_isServer; }
-			set { m_isServer = value; }
+			set {
+                m_isServer = value;
+                NetworkEventController.Instance.DelayLocalEvent(EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER, 0.1f);
+            }
 		}
 		public int NetworkID
 		{
