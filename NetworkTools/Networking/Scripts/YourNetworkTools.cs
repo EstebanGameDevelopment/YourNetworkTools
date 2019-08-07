@@ -333,19 +333,20 @@ namespace YourNetworkingTools
 		/* 
 		* Create a NetworkObject
 		*/
-		public void CreateLocalNetworkObject(string _prefabName, object _initialData, bool _createInServer)
+		public void CreateLocalNetworkObject(string _prefabName, object _initialData, bool _createInServer, float _x = 0, float _y = 0, float _z = 0)
 		{
 			if (IsLocalGame)
 			{
 				string assignedNetworkName = _prefabName + TOKEN_SEPARATOR_NAME + GetUniversalNetworkID() + TOKEN_SEPARATOR_NAME + m_uidCounter;
 				m_uidCounter++;
-				NetworkWorldObject networkWorldObject = new NetworkWorldObject(assignedNetworkName, _prefabName, Vector3.zero, Vector3.zero, Vector3.one, _initialData, true, true, _createInServer);
+				NetworkWorldObject networkWorldObject = new NetworkWorldObject(assignedNetworkName, _prefabName, new Vector3(_x, _y, _z), Vector3.zero, Vector3.one, _initialData, true, true, _createInServer);
 				m_unetNetworkObjects.Add(networkWorldObject);
 			}
 			else
 			{
 				GameObject networkGameObject = Utilities.AddChild(this.gameObject.transform, GetPrefabByName(_prefabName));
-				networkGameObject.GetComponent<NetworkID>().NetID = GetUniversalNetworkID();
+                networkGameObject.transform.position = new Vector3(_x, _y, _z);
+                networkGameObject.GetComponent<NetworkID>().NetID = GetUniversalNetworkID();
 				networkGameObject.GetComponent<NetworkID>().UID = m_uidCounter;
 				m_uidCounter++;
 				networkGameObject.GetComponent<NetworkID>().IndexPrefab = GetPrefabIndexOfName(_prefabName);
