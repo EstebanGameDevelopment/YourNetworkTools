@@ -504,7 +504,7 @@ namespace YourNetworkingTools
 							m_idNetworkServer = int.Parse(parameters[5]);
 							int totalNumberPlayers = int.Parse(parameters[6]);
 							NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_LOCAL_COMPLETED, m_uniqueNetworkID);
-							NetworkEventController.Instance.DelayLocalEvent(CommunicationsController.EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER, 0.1f);
+							BasicSystemEventController.Instance.DispatchBasicSystemEvent(CommunicationsController.EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER);
 							UIEventController.Instance.DispatchUIEvent(EVENT_CLIENT_TCP_CONNECTED_ROOM, totalNumberPlayers);
 #if DEBUG_MODE_DISPLAY_LOG
 							Debug.LogError("EVENT_CLIENT_TCP_CONNECTED_ROOM::ASSIGNED LOCAL CLIENT NUMBER[" + m_uniqueNetworkID + "] IN THE ROOM[" + m_room + "] WHERE THE SERVER IS[" + m_idNetworkServer + "]++++++++++");

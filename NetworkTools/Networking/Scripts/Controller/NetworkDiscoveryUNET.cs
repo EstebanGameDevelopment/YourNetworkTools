@@ -119,10 +119,10 @@ namespace YourNetworkingTools
 		{
 			Debug.Log("Acting as host");
 
-			CommunicationsController.Instance.IsServer = true;
 			m_isServer = true;
+            CommunicationsController.Instance.IsServer = true;
 
-			StopBroadcast();
+            StopBroadcast();
 			yield return null;
 
 			NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_COMMUNICATIONSCONTROLLER_REGISTER_ALL_NETWORK_PREFABS);
@@ -133,7 +133,9 @@ namespace YourNetworkingTools
 			// Start broadcasting for other clients.
 			StartAsServer();
 
-			Debug.Log("NetworkDiscoveryWithAnchors::InitAsServer::STARTED AS A SERVER.");
+            BasicSystemEventController.Instance.DispatchBasicSystemEvent(CommunicationsController.EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER);
+
+            Debug.Log("NetworkDiscoveryWithAnchors::InitAsServer::STARTED AS A SERVER.");
 		}
 
 		// -------------------------------------------
@@ -144,7 +146,7 @@ namespace YourNetworkingTools
 		{
 			if (receivedBroadcast)
 			{
-				return;
+                return;
 			}
 
 			Debug.Log("Acting as client");
@@ -166,9 +168,10 @@ namespace YourNetworkingTools
 			NetworkManager.singleton.StartClient();
 
 			CommunicationsController.Instance.IsServer = false;
+            BasicSystemEventController.Instance.DispatchBasicSystemEvent(CommunicationsController.EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER);
 
-			// REPORT STARTED AS CLIENT 
-			Debug.Log("NetworkDiscoveryWithAnchors::OnReceivedBroadcast::STARTED AS A CLIENT.");
+            // REPORT STARTED AS CLIENT 
+            Debug.Log("NetworkDiscoveryWithAnchors::OnReceivedBroadcast::STARTED AS A CLIENT.");
 		}
 
 		// -------------------------------------------

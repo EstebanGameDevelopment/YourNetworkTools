@@ -88,10 +88,7 @@ namespace YourNetworkingTools
 		public bool IsServer
 		{
 			get { return m_isServer; }
-			set {
-                m_isServer = value;
-                NetworkEventController.Instance.DelayLocalEvent(EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER, 0.1f);
-            }
+			set { m_isServer = value; }
 		}
 		public int NetworkID
 		{
