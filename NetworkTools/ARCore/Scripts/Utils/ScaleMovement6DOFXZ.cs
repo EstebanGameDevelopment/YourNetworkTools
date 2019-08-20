@@ -133,11 +133,11 @@ namespace YourNetworkingTools
             if (m_pressedUp || m_pressedDown)
             {
                 m_timeAcumButton += Time.deltaTime;
-                if (m_timeAcumButton > 0.5f)
+                if (m_timeAcumButton > 1.5f)
                 {
-                    if (m_timeAcumButton > 0.7f)
+                    if (m_timeAcumButton > 1.7f)
                     {
-                        m_timeAcumButton = 0.5f;
+                        m_timeAcumButton = 1.5f;
                         if ((m_currentScaleMovementXZ > 0) && (m_currentScaleMovementXZ < 99))
                         {
                             if (m_pressedDown)
