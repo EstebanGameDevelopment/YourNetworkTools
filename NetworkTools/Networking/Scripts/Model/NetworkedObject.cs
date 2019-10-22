@@ -1,0 +1,165 @@
+﻿namespace YourNetworkingTools
+{
+    using System;
+    /******************************************
+    * 
+    * NetworkID
+    * 
+    * Unique identificator for network
+    * 
+    * @author Esteban Gallardo
+    */
+    using UnityEngine;
+    using YourCommonTools;
+
+    public class NetworkedObject : MonoBehaviour
+	{
+        // ----------------------------------------------
+        // CONSTANTS
+        // ----------------------------------------------
+        public const string EVENT_NETWORKED_OBJECT_UPDATE = "EVENT_NETWORKED_OBJECT_UPDATE";
+        public const string EVENT_NETWORKED_OBJECT_DESTROY = "EVENT_NETWORKED_OBJECT_DESTROY";
+        public const string EVENT_NETWORKED_REQUEST_EXISTANCE = "EVENT_NETWORKED_REQUEST_EXISTANCE";
+        public const string EVENT_NETWORKED_RESPONSE_EXISTANCE = "EVENT_NETWORKED_RESPONSE_EXISTANCE";
+        
+        public const float TIMEOUT_UPDATE = 0.2f;
+
+        // ----------------------------------------------
+        // PRIVATE MEMBERS
+        // ----------------------------------------------
+        public string Name = "";
+        public string VisualsName = "";
+        public string Params = "";
+        public int NetIDOwner = -1;
+
+        // ----------------------------------------------
+        // PRIVATE MEMBERS
+        // ----------------------------------------------
+        private float m_timeOut = 0;
+
+        // -------------------------------------------
+        /* 
+		* Initialize
+		*/
+        public void Initialize()
+        {
+            NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);
+
+            if (NetIDOwner == -1)
+            {
+                NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_NETWORKED_REQUEST_EXISTANCE, 0.1f, Name);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		* OnDestroy
+		*/
+        private void OnDestroy()
+        {
+            NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
+        }
+
+        // -------------------------------------------
+        /* 
+		* IsOwner
+		*/
+        public bool IsOwner()
+        {
+            return (YourNetworkTools.Instance.GetUniversalNetworkID() == NetIDOwner);
+        }
+
+        // -------------------------------------------
+        /* 
+		* Awake
+		*/
+        private void OnNetworkEvent(string _nameEvent, bool _isLocalEvent, int _networkOriginID, int _networkTargetID, object[] _list)
+        {
+            if (_nameEvent == EVENT_NETWORKED_OBJECT_DESTROY)
+            {
+                string recvName = (string)_list[0];
+                if (recvName == Name)
+                {
+                    GameObject.Destroy(this.gameObject);
+                }
+            }
+            if (_nameEvent == EVENT_NETWORKED_RESPONSE_EXISTANCE)
+            {
+                string recvName = (string)_list[0];
+                bool isExisting = bool.Parse((string)_list[1]);
+                if (Name == recvName)
+                {
+                    if (NetIDOwner == -1)
+                    {
+                        if (isExisting)
+                        {
+                            NetIDOwner = int.Parse((string)_list[2]);
+                        }
+                        else
+                        {
+                            NetIDOwner = YourNetworkTools.Instance.GetUniversalNetworkID();
+                        }
+                    }
+                }
+            }
+            if (YourNetworkTools.Instance.GetUniversalNetworkID() != _networkOriginID)
+            {
+                if (_nameEvent == EVENT_NETWORKED_OBJECT_UPDATE)
+                {
+                    string recvName = (string)_list[0];
+                    // Debug.LogError("LOCAL NAME[" + Name + "] RECEIVED NAME["+ recvName + "]");
+                    // Debug.LogError("RECEIVED INFO[" + (string)_list[2] + "]::[" + (string)_list[3] + "][" + (string)_list[4] + "][" + (string)_list[5] + "]");
+                    if (Name == recvName)
+                    {
+                        Vector3 sposition = Utilities.StringToVector3((string)_list[3]);
+                        Vector3 sforward = Utilities.StringToVector3((string)_list[4]);
+                        InterpolatorController.Instance.InterpolatePosition(this.gameObject, sposition, TIMEOUT_UPDATE, false);
+                        InterpolatorController.Instance.InterpolateForward(this.gameObject, sforward, TIMEOUT_UPDATE, false);
+                        this.transform.localScale = Utilities.StringToVector3((string)_list[5]);
+                        this.transform.gameObject.SetActive(bool.Parse((string)_list[6]));
+                    }
+                }
+               
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		* ActivationPhysics
+		*/
+        public void ActivationPhysics(bool _activation)
+        {
+            if (this.gameObject.GetComponent<Rigidbody>()!=null) this.gameObject.GetComponent<Rigidbody>().useGravity = _activation;
+            if (this.gameObject.GetComponent<Rigidbody>()!=null) this.gameObject.GetComponent<Rigidbody>().isKinematic = !_activation;
+            if (this.gameObject.GetComponent<BoxCollider>()!=null) this.gameObject.GetComponent<BoxCollider>().isTrigger = !_activation;
+        }
+
+        // -------------------------------------------
+        /* 
+		* Update
+		*/
+        private void Update()
+        {
+            if (NetIDOwner != -1)
+            {
+                if (NetIDOwner == YourNetworkTools.Instance.GetUniversalNetworkID())
+                {
+                    m_timeOut += Time.deltaTime;
+                    if (m_timeOut >= TIMEOUT_UPDATE)
+                    {
+                        m_timeOut = 0;
+                        string sposition = Utilities.Vector3ToString(this.transform.position);
+                        string sforward = Utilities.Vector3ToString(this.transform.forward);
+                        string sscale = Utilities.Vector3ToString(this.transform.localScale);
+                        // Debug.LogError("SENDING INFO[" + Name + "]::[" + sposition + "][" + sforward + "][" + sscale + "]");
+                        NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_NETWORKED_OBJECT_UPDATE, 0.01f, Name, VisualsName, Params, sposition, sforward, sscale, this.transform.gameObject.activeSelf.ToString());
+                    }
+                }
+                else
+                {
+                    ActivationPhysics(false);
+                }
+            }
+        }
+    }
+}
