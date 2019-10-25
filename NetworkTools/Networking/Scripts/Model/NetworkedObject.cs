@@ -21,8 +21,7 @@
         public const string EVENT_NETWORKED_OBJECT_DESTROY = "EVENT_NETWORKED_OBJECT_DESTROY";
         public const string EVENT_NETWORKED_REQUEST_EXISTANCE = "EVENT_NETWORKED_REQUEST_EXISTANCE";
         public const string EVENT_NETWORKED_RESPONSE_EXISTANCE = "EVENT_NETWORKED_RESPONSE_EXISTANCE";
-        
-        public const float TIMEOUT_UPDATE = 0.2f;
+        public const string EVENT_NETWORKED_UPDATE_NETID = "EVENT_NETWORKED_UPDATE_NETID";
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
@@ -71,10 +70,35 @@
 
         // -------------------------------------------
         /* 
+		* OwnNetworkObject
+		*/
+        public void OwnNetworkObject(int _networkIDNewOwner = -1)
+        {
+            if (_networkIDNewOwner == -1)
+            {
+                NetIDOwner = YourNetworkTools.Instance.GetUniversalNetworkID();
+            }
+            else
+            {
+                NetIDOwner = _networkIDNewOwner;
+            }
+            NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_NETWORKED_UPDATE_NETID, 0.1f, Name, NetIDOwner.ToString());
+        }
+
+        // -------------------------------------------
+        /* 
 		* Awake
 		*/
         private void OnNetworkEvent(string _nameEvent, bool _isLocalEvent, int _networkOriginID, int _networkTargetID, object[] _list)
         {
+            if (_nameEvent == EVENT_NETWORKED_UPDATE_NETID)
+            {
+                string recvName = (string)_list[0];
+                if (Name == recvName)
+                {
+                    NetIDOwner = int.Parse((string)_list[1]);
+                }
+            }
             if (_nameEvent == EVENT_NETWORKED_OBJECT_DESTROY)
             {
                 string recvName = (string)_list[0];
@@ -112,9 +136,9 @@
                     if (Name == recvName)
                     {
                         Vector3 sposition = Utilities.StringToVector3((string)_list[3]);
-                        Vector3 sforward = Utilities.StringToVector3((string)_list[4]);
-                        InterpolatorController.Instance.InterpolatePosition(this.gameObject, sposition, TIMEOUT_UPDATE, false);
-                        InterpolatorController.Instance.InterpolateForward(this.gameObject, sforward, TIMEOUT_UPDATE, false);
+                        Quaternion srotation = Utilities.StringToQuaternion((string)_list[4]);
+                        InterpolatorController.Instance.InterpolatePosition(this.gameObject, sposition, YourNetworkTools.Instance.TimeToUpdateNetworkedObjects, false);
+                        InterpolatorController.Instance.InterpolateRotation(this.gameObject, srotation, YourNetworkTools.Instance.TimeToUpdateNetworkedObjects, false);
                         this.transform.localScale = Utilities.StringToVector3((string)_list[5]);
                         this.transform.gameObject.SetActive(bool.Parse((string)_list[6]));
                     }
@@ -145,14 +169,14 @@
                 if (NetIDOwner == YourNetworkTools.Instance.GetUniversalNetworkID())
                 {
                     m_timeOut += Time.deltaTime;
-                    if (m_timeOut >= TIMEOUT_UPDATE)
+                    if (m_timeOut >= YourNetworkTools.Instance.TimeToUpdateNetworkedObjects)
                     {
                         m_timeOut = 0;
                         string sposition = Utilities.Vector3ToString(this.transform.position);
-                        string sforward = Utilities.Vector3ToString(this.transform.forward);
+                        string srotation = Utilities.QuaternionToString(this.transform.rotation);
                         string sscale = Utilities.Vector3ToString(this.transform.localScale);
                         // Debug.LogError("SENDING INFO[" + Name + "]::[" + sposition + "][" + sforward + "][" + sscale + "]");
-                        NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_NETWORKED_OBJECT_UPDATE, 0.01f, Name, VisualsName, Params, sposition, sforward, sscale, this.transform.gameObject.activeSelf.ToString());
+                        NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_NETWORKED_OBJECT_UPDATE, 0.01f, Name, VisualsName, Params, sposition, srotation, sscale, this.transform.gameObject.activeSelf.ToString());
                     }
                 }
                 else

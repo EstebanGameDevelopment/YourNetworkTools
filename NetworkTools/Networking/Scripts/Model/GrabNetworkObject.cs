@@ -140,6 +140,10 @@ namespace YourNetworkingTools
                         ActivationPhysics(false);
                         this.gameObject.GetComponent<BoxCollider>().enabled = false;
                     }
+                    if (this.gameObject.GetComponent<NetworkedObject>() != null)
+                    {
+                        this.gameObject.GetComponent<NetworkedObject>().OwnNetworkObject(networkIDOwner);
+                    }
                 }
             }
             if (_nameEvent == EVENT_GRABOBJECT_RELEASE_OBJECT)

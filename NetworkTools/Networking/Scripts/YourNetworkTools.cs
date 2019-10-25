@@ -49,8 +49,9 @@ namespace YourNetworkingTools
 		public GameObject[] LocalNetworkPrefabManagers;
 		public GameObject NetworkVariablesManager;
 		public GameObject[] GameObjects;
+        public float TimeToUpdateNetworkedObjects = 0.2f;
 
-		private List<NetworkWorldObject> m_unetNetworkObjects = new List<NetworkWorldObject>();
+        private List<NetworkWorldObject> m_unetNetworkObjects = new List<NetworkWorldObject>();
 		private List<GameObject> m_tcpNetworkObjects = new List<GameObject>();
 		private List<GameObject> m_tcpNetworkTypes = new List<GameObject>();
 		private Dictionary<string, string> m_initialData = new Dictionary<string, string>();
