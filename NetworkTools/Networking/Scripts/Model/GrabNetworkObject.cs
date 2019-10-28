@@ -36,12 +36,14 @@ namespace YourNetworkingTools
         // PUBLIC MEMBERS
         // ----------------------------------------------	
         public bool Enabled = true;
+        public bool InterpolateOrientation = true;
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
         private GameObject m_target;
-        private GameObject m_reference;
+        private GameObject m_referencePosition;
+        private GameObject m_referenceForward;
         private float m_timeoutTransform = 0;
 
         // -------------------------------------------
@@ -50,7 +52,14 @@ namespace YourNetworkingTools
 		*/
         public void Start()
         {
-            m_reference = new GameObject();
+            m_referencePosition = new GameObject();
+            m_referencePosition.transform.parent = this.gameObject.transform.parent;
+            m_referencePosition.name = "refpos_" + this.gameObject.name;
+
+            m_referenceForward = new GameObject();
+            m_referenceForward.transform.parent = this.gameObject.transform.parent;
+            m_referenceForward.name = "reffwd_" + this.gameObject.name;
+
             UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
             BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
             NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);
@@ -164,7 +173,12 @@ namespace YourNetworkingTools
                         if (this.gameObject.GetComponent<NetworkedObject>().IsOwner())
                         {
                             Vector3 newPos = Utilities.StringToVector3((string)_list[1]);
-                            InterpolatorController.Instance.InterpolatePosition(m_reference, newPos, TIMEOUT_TO_UPDATE);
+                            InterpolatorController.Instance.InterpolatePosition(m_referencePosition, newPos, TIMEOUT_TO_UPDATE);
+                            if (InterpolateOrientation)
+                            {
+                                Vector3 newForward = Utilities.StringToVector3((string)_list[2]);
+                                InterpolatorController.Instance.InterpolateForward(m_referenceForward, newForward, TIMEOUT_TO_UPDATE);
+                            }
                         }
                     }
                 }
@@ -184,12 +198,14 @@ namespace YourNetworkingTools
                     if (this.gameObject.GetComponent<NetworkedObject>() == null)
                     {
                         this.gameObject.transform.position = m_target.transform.position + m_target.transform.forward.normalized;
+                        if (InterpolateOrientation) this.gameObject.transform.forward = m_target.transform.forward;
                     }
                     else
                     {
                         if (this.gameObject.GetComponent<NetworkedObject>().IsOwner())
                         {
                             this.gameObject.transform.position = m_target.transform.position + m_target.transform.forward.normalized;
+                            if (InterpolateOrientation) this.gameObject.transform.forward = m_target.transform.forward;
                         }
                         else
                         {
@@ -198,7 +214,15 @@ namespace YourNetworkingTools
                             {
                                 m_timeoutTransform = 0;
                                 Vector3 newPosition = m_target.transform.position + m_target.transform.forward.normalized;
-                                NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GRABOBJECT_UPDATE_OBJECT, this.gameObject.name, Utilities.Vector3ToString(newPosition));
+                                if (InterpolateOrientation)
+                                {
+                                    Vector3 newForward = m_target.transform.forward;
+                                    NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GRABOBJECT_UPDATE_OBJECT, this.gameObject.name, Utilities.Vector3ToString(newPosition), Utilities.Vector3ToString(newForward));
+                                }
+                                else
+                                {
+                                    NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GRABOBJECT_UPDATE_OBJECT, this.gameObject.name, Utilities.Vector3ToString(newPosition));
+                                }
                             }
                         }
                     }
@@ -208,8 +232,9 @@ namespace YourNetworkingTools
             {
                 if (this.gameObject.GetComponent<NetworkedObject>().IsOwner())
                 {
-                    this.gameObject.transform.position = m_reference.transform.position;
-                }                    
+                    this.gameObject.transform.position = m_referencePosition.transform.position;
+                    if (InterpolateOrientation) this.gameObject.transform.forward = m_target.transform.forward;
+                }
             }
         }
     }
