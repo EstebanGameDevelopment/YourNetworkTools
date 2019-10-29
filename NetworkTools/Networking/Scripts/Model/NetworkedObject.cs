@@ -22,6 +22,7 @@
         public const string EVENT_NETWORKED_REQUEST_EXISTANCE = "EVENT_NETWORKED_REQUEST_EXISTANCE";
         public const string EVENT_NETWORKED_RESPONSE_EXISTANCE = "EVENT_NETWORKED_RESPONSE_EXISTANCE";
         public const string EVENT_NETWORKED_UPDATE_NETID = "EVENT_NETWORKED_UPDATE_NETID";
+        public const string EVENT_NETWORKED_OBJECT_RESET_TO_INITIAL = "EVENT_NETWORKED_OBJECT_RESET_TO_INITIAL";
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
@@ -35,6 +36,10 @@
         // PRIVATE MEMBERS
         // ----------------------------------------------
         private float m_timeOut = 0;
+        private Vector3 m_initialPosition;
+        private Vector3 m_initialScale;
+        private Quaternion m_initialRotation;
+        private float m_timeoutReset = -1;
 
         // -------------------------------------------
         /* 
@@ -43,6 +48,10 @@
         public void Initialize()
         {
             NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);
+
+            m_initialPosition = Utilities.Clone(this.transform.position);
+            m_initialScale = Utilities.Clone(this.transform.localScale);
+            m_initialRotation = Utilities.Clone(this.transform.rotation);
 
             if (NetIDOwner == -1)
             {
@@ -91,6 +100,13 @@
 		*/
         private void OnNetworkEvent(string _nameEvent, bool _isLocalEvent, int _networkOriginID, int _networkTargetID, object[] _list)
         {
+            if (_nameEvent == EVENT_NETWORKED_OBJECT_RESET_TO_INITIAL)
+            {
+                if (IsOwner())
+                {
+                    m_timeoutReset = 1;
+                }
+            }
             if (_nameEvent == EVENT_NETWORKED_UPDATE_NETID)
             {
                 string recvName = (string)_list[0];
@@ -168,6 +184,22 @@
             {
                 if (NetIDOwner == YourNetworkTools.Instance.GetUniversalNetworkID())
                 {
+                    if (m_timeoutReset > 0)
+                    {
+                        m_timeoutReset -= Time.deltaTime;
+                        if (m_timeoutReset <= 0)
+                        {
+                            ActivationPhysics(true);
+                        }
+                        else
+                        {
+                            ActivationPhysics(false);
+                            this.transform.position = m_initialPosition;
+                            this.transform.localScale = m_initialScale;
+                            this.transform.rotation = m_initialRotation;
+                        }
+                    }                    
+
                     m_timeOut += Time.deltaTime;
                     if (m_timeOut >= YourNetworkTools.Instance.TimeToUpdateNetworkedObjects)
                     {
