@@ -108,7 +108,7 @@ namespace YourNetworkingTools
                     {
                         m_target = null;
                         ActivationPhysics(true);
-                        NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GRABOBJECT_RELEASE_OBJECT, this.gameObject.name);
+                        NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GRABOBJECT_RELEASE_OBJECT, this.gameObject.name, YourNetworkTools.Instance.GetUniversalNetworkID().ToString());
                     }
                 }
             }
