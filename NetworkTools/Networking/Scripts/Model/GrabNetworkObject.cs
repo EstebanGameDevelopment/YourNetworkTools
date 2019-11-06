@@ -45,6 +45,7 @@ namespace YourNetworkingTools
         private GameObject m_referencePosition;
         private GameObject m_referenceForward;
         private float m_timeoutTransform = 0;
+        private float m_timeoutToIgnore = 0;
 
         // -------------------------------------------
         /* 
@@ -93,6 +94,8 @@ namespace YourNetworkingTools
 		*/
         private void OnUIEvent(string _nameEvent, object[] _list)
         {
+            if (m_timeoutToIgnore > 0) return;
+
             if (_nameEvent == KeysEventInputController.ACTION_BUTTON_DOWN)
             {
                 if (Enabled)
@@ -108,6 +111,7 @@ namespace YourNetworkingTools
                     {
                         m_target = null;
                         ActivationPhysics(true);
+                        m_timeoutToIgnore = 0.5f;
                         NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GRABOBJECT_RELEASE_OBJECT, this.gameObject.name, YourNetworkTools.Instance.GetUniversalNetworkID().ToString());
                     }
                 }
@@ -158,6 +162,7 @@ namespace YourNetworkingTools
             {
                 if (this.gameObject.name == (string)_list[0])
                 {
+                    m_timeoutToIgnore = 0.5f;
                     Enabled = true;
                     ActivationPhysics(true);
                 }
@@ -191,6 +196,11 @@ namespace YourNetworkingTools
         {
             if (Enabled)
             {
+                if (m_timeoutToIgnore > 0)
+                {
+                    m_timeoutToIgnore -= Time.deltaTime;
+                }
+
                 if (m_target != null)
                 {
                     if (this.gameObject.GetComponent<NetworkedObject>() == null)
