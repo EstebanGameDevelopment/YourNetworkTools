@@ -147,7 +147,6 @@ namespace YourNetworkingTools
                     {
                         Enabled = false;
                         ActivationPhysics(false);
-                        this.gameObject.GetComponent<BoxCollider>().enabled = false;
                     }
                     if (this.gameObject.GetComponent<NetworkedObject>() != null)
                     {
@@ -161,7 +160,6 @@ namespace YourNetworkingTools
                 {
                     Enabled = true;
                     ActivationPhysics(true);
-                    this.gameObject.GetComponent<BoxCollider>().enabled = true;
                 }
             }
             if (_nameEvent == EVENT_GRABOBJECT_UPDATE_OBJECT)
