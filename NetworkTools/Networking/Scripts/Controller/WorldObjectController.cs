@@ -144,6 +144,7 @@ namespace YourNetworkingTools
 		*/
 		protected GameObject GetObjectByUID(string _uidName)
 		{
+#if ENABLE_UNET_COMMS
 			for (int i = 0; i < m_objects.Count; i++)
 			{
 				INetworkObject obj = m_objects[i].GetComponent<INetworkObject>();
@@ -152,6 +153,7 @@ namespace YourNetworkingTools
 					return m_objects[i];
 				}
 			}
+#endif
 			return null;
 		}
 
@@ -161,6 +163,7 @@ namespace YourNetworkingTools
 		*/
 		protected GameObject GetTypeByUID(string _uidName)
 		{
+#if ENABLE_UNET_COMMS
 			for (int i = 0; i < m_types.Count; i++)
 			{
 				INetworkObject obj = m_types[i].GetComponent<INetworkObject>();
@@ -169,6 +172,7 @@ namespace YourNetworkingTools
 					return m_types[i];
 				}
 			}
+#endif
 			return null;
 		}
 
@@ -290,6 +294,7 @@ namespace YourNetworkingTools
 			}
 			if (_nameEvent == NetworkEventController.EVENT_COMMUNICATIONSCONTROLLER_CREATION_CONFIRMATION_NETWORK_OBJECT)
 			{
+#if ENABLE_UNET_COMMS
 				GameObject reference = (GameObject)_list[0];
 				INetworkObject objData = reference.GetComponent<INetworkObject>();
 				reference.name = PlayerConnectionController.GetNameIdentificator(objData.PrefabName, objData.UID, objData.NetID);
@@ -307,6 +312,7 @@ namespace YourNetworkingTools
 				{
 					Debug.LogError("WorldObjectController::ERROR::ASSIGNED NAME ALREADY USED!!!!!!!!!!!!!!!!!!!!!!!!!!");
 				}
+#endif
 			}
 			if (_nameEvent == NetworkEventController.EVENT_PLAYERCONNECTIONCONTROLLER_DESTROY_NETWORK_OBJECT)
 			{

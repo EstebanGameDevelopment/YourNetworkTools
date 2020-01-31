@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace YourNetworkingTools
 {
-
+#if ENABLE_UNET_COMMS
 	/******************************************
 	 * 
 	 * NetworkWorldObject
@@ -258,4 +258,5 @@ namespace YourNetworkingTools
 			base.OnNetworkTypeEvent(_nameEvent, _isLocalEvent, _networkOriginID, _networkTargetID, _list);
 		}
 	}
+#endif
 }

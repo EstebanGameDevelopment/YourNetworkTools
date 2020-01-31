@@ -7,8 +7,8 @@ using UnityEngine.Networking;
 
 namespace YourNetworkingTools
 {
-
-	/******************************************
+#if ENABLE_UNET_COMMS
+    /******************************************
 	 * 
 	 * NetworkWorldObjectData
 	 * 
@@ -204,6 +204,6 @@ namespace YourNetworkingTools
 		{
 			return m_localPosition.ToString() + "::" + m_localForward.ToString() + "::" + m_localScale.ToString();
 		}
-
 	}
+#endif
 }

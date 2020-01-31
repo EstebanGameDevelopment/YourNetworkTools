@@ -14,7 +14,7 @@ using System;
 
 namespace YourNetworkingTools
 {
-
+#if ENABLE_UNET_COMMS
 	/// <summary>
 	/// For a UWP application this should allow us to send or receive data given a server IP address.
 	/// </summary>
@@ -232,4 +232,5 @@ namespace YourNetworkingTools
 		}
 #endif
 	}
+#endif
 }

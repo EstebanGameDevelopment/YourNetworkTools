@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 
 namespace YourNetworkingTools
 {
-
+#if ENABLE_UNET_COMMS
 	/******************************************
 	 * 
 	 * NetworkManagerUNET
@@ -29,4 +29,5 @@ namespace YourNetworkingTools
 			NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_SYSTEM_DESTROY_NETWORK_COMMUNICATIONS);
 		}
 	}
+#endif
 }

@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 namespace YourNetworkingTools
 {
+#if ENABLE_UNET_COMMS
 	/******************************************
 	 * 
 	 * PlayerConnectionController
@@ -347,4 +348,5 @@ namespace YourNetworkingTools
 			}
 		}
 	}
+#endif
 }

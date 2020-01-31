@@ -51,7 +51,9 @@ namespace YourNetworkingTools
 		public GameObject[] GameObjects;
         public float TimeToUpdateNetworkedObjects = 0.2f;
 
+#if ENABLE_UNET_COMMS
         private List<NetworkWorldObject> m_unetNetworkObjects = new List<NetworkWorldObject>();
+#endif
 		private List<GameObject> m_tcpNetworkObjects = new List<GameObject>();
 		private List<GameObject> m_tcpNetworkTypes = new List<GameObject>();
 		private Dictionary<string, string> m_initialData = new Dictionary<string, string>();
@@ -152,6 +154,7 @@ namespace YourNetworkingTools
 					for (int i = 0; i < GameObjects.Length; i++)
 					{
 						GameObject prefabToNetwork = GameObjects[i];
+#if ENABLE_UNET_COMMS
 						if (prefabToNetwork.GetComponent<NetworkWorldObjectData>() == null)
 						{
 							prefabToNetwork.AddComponent<NetworkWorldObjectData>();
@@ -160,6 +163,7 @@ namespace YourNetworkingTools
 						{
 							prefabToNetwork.GetComponent<NetworkWorldObjectData>().enabled = true;
 						}
+#endif
 						if (prefabToNetwork.GetComponent<NetworkID>() != null)
 						{
 							prefabToNetwork.GetComponent<NetworkID>().enabled = false;
@@ -172,7 +176,7 @@ namespace YourNetworkingTools
 					}
 				}
 #else
-                NetworkEventController.Instance.DelayLocalEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_LOCAL_COMPLETED, 0.2f, 1);
+                        NetworkEventController.Instance.DelayLocalEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_LOCAL_COMPLETED, 0.2f, 1);
 #endif
             }
 			else
@@ -195,10 +199,12 @@ namespace YourNetworkingTools
 					{
 						prefabToNetwork.GetComponent<NetworkID>().enabled = true;
 					}
+#if ENABLE_UNET_COMMS
 					if (prefabToNetwork.GetComponent<NetworkWorldObjectData>() != null)
 					{
 						prefabToNetwork.GetComponent<NetworkWorldObjectData>().enabled = false;
 					}
+#endif
 					if (prefabToNetwork.GetComponent<ActorNetwork>() == null)
 					{
 						prefabToNetwork.AddComponent<ActorNetwork>();
@@ -293,6 +299,7 @@ namespace YourNetworkingTools
 		{
 			if (IsLocalGame)
 			{
+#if ENABLE_UNET_COMMS
 				for (int i = 0; i < m_unetNetworkObjects.Count; i++)
 				{
 					if (m_unetNetworkObjects[i] != null)
@@ -308,6 +315,7 @@ namespace YourNetworkingTools
 						i--;
 					}
 				}
+#endif
 			}
 			else
 			{
@@ -340,8 +348,10 @@ namespace YourNetworkingTools
 			{
 				string assignedNetworkName = _prefabName + TOKEN_SEPARATOR_NAME + GetUniversalNetworkID() + TOKEN_SEPARATOR_NAME + m_uidCounter;
 				m_uidCounter++;
+#if ENABLE_UNET_COMMS
 				NetworkWorldObject networkWorldObject = new NetworkWorldObject(assignedNetworkName, _prefabName, new Vector3(_x, _y, _z), Vector3.zero, Vector3.one, _initialData, true, true, _createInServer);
 				m_unetNetworkObjects.Add(networkWorldObject);
+#endif
 			}
 			else
 			{
@@ -389,6 +399,7 @@ namespace YourNetworkingTools
 		{
 			if (IsLocalGame)
 			{
+#if ENABLE_UNET_COMMS
 				for (int i = 0; i < m_unetNetworkObjects.Count; i++)
 				{
 					if (m_unetNetworkObjects[i] != null)
@@ -399,6 +410,7 @@ namespace YourNetworkingTools
 						}
 					}
 				}
+#endif
 			}
 			else
 			{
@@ -441,6 +453,7 @@ namespace YourNetworkingTools
 		{
 			if (IsLocalGame)
 			{
+#if ENABLE_UNET_COMMS
 				for (int i = 0; i < m_unetNetworkObjects.Count; i++)
 				{
 					if (m_unetNetworkObjects[i] != null)
@@ -469,6 +482,7 @@ namespace YourNetworkingTools
 						i--;
 					}
 				}
+#endif
 			}
 			else
 			{
@@ -574,7 +588,9 @@ namespace YourNetworkingTools
 			}
 			if (_nameEvent == NetworkEventController.EVENT_COMMUNICATIONSCONTROLLER_CREATION_CONFIRMATION_NETWORK_OBJECT)
 			{
+#if ENABLE_UNET_COMMS
 				m_unetNetworkObjects.Add(new NetworkWorldObject((GameObject)_list[0]));
+#endif
 			}
 			if (_nameEvent == NetworkEventController.EVENT_PLAYERCONNECTIONDATA_USER_DISCONNECTED)
 			{
@@ -618,6 +634,7 @@ namespace YourNetworkingTools
 
 				if (IsLocalGame)
 				{
+#if ENABLE_UNET_COMMS
 					for (int i = 0; i < m_unetNetworkObjects.Count; i++)
 					{
 						bool removeObject = false;
@@ -647,6 +664,7 @@ namespace YourNetworkingTools
 							}
 						}
 					}
+#endif
 				}
 				else
 				{
@@ -707,6 +725,7 @@ namespace YourNetworkingTools
 				}
 				else
 				{
+#if ENABLE_UNET_COMMS
 					for (int i = 0; i < m_unetNetworkObjects.Count; i++)
 					{
 						NetworkWorldObject unetNetworkObject = m_unetNetworkObjects[i];
@@ -733,6 +752,7 @@ namespace YourNetworkingTools
 							i--;
 						}
 					}
+#endif
 				}
 			}
 		}

@@ -134,7 +134,11 @@ namespace YourNetworkingTools
 		/* 
 		 * Set the local instance of the player connection
 		 */
-		public void SetLocalInstance(int _networkID, PlayerConnectionController _playerInstance)
+		public void SetLocalInstance(int _networkID
+#if ENABLE_UNET_COMMS
+                                    , PlayerConnectionController _playerInstance
+#endif
+            )
 		{
 			m_networkID = _networkID;
 			LocalNetworkID = _networkID;
@@ -279,10 +283,14 @@ namespace YourNetworkingTools
 		 */
 		public static string MessageIPAdress(int _idConnection)
 		{
-			string ip4 = NetworkManager.singleton.networkAddress;
+#if ENABLE_UNET_COMMS
+            string ip4 = NetworkManager.singleton.networkAddress;
 			return CreateJSONMessage(_idConnection, MESSAGE_TYPE_IP_ADDRESS,
 									DATAFIELD_DATA, ip4.Substring(ip4.LastIndexOf(':') + 1, ip4.Length - ip4.LastIndexOf(':') - 1));
-		}
+#else
+            return "";
+#endif
+        }
 
 
 		// -------------------------------------------
@@ -418,7 +426,9 @@ namespace YourNetworkingTools
 			if (!ExistRegisterPrefab(_newPrefab))
 			{
 				RegisterNewPrefab(new RegisteredPrefabData(_newPrefab, _classNetworkResources, _typeObjects, _prefabName));
+#if ENABLE_UNET_COMMS
 				ClientScene.RegisterPrefab(_newPrefab);
+#endif
 			}
 			else
 			{
@@ -560,15 +570,17 @@ namespace YourNetworkingTools
 						PlayerConnectionData client = GetConnection((int)networkOriginId);
 						if (client != null)
 						{
-							/*
+                            /*
 							for (int i = 0; i < NetworkServer.connections.Count; i ++)
 							{
 								Debug.Log("NetworkServer.connections["+i+"]=" + NetworkServer.connections[i].address);
 							}
 							*/
+#if ENABLE_UNET_COMMS
 							string ip4 = NetworkServer.connections[NetworkServer.connections.Count - 1].address;
 							client.NetworkAddress = ip4.Substring(ip4.LastIndexOf(':') + 1, ip4.Length - ip4.LastIndexOf(':') - 1);
 							Debug.Log("NETWORK ADDRESS RECEIVED::client.NetworkAddress=" + client.NetworkAddress);
+#endif
 						}
 					}
 					break;

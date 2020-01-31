@@ -9,7 +9,7 @@ using YourCommonTools;
 
 namespace YourNetworkingTools
 {
-
+#if ENABLE_UNET_COMMS
 	/******************************************
 	 * 
 	 * NetworkDiscoveryUNET
@@ -204,4 +204,5 @@ namespace YourNetworkingTools
 			}
 		}
 	}
+#endif
 }

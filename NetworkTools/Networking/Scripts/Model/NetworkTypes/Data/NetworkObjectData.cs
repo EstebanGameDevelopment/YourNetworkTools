@@ -4,7 +4,7 @@ using UnityEngine.Networking;
 
 namespace YourNetworkingTools
 {
-
+#if ENABLE_UNET_COMMS
 	/******************************************
 	 * 
 	 * NetworkObjectData
@@ -165,4 +165,5 @@ namespace YourNetworkingTools
 			return this.gameObject.name;
 		}
 	}
+#endif
 }
