@@ -83,7 +83,7 @@ namespace YourNetworkingTools
 					this.gameObject.AddComponent<NetworkID>();
 				}
 				m_networkID = this.gameObject.GetComponent<NetworkID>();
-#if ENABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS
 				m_networkID.NetID = this.gameObject.GetComponent<NetworkWorldObjectData>().NetID;
 				m_networkID.UID = this.gameObject.GetComponent<NetworkWorldObjectData>().UID;
 #endif

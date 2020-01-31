@@ -14,16 +14,16 @@ using System;
 
 namespace YourNetworkingTools
 {
-#if ENABLE_UNET_COMMS
 	/// <summary>
 	/// For a UWP application this should allow us to send or receive data given a server IP address.
 	/// </summary>
 	public class GenericNetworkTransmitter : MonoBehaviour
 	{
-		// ----------------------------------------------
-		// SINGLETON
-		// ----------------------------------------------	
-		private static GenericNetworkTransmitter instance;
+#if !DISABLE_UNET_COMMS
+        // ----------------------------------------------
+        // SINGLETON
+        // ----------------------------------------------	
+        private static GenericNetworkTransmitter instance;
 
 		public static GenericNetworkTransmitter Instance
 		{
@@ -231,6 +231,7 @@ namespace YourNetworkingTools
 		{
 		}
 #endif
-	}
 #endif
+    }
+
 }

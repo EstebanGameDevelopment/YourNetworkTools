@@ -4,7 +4,7 @@ using UnityEngine.Networking;
 
 namespace YourNetworkingTools
 {
-#if ENABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS
 	/******************************************
 	 * 
 	 * NetworkObjectData

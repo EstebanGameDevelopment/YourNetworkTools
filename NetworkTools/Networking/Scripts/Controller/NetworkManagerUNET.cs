@@ -8,7 +8,6 @@ using UnityEngine.SceneManagement;
 
 namespace YourNetworkingTools
 {
-#if ENABLE_UNET_COMMS
 	/******************************************
 	 * 
 	 * NetworkManagerUNET
@@ -17,17 +16,24 @@ namespace YourNetworkingTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class NetworkManagerUNET : NetworkManager
-	{
-		// -------------------------------------------
-		/* 
+	public class NetworkManagerUNET : 
+#if !DISABLE_UNET_COMMS
+        NetworkManager
+
+#else
+        MonoBehaviour
+#endif
+    {
+#if !DISABLE_UNET_COMMS
+        // -------------------------------------------
+        /* 
 		 * Process the disconnection
 		 */
-		public override void OnClientDisconnect(NetworkConnection conn)
+        public override void OnClientDisconnect(NetworkConnection conn)
 		{
 			base.OnClientDisconnect(conn);
 			NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_SYSTEM_DESTROY_NETWORK_COMMUNICATIONS);
 		}
-	}
 #endif
+    }
 }

@@ -8,7 +8,7 @@ namespace YourNetworkingTools
 {
 	public delegate void NetworkTypeEventHandler(string _nameEvent, INetworkType _networkObject, params object[] _list);
 
-#if ENABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS
 
 	/******************************************
 	 * 

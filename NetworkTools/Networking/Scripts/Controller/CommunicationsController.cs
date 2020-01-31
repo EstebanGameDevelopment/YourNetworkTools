@@ -135,7 +135,7 @@ namespace YourNetworkingTools
 		 * Set the local instance of the player connection
 		 */
 		public void SetLocalInstance(int _networkID
-#if ENABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS
                                     , PlayerConnectionController _playerInstance
 #endif
             )
@@ -283,7 +283,7 @@ namespace YourNetworkingTools
 		 */
 		public static string MessageIPAdress(int _idConnection)
 		{
-#if ENABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS
             string ip4 = NetworkManager.singleton.networkAddress;
 			return CreateJSONMessage(_idConnection, MESSAGE_TYPE_IP_ADDRESS,
 									DATAFIELD_DATA, ip4.Substring(ip4.LastIndexOf(':') + 1, ip4.Length - ip4.LastIndexOf(':') - 1));
@@ -426,7 +426,7 @@ namespace YourNetworkingTools
 			if (!ExistRegisterPrefab(_newPrefab))
 			{
 				RegisterNewPrefab(new RegisteredPrefabData(_newPrefab, _classNetworkResources, _typeObjects, _prefabName));
-#if ENABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS
 				ClientScene.RegisterPrefab(_newPrefab);
 #endif
 			}
@@ -576,7 +576,7 @@ namespace YourNetworkingTools
 								Debug.Log("NetworkServer.connections["+i+"]=" + NetworkServer.connections[i].address);
 							}
 							*/
-#if ENABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS
 							string ip4 = NetworkServer.connections[NetworkServer.connections.Count - 1].address;
 							client.NetworkAddress = ip4.Substring(ip4.LastIndexOf(':') + 1, ip4.Length - ip4.LastIndexOf(':') - 1);
 							Debug.Log("NETWORK ADDRESS RECEIVED::client.NetworkAddress=" + client.NetworkAddress);

@@ -233,7 +233,7 @@ namespace YourNetworkingTools
 		*/
 		private void OnNetworkTypeEvent(string _nameEvent, INetworkType _networkObject, params object[] _list)
 		{
-#if ENABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS
 			if (_nameEvent == NetworkType.EVENT_NETWORKTYPE_CHANGED_VALUE)
 			{
 				Debug.Log("[**SERVER**]::DETECTED THE CHANGED VALUE=" + _networkObject.NetworkObject.GetComponent<INetworkObject>().GetInformation() + "++++++");

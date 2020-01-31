@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace YourNetworkingTools
 {
-#if ENABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS
 	/******************************************
 	 * 
 	 * NetworkWorldObject

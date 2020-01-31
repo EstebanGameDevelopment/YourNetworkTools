@@ -9,7 +9,7 @@ using YourCommonTools;
 
 namespace YourNetworkingTools
 {
-#if ENABLE_UNET_COMMS
+
 	/******************************************
 	 * 
 	 * NetworkDiscoveryUNET
@@ -21,19 +21,25 @@ namespace YourNetworkingTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class NetworkDiscoveryUNET : NetworkDiscovery
-	{
-		public bool receivedBroadcast { get; private set; }
+	public class NetworkDiscoveryUNET : 
+#if !DISABLE_UNET_COMMS
+        NetworkDiscovery
+#else
+        MonoBehaviour
+#endif
+    {
+        public bool receivedBroadcast { get; private set; }
 		public int BroadcastInterval = 1000;
 		public string ServerIp { get; private set; }
 
 		private bool m_isServer = false;
 
-		// -------------------------------------------
-		/* 
+#if !DISABLE_UNET_COMMS
+        // -------------------------------------------
+        /* 
 		 * Start looking for a server to work as a client
 		 */
-		private void Start()
+        private void Start()
 		{
 			Debug.Log("NetworkDiscoveryUNET::START!!!!");
 
@@ -203,6 +209,6 @@ namespace YourNetworkingTools
 				Destroy();
 			}
 		}
-	}
 #endif
+    }
 }

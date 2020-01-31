@@ -6,8 +6,8 @@ using UnityEngine.SceneManagement;
 
 namespace YourNetworkingTools
 {
-#if ENABLE_UNET_COMMS
-	/******************************************
+
+    /******************************************
 	 * 
 	 * PlayerConnectionController
 	 * 
@@ -19,13 +19,16 @@ namespace YourNetworkingTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	[NetworkSettings(sendInterval = 0.033f)]
-	public class PlayerConnectionController : NetworkBehaviour
+#if !DISABLE_UNET_COMMS
+    [NetworkSettings(sendInterval = 0.033f)]
+#endif
+    public class PlayerConnectionController : NetworkBehaviour
 	{
-		// -----------------------------------------
-		// PUBLIC VARIABLES
-		// -----------------------------------------
-		public GameObject NetworkMessage;       // Prefab used in Command to send a message to server
+#if !DISABLE_UNET_COMMS
+        // -----------------------------------------
+        // PUBLIC VARIABLES
+        // -----------------------------------------
+        public GameObject NetworkMessage;       // Prefab used in Command to send a message to server
 
 		// -----------------------------------------
 		// PRIVATE VARIABLES
@@ -347,6 +350,6 @@ namespace YourNetworkingTools
 				}
 			}
 		}
-	}
 #endif
+    }
 }
