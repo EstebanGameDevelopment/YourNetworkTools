@@ -26,6 +26,7 @@ namespace YourNetworkingTools
         public const string EVENT_GRABOBJECT_TAKE_OBJECT = "EVENT_GRABOBJECT_TAKE_OBJECT";
         public const string EVENT_GRABOBJECT_RELEASE_OBJECT = "EVENT_GRABOBJECT_RELEASE_OBJECT";
         public const string EVENT_GRABOBJECT_UPDATE_OBJECT = "EVENT_GRABOBJECT_UPDATE_OBJECT";
+        public const string EVENT_GRABOBJECT_DISABLE_OBJECT = "EVENT_GRABOBJECT_DISABLE_OBJECT";
 
         // ----------------------------------------------
         // PUBLIC CONSTANTS
@@ -46,6 +47,8 @@ namespace YourNetworkingTools
         private GameObject m_referenceForward;
         private float m_timeoutTransform = 0;
         private float m_timeoutToIgnore = 0;
+
+        private bool m_frozen = false;
 
         // -------------------------------------------
         /* 
@@ -90,10 +93,23 @@ namespace YourNetworkingTools
 
         // -------------------------------------------
         /* 
+		* DisableGrabNetwork
+		*/
+        public void DisableGrabNetwork()
+        {
+            if (!m_frozen)
+            {
+                NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_GRABOBJECT_DISABLE_OBJECT, 0.01f, this.gameObject.name);
+            }            
+        }
+
+        // -------------------------------------------
+        /* 
 		* OnUIEvent
 		*/
         private void OnUIEvent(string _nameEvent, object[] _list)
         {
+            if (m_frozen) return;
             if (m_timeoutToIgnore > 0) return;
 
             if (_nameEvent == KeysEventInputController.ACTION_BUTTON_DOWN)
@@ -124,6 +140,8 @@ namespace YourNetworkingTools
 		*/
         private void OnBasicSystemEvent(string _nameEvent, object[] _list)
         {
+            if (m_frozen) return;
+
             if (_nameEvent == EVENT_GRABOBJECT_RESPONSE_RAYCASTING)
             {
                 GameObject collidedObject = (GameObject)_list[0];
@@ -184,6 +202,13 @@ namespace YourNetworkingTools
                             }
                         }
                     }
+                }
+            }
+            if (_nameEvent == EVENT_GRABOBJECT_DISABLE_OBJECT)
+            {
+                if (this.gameObject.name == (string)_list[0])
+                {
+                    m_frozen = true;
                 }
             }
         }

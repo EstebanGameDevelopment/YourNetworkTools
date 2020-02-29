@@ -45,7 +45,7 @@
         /* 
 		* Initialize
 		*/
-        public void Initialize()
+        public void Initialize(bool _requestExistance = true)
         {
             NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);
 
@@ -53,7 +53,7 @@
             m_initialScale = Utilities.Clone(this.transform.localScale);
             m_initialRotation = Utilities.Clone(this.transform.rotation);
 
-            if (NetIDOwner == -1)
+            if ((NetIDOwner == -1) && _requestExistance)
             {
                 NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_NETWORKED_REQUEST_EXISTANCE, 0.1f, Name);
             }
@@ -81,7 +81,7 @@
         /* 
 		* OwnNetworkObject
 		*/
-        public void OwnNetworkObject(int _networkIDNewOwner = -1)
+        public void OwnNetworkObject(int _networkIDNewOwner = -1, bool _reportToNetwork = true)
         {
             if (_networkIDNewOwner == -1)
             {
@@ -91,7 +91,10 @@
             {
                 NetIDOwner = _networkIDNewOwner;
             }
-            NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_NETWORKED_UPDATE_NETID, 0.1f, Name, NetIDOwner.ToString());
+            if (_reportToNetwork)
+            {
+                NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_NETWORKED_UPDATE_NETID, 0.1f, Name, NetIDOwner.ToString());
+            }            
         }
 
         // -------------------------------------------
