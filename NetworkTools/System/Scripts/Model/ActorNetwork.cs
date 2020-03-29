@@ -90,14 +90,18 @@ namespace YourNetworkingTools
 			}
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Check it the actor belongs to the current player
 		 */
-		public bool IsMine()
-		{
-			return (YourNetworkTools.Instance.GetUniversalNetworkID() == NetworkID.NetID);
-		}
+        public bool IsMine()
+        {
+#if !ENABLE_CONFUSION 
+            return (YourNetworkTools.Instance.GetUniversalNetworkID() == NetworkID.NetID);
+#else
+            return true;
+#endif
+        }
 
 		// -------------------------------------------
 		/* 
@@ -109,8 +113,10 @@ namespace YourNetworkingTools
 			Debug.LogError("[ActorNetwork] ++SEND++ SIGNAL FOR AUTODESTRUCTION");
 #endif
 			NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
-			NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST, NetworkID.NetID.ToString(), NetworkID.UID.ToString());
-		}
+#if !ENABLE_CONFUSION
+            NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST, NetworkID.NetID.ToString(), NetworkID.UID.ToString());
+#endif
+        }
 
 		// -------------------------------------------
 		/* 
