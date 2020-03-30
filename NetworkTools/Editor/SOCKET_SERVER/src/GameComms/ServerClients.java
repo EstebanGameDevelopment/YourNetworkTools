@@ -25,6 +25,8 @@ public class ServerClients extends Thread {
 	public static int TOTAL_FREE_ROOM_COUNTER = 10000000;
 	public static int TOTAL_PLAYER_MAX_COUNTER = 10000000;
 	
+	public static int ROOM_NUMBER_TO_JOIN_THE_LAST_CREATED_ROOM = 100000000;
+	
 	// ----------------------------------------------
 	// PRIVATE VARIABLES
 	// ----------------------------------------------	
@@ -277,6 +279,14 @@ public class ServerClients extends Thread {
 			}
 			String friendsIDs = dataConnection[8];
 			String extraData = dataConnection[9];
+			if (roomNumber == ROOM_NUMBER_TO_JOIN_THE_LAST_CREATED_ROOM)
+			{
+				if (m_listRooms.size() > 0)
+				{
+					ServerRoom lastServerRoom = m_listRooms.elementAt(m_listRooms.size() - 1);
+					roomNumber = lastServerRoom.IdRoom;
+				}
+			}
 			ServerRoom serverRoom = GetRoomByID(roomNumber);
 			if (serverRoom == null)
 			{

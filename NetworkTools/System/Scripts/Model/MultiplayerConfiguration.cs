@@ -23,6 +23,7 @@ namespace YourNetworkingTools
 
         public const string NUMBER_OF_PLAYERS_COOCKIE = "NUMBER_OF_PLAYERS_COOCKIE";
         public const int VALUE_FOR_JOINING = -1000;
+        public const int ROOM_NUMBER_TO_JOIN_THE_LAST_CREATED_ROOM = 100000000;
 
         public const string SOCKET_SERVER_ADDRESS = "localhost";
         public const int PORT_SERVER_ADDRESS = 8745;
