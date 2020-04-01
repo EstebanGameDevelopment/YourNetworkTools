@@ -300,25 +300,19 @@ namespace YourNetworkingTools
 				}
 				m_events.Clear();
 			}
-			else
+			if (m_transforms.Count > 0)
 			{
-				if (m_transforms.Count > 0)
+				for (int i = 0; i < m_transforms.Count; i++)
 				{
-					for (int i = 0; i < m_transforms.Count; i++)
-					{
-						WriteSocket(m_transforms[i]);
-					}
-					m_transforms.Clear();
+					WriteSocket(m_transforms[i]);
 				}
-				else
-				{
-					for (int i = 0; i < m_datas.Count; i++)
-					{
-						WriteSocket(m_datas[i]);
-					}
-					m_datas.Clear();
-				}
+				m_transforms.Clear();
 			}
+			for (int i = 0; i < m_datas.Count; i++)
+			{
+				WriteSocket(m_datas[i]);
+			}
+			m_datas.Clear();
 			return true;
 		}
 
