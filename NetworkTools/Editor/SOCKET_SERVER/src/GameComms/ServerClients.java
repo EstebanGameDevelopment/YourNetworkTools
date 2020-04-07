@@ -209,6 +209,7 @@ public class ServerClients extends Thread {
 	private void PackAndSendAllRooms() throws Exception
 	{
 		String invitations = "";
+		if (ServerGame.EnableLogMessages) System.out.println("+++++++++++++++++++ServerClients::PackAndSendAllRooms::m_listRooms.size()["+m_listRooms.size()+"]");		
 		for (int i = 0; i < m_listRooms.size(); i++)
         {
 			ServerRoom serverRoom = m_listRooms.elementAt(i);
@@ -219,7 +220,7 @@ public class ServerClients extends Thread {
 				{
 					if (invitations.length() > 0)
 					{
-						invitations += ServerGame.TOKEN_SEPARATOR_PLAYERS_IDS;
+						invitations += ServerGame.TOKEN_SEPARATOR_PARTY;
 					}
 					invitations += serverRoom.PackRoomPlayersIDs();
 				}
