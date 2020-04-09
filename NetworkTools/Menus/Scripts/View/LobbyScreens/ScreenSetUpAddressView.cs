@@ -105,6 +105,8 @@ namespace YourNetworkingTools
                 }
 				else
 				{
+                    MultiplayerConfiguration.SaveIPAddressServer(ipAddress);
+                    MultiplayerConfiguration.SavePortServer(portNumber);
                     UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenRemoteModeView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
                 }
 			}

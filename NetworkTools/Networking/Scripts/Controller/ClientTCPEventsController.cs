@@ -627,6 +627,27 @@ namespace YourNetworkingTools
 			NetworkEventController.Instance.DispatchLocalEvent(nameEvent, netID, binaryContentEvent);
 		}
 
+        // -------------------------------------------
+        /* 
+		 * Will retrieve the id of the room by the name
+		 */
+        public int GetRoomIDByName(string _roomName)
+        {
+            for (int i = 0; i < m_roomsLobby.Count; i++)
+            {
+                ItemMultiTextEntry room = m_roomsLobby[i];
+                if (room.Items[2] == _roomName)
+                {
+#if ENABLE_BALANCE_LOADER
+				    return int.Parse(room.Items[0]);
+#else
+                    return int.Parse(room.Items[1]);
+#endif
+                }
+            }
+            return -1;
+        }
+
 		// -------------------------------------------
 		/* 
 		 * Send the creation of a new room with the friends' Facebook IDs

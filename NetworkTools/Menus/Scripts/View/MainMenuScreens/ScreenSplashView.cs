@@ -19,7 +19,7 @@ namespace YourNetworkingTools
 
         private Transform m_container;
 
-        private float m_timerToVRMenus = 5.9f;
+        private float m_timerToVRMenus = 0.1f;
 
         // -------------------------------------------
         /* 
