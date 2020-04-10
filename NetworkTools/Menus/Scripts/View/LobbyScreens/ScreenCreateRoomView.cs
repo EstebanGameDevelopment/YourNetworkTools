@@ -27,6 +27,11 @@ namespace YourNetworkingTools
         public const string EVENT_SCREENCREATEROOM_CREATE_RANDOM_NAME = "EVENT_SCREENCREATEROOM_CREATE_RANDOM_NAME";
 
         // ----------------------------------------------
+        // CONSTANTS
+        // ----------------------------------------------	
+        public const string PLAYERPREFS_YNT_ROOMNAME = "PLAYERPREFS_YNT_ROOMNAME";
+
+        // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
         private GameObject m_root;
@@ -46,7 +51,7 @@ namespace YourNetworkingTools
 			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.title");
 
 			m_container.Find("Description").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.lobby.create.with.description.room");
-			m_container.Find("RoomName").GetComponent<InputField>().text = "";
+			m_container.Find("RoomName").GetComponent<InputField>().text = PlayerPrefs.GetString(PLAYERPREFS_YNT_ROOMNAME, "");
 
 			GameObject createGame = m_container.Find("Button_CreateRoom").gameObject;
 			createGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.lobby.create.with.name.room");
@@ -95,7 +100,8 @@ namespace YourNetworkingTools
 			else
 			{
 				NetworkEventController.Instance.MenuController_SetNameRoomLobby(roomName);
-				if (MenuScreenController.Instance.ForceFixedPlayers != -1)
+                PlayerPrefs.SetString(PLAYERPREFS_YNT_ROOMNAME, roomName);
+                if (MenuScreenController.Instance.ForceFixedPlayers != -1)
 				{
 					MenuScreenController.Instance.LoadCustomGameScreenOrCreateGame(false, MenuScreenController.Instance.ForceFixedPlayers, "", null);
 				}

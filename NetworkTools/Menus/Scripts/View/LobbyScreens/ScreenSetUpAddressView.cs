@@ -27,6 +27,17 @@ namespace YourNetworkingTools
         public const string EVENT_SCREENCREATEROOM_CREATE_RANDOM_NAME = "EVENT_SCREENCREATEROOM_CREATE_RANDOM_NAME";
 
         // ----------------------------------------------
+        // CONSTANTS
+        // ----------------------------------------------	
+#if !ENABLE_MY_OFUSCATION || UNITY_EDITOR
+        public const string PLAYERPREFS_YNT_IP = "PLAYERPREFS_YNT_IP";
+        public const string PLAYERPREFS_YNT_PORT = "PLAYERPREFS_YNT_PORT";
+#else
+        public const string PLAYERPREFS_YNT_IP = "^PLAYERPREFS_YNT_IP^";
+        public const string PLAYERPREFS_YNT_PORT = "^PLAYERPREFS_YNT_PORT^";
+#endif
+
+        // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
         private GameObject m_root;
@@ -49,10 +60,10 @@ namespace YourNetworkingTools
             m_container.Find("IPTitle").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.lobby.setup.server.ip");
 			m_container.Find("PortNumberTitle").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.lobby.setup.server.portnumber");
 
-            m_container.Find("IPAddress").GetComponent<InputField>().text = "";
-            m_container.Find("PortAddress").GetComponent<InputField>().text = "";
+            m_container.Find("IPAddress").GetComponent<InputField>().text = PlayerPrefs.GetString(PLAYERPREFS_YNT_IP, "");
+            m_container.Find("PortAddress").GetComponent<InputField>().text = PlayerPrefs.GetString(PLAYERPREFS_YNT_PORT, "");
 
-			GameObject createGame = m_container.Find("Button_ConfirmAddress").gameObject;
+            GameObject createGame = m_container.Find("Button_ConfirmAddress").gameObject;
 			createGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.lobby.setup.server.confirm");
 			createGame.GetComponent<Button>().onClick.AddListener(CreateRoom);
 
@@ -105,12 +116,14 @@ namespace YourNetworkingTools
                 }
 				else
 				{
+                    PlayerPrefs.SetString(PLAYERPREFS_YNT_IP, ipAddress);
+                    PlayerPrefs.SetString(PLAYERPREFS_YNT_PORT, portNumber.ToString());
                     MultiplayerConfiguration.SaveIPAddressServer(ipAddress);
                     MultiplayerConfiguration.SavePortServer(portNumber);
                     UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenRemoteModeView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                    Destroy();
                 }
 			}
-			Destroy();
 		}
 
 		// -------------------------------------------
