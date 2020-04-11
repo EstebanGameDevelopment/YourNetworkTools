@@ -48,18 +48,26 @@ namespace YourNetworkingTools
 
 			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.title");
 
-			GameObject localPartyGame = m_container.Find("Button_LocalParty").gameObject;
-			localPartyGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.main.menu.local.party");
+            if (m_container.Find("Button_LocalParty") != null)
+            {
+                GameObject localPartyGame = m_container.Find("Button_LocalParty").gameObject;
+                localPartyGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.main.menu.local.party");
+                localPartyGame.GetComponent<Button>().onClick.AddListener(OnLocalPartyGame);
+            }
 
-			localPartyGame.GetComponent<Button>().onClick.AddListener(OnLocalPartyGame);
+            if (m_container.Find("Button_RemoteParty") != null)
+            {
+                GameObject remotePartyGame = m_container.Find("Button_RemoteParty").gameObject;
+                remotePartyGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.main.menu.remote.party");
+                remotePartyGame.GetComponent<Button>().onClick.AddListener(OnRemotePartyGame);
+            }
 
-			GameObject remotePartyGame = m_container.Find("Button_RemoteParty").gameObject;
-			remotePartyGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.main.menu.remote.party");
-			remotePartyGame.GetComponent<Button>().onClick.AddListener(OnRemotePartyGame);
-
-			GameObject instructionsGame = m_container.Find("Button_Instructions").gameObject;
-			instructionsGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.main.menu.instructions.game");
-			instructionsGame.GetComponent<Button>().onClick.AddListener(InstructionsGame);
+            if (m_container.Find("Button_Instructions") != null)
+            {
+                GameObject instructionsGame = m_container.Find("Button_Instructions").gameObject;
+                instructionsGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.main.menu.instructions.game");
+                instructionsGame.GetComponent<Button>().onClick.AddListener(InstructionsGame);
+            }
 
             if (m_container.Find("Button_ImageARCore") != null)
             {
@@ -134,7 +142,7 @@ namespace YourNetworkingTools
 			pages.Add(new PageInformation(LanguageController.Instance.GetText("screen.instructions.title"), LanguageController.Instance.GetText("screen.instructions.page.2"), MenuScreenController.Instance.Instructions[1], ""));
 			pages.Add(new PageInformation(LanguageController.Instance.GetText("screen.instructions.title"), LanguageController.Instance.GetText("screen.instructions.page.3"), MenuScreenController.Instance.Instructions[2], ""));
 			pages.Add(new PageInformation(LanguageController.Instance.GetText("screen.instructions.title"), LanguageController.Instance.GetText("screen.instructions.page.4"), MenuScreenController.Instance.Instructions[3], ""));
-			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenInformationView.SCREEN_INFORMATION_IMAGE, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false, pages);
+			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenInformationView.SCREEN_INFORMATION_IMAGE, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, pages);
 		}
 
         // -------------------------------------------
