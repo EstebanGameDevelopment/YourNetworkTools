@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+﻿#if ENABLE_HOLOLENS 
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,8 +50,8 @@ namespace YourNetworkingTools
 		private bool m_isInitialized = false;
 
 		private float m_time = 0;
-		private UnityEngine.XR.WSA.WebCam.PhotoCapture m_photoCaptureObject = null;
-		private UnityEngine.XR.WSA.WebCam.CameraParameters m_cameraParameters;
+		private UnityEngine.Windows.WebCam.PhotoCapture m_photoCaptureObject = null;
+		private UnityEngine.Windows.WebCam.CameraParameters m_cameraParameters;
 
 		// -------------------------------------------
 		/* 
@@ -68,31 +68,31 @@ namespace YourNetworkingTools
 		 */
 		void Start()
 		{
-			UnityEngine.XR.WSA.WebCam.PhotoCapture.CreateAsync(false, OnPhotoCaptureCreated);
+			UnityEngine.Windows.WebCam.PhotoCapture.CreateAsync(false, OnPhotoCaptureCreated);
 		}
 
 		// -------------------------------------------
 		/* 
 		 * OnPhotoCaptureCreated
 		 */
-		private void OnPhotoCaptureCreated(UnityEngine.XR.WSA.WebCam.PhotoCapture captureObject)
+		private void OnPhotoCaptureCreated(UnityEngine.Windows.WebCam.PhotoCapture captureObject)
 		{
 			m_photoCaptureObject = captureObject;
 
-			Resolution cameraResolution = UnityEngine.XR.WSA.WebCam.PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
+			Resolution cameraResolution = UnityEngine.Windows.WebCam.PhotoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
 
-			UnityEngine.XR.WSA.WebCam.CameraParameters m_cameraParameters = new UnityEngine.XR.WSA.WebCam.CameraParameters();
+			UnityEngine.Windows.WebCam.CameraParameters m_cameraParameters = new UnityEngine.Windows.WebCam.CameraParameters();
 			m_cameraParameters.hologramOpacity = 0.0f;
 			m_cameraParameters.cameraResolutionWidth = cameraResolution.width;
 			m_cameraParameters.cameraResolutionHeight = cameraResolution.height;
-			m_cameraParameters.pixelFormat = UnityEngine.XR.WSA.WebCam.CapturePixelFormat.BGRA32;
+			m_cameraParameters.pixelFormat = UnityEngine.Windows.WebCam.CapturePixelFormat.BGRA32;
 		}
 
 		// -------------------------------------------
 		/* 
 		 * OnStoppedPhotoMode
 		 */
-		private void OnStoppedPhotoMode(UnityEngine.XR.WSA.WebCam.PhotoCapture.PhotoCaptureResult result)
+		private void OnStoppedPhotoMode(UnityEngine.Windows.WebCam.PhotoCapture.PhotoCaptureResult result)
 		{
 			m_photoCaptureObject.Dispose();
 			m_photoCaptureObject = null;
@@ -102,7 +102,7 @@ namespace YourNetworkingTools
 		/* 
 		 * OnPhotoModeStarted
 		 */
-		private void OnPhotoModeStarted(UnityEngine.XR.WSA.WebCam.PhotoCapture.PhotoCaptureResult result)
+		private void OnPhotoModeStarted(UnityEngine.Windows.WebCam.PhotoCapture.PhotoCaptureResult result)
 		{
 			if (result.success)
 			{
@@ -118,7 +118,7 @@ namespace YourNetworkingTools
 		/* 
 		 * OnCapturedPhotoToMemory
 		 */
-		public void OnCapturedPhotoToMemory(UnityEngine.XR.WSA.WebCam.PhotoCapture.PhotoCaptureResult result, UnityEngine.XR.WSA.WebCam.PhotoCaptureFrame photoCaptureFrame)
+		public void OnCapturedPhotoToMemory(UnityEngine.Windows.WebCam.PhotoCapture.PhotoCaptureResult result, UnityEngine.Windows.WebCam.PhotoCaptureFrame photoCaptureFrame)
 		{
 			if (result.success)
 			{
