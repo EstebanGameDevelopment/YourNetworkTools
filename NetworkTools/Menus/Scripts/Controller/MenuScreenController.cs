@@ -132,7 +132,7 @@ namespace YourNetworkingTools
 				Debug.Log("YourVRUIScreenController::Start::First class to initialize for the whole system to work");
 			}
 
-#if !ENABLE_OCULUS
+#if !ENABLE_OCULUS && !ENABLE_WORLDSENSE
             Screen.orientation = ScreenOrientation.Portrait;
 #endif
 
@@ -156,7 +156,7 @@ namespace YourNetworkingTools
         /* 
 		 * StartSplashScreen
 		 */
-        public void StartSplashScreen()
+        public virtual void StartSplashScreen()
         {
 #if UNITY_EDITOR
             // UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenMenuMainView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true);
@@ -192,6 +192,8 @@ namespace YourNetworkingTools
 		 */
 		protected override void OnUIEvent(string _nameEvent, params object[] _list)
 		{
+            if (!m_enableProcessEvents) return;
+
 #if ENABLE_YOURVRUI
             ProcessConnectionEvents(_nameEvent, _list);
 
