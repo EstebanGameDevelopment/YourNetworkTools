@@ -293,10 +293,10 @@ namespace YourNetworkingTools
                             YourVRUIScreenController.Instance.EnableScreens = true;
                         }
                     }
-                    List<PageInformation> pages = null;
+                    object pages = null;
                     if (_list.Length > 3)
                     {
-                        pages = (List<PageInformation>)_list[3];
+                        pages = _list[3];
                     }
                     float scaleScreen = -1;
                     if (_list.Length > 4)
@@ -338,7 +338,7 @@ namespace YourNetworkingTools
                     }
                     List<PageInformation> pages = new List<PageInformation>();
                     pages.Add(new PageInformation(title, description, image, eventData, "", ""));
-                    YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[0]), pages, 1.5f, -1, false, scaleScreen, previousAction);
+                    YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[0]), pages, 1.4f, -1, false, scaleScreen, previousAction);
                 }
                 if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_LOAD_NEW_SCENE)
                 {
