@@ -192,7 +192,7 @@ namespace YourNetworkingTools
 		 */
 		protected override void OnUIEvent(string _nameEvent, params object[] _list)
 		{
-            if (!m_enableProcessEvents) return;
+            if (!PreProcessScreenEvents(_nameEvent, _list)) return;
 
 #if ENABLE_YOURVRUI
             ProcessConnectionEvents(_nameEvent, _list);
