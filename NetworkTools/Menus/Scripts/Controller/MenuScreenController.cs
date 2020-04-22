@@ -290,11 +290,23 @@ namespace YourNetworkingTools
             }
             else
             {
+                int indexToCheck = -1;
+                float depth = 0;
                 if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN)
                 {
-                    if (_list.Length > 2)
+                    depth = 0;
+                    indexToCheck = 0;
+                }
+                if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN)
+                {
+                    depth = (int)_list[0] * 0.1f;
+                    indexToCheck = 2;
+                }
+                if (indexToCheck != -1)
+                { 
+                    if (_list.Length > indexToCheck + 2)
                     {
-                        if ((bool)_list[2])
+                        if ((bool)_list[indexToCheck + 2])
                         {
                             YourVRUIScreenController.Instance.DestroyScreens();
                         }
@@ -304,24 +316,24 @@ namespace YourNetworkingTools
                         }
                     }
                     object pages = null;
-                    if (_list.Length > 3)
+                    if (_list.Length > indexToCheck + 3)
                     {
-                        pages = _list[3];
+                        pages = _list[indexToCheck + 3];
                     }
                     float scaleScreen = -1;
-                    if (_list.Length > 4)
+                    if (_list.Length > indexToCheck + 4)
                     {
-                        if (_list[4] is float)
+                        if (_list[indexToCheck + 4] is float)
                         {
-                            scaleScreen = (float)_list[4];
+                            scaleScreen = (float)_list[indexToCheck + 4];
                         }
                     }
                     bool isTemporalScreen = true;
-                    if (_list.Length > 5)
+                    if (_list.Length > indexToCheck + 5)
                     {
-                        if (_list[5] is bool)
+                        if (_list[indexToCheck + 5] is bool)
                         {
-                            isTemporalScreen = (bool)_list[5];
+                            isTemporalScreen = (bool)_list[indexToCheck + 5];
                         }
                     }
                     if (ScreensVREnabled > TotalStackedScreensAllowed)
@@ -329,11 +341,11 @@ namespace YourNetworkingTools
                         List<PageInformation> pagesInformation = new List<PageInformation>();
                         pagesInformation.Add(new PageInformation(LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("total.maximum.screen.reached"), null, "", "", ""));
 
-                        YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName(ScreenInformationView.SCREEN_INFORMATION), pagesInformation, 1.5f, -1, false, scaleScreen, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, true);
+                        YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName(ScreenInformationView.SCREEN_INFORMATION), pagesInformation, 1.5f - depth, -1, false, scaleScreen, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, true);
                     }
                     else
                     {
-                        YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[0]), pages, 1.5f, -1, false, scaleScreen, (UIScreenTypePreviousAction)_list[1], isTemporalScreen);
+                        YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[indexToCheck]), pages, 1.5f, -1, false, scaleScreen, (UIScreenTypePreviousAction)_list[indexToCheck + 1], isTemporalScreen);
                     }
                     if ((string)_list[0] == ScreenCreateRoomView.SCREEN_NAME)
                     {
