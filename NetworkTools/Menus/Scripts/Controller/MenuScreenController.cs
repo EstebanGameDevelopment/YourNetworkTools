@@ -103,6 +103,16 @@ namespace YourNetworkingTools
 			get { return m_extraData; }
 			set { m_extraData = value; }
 		}
+#if ENABLE_YOURVRUI
+        public int ScreensVREnabled
+        {
+            get
+            {
+                BaseVRScreenView[] totalScreenVR = YourVRUIScreenController.Instance.gameObject.GetComponentsInChildren<BaseVRScreenView>(true);
+                return totalScreenVR.Length;
+            }
+        }
+#endif
 
         // -------------------------------------------
         /* 
@@ -314,7 +324,17 @@ namespace YourNetworkingTools
                             isTemporalScreen = (bool)_list[5];
                         }
                     }
-                    YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[0]), pages, 1.5f, -1, false, scaleScreen, (UIScreenTypePreviousAction)_list[1], isTemporalScreen);
+                    if (ScreensVREnabled > TotalStackedScreensAllowed)
+                    {
+                        List<PageInformation> pagesInformation = new List<PageInformation>();
+                        pagesInformation.Add(new PageInformation(LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("total.maximum.screen.reached"), null, "", "", ""));
+
+                        YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName(ScreenInformationView.SCREEN_INFORMATION), pagesInformation, 1.5f, -1, false, scaleScreen, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, true);
+                    }
+                    else
+                    {
+                        YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[0]), pages, 1.5f, -1, false, scaleScreen, (UIScreenTypePreviousAction)_list[1], isTemporalScreen);
+                    }
                     if ((string)_list[0] == ScreenCreateRoomView.SCREEN_NAME)
                     {
                         UIEventController.Instance.DispatchUIEvent(ScreenCreateRoomView.EVENT_SCREENCREATEROOM_CREATE_RANDOM_NAME);
