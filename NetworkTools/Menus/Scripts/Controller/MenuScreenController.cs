@@ -137,7 +137,12 @@ namespace YourNetworkingTools
 		{
 			base.Start();
 
-			if (DebugMode)
+            if (Application.isEditor)
+            {
+                Application.runInBackground = true;
+            }
+
+            if (DebugMode)
 			{
 				Debug.Log("YourVRUIScreenController::Start::First class to initialize for the whole system to work");
 			}
@@ -290,6 +295,7 @@ namespace YourNetworkingTools
             }
             else
             {
+                int layerScreen = 0;
                 int indexToCheck = -1;
                 float depth = 0;
                 if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN)
@@ -299,7 +305,8 @@ namespace YourNetworkingTools
                 }
                 if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN)
                 {
-                    depth = (int)_list[0] * 0.1f;
+                    layerScreen = (int)_list[0];
+                    depth = layerScreen * 0.1f;
                     indexToCheck = 2;
                 }
                 if (indexToCheck != -1)
@@ -341,15 +348,18 @@ namespace YourNetworkingTools
                         List<PageInformation> pagesInformation = new List<PageInformation>();
                         pagesInformation.Add(new PageInformation(LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("total.maximum.screen.reached"), null, "", "", ""));
 
-                        YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName(ScreenInformationView.SCREEN_INFORMATION), pagesInformation, 1.5f - depth, -1, false, scaleScreen, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, true);
+                        YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName(ScreenInformationView.SCREEN_INFORMATION), pagesInformation, 1.5f - depth, -1, false, scaleScreen, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, true, layerScreen);
                     }
                     else
                     {
-                        YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[indexToCheck]), pages, 1.5f, -1, false, scaleScreen, (UIScreenTypePreviousAction)_list[indexToCheck + 1], isTemporalScreen);
+                        YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[indexToCheck]), pages, 1.5f, -1, false, scaleScreen, (UIScreenTypePreviousAction)_list[indexToCheck + 1], isTemporalScreen, layerScreen);
                     }
-                    if ((string)_list[0] == ScreenCreateRoomView.SCREEN_NAME)
+                    if (depth == 0)
                     {
-                        UIEventController.Instance.DispatchUIEvent(ScreenCreateRoomView.EVENT_SCREENCREATEROOM_CREATE_RANDOM_NAME);
+                        if ((string)_list[0] == ScreenCreateRoomView.SCREEN_NAME)
+                        {
+                            UIEventController.Instance.DispatchUIEvent(ScreenCreateRoomView.EVENT_SCREENCREATEROOM_CREATE_RANDOM_NAME);
+                        }
                     }
                 }
                 if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN)
@@ -370,7 +380,7 @@ namespace YourNetworkingTools
                     }
                     List<PageInformation> pages = new List<PageInformation>();
                     pages.Add(new PageInformation(title, description, image, eventData, "", ""));
-                    YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[0]), pages, 1.4f, -1, false, scaleScreen, previousAction);
+                    YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[0]), pages, 1.4f, -1, false, scaleScreen, previousAction, ScreenController.TOTAL_LAYERS_SCREENS - 1);
                 }
                 if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_LOAD_NEW_SCENE)
                 {
@@ -512,6 +522,7 @@ namespace YourNetworkingTools
                         }
                         else
                         {
+                            Debug.LogError("CREATE NEW ROOM IN SERVER[" + m_extraData + "][" + m_numberOfPlayers + "]+++++++++++");
                             CreateRoomInServer(m_numberOfPlayers, m_extraData, _checkScreenGameOptions);
                         }
                     }
