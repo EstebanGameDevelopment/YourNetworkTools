@@ -83,7 +83,7 @@ namespace YourNetworkingTools
 		private void PlayInVRPressed()
 		{
 			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
-            CardboardLoaderVR.SaveEnableCardboard(true);
+            CardboardLoaderVR.Instance.SaveEnableCardboard(true);
 #if ENABLE_GOOGLE_ARCORE
             if (!MenuScreenController.Instance.AskToEnableBackgroundARCore || (MultiplayerConfiguration.LoadGoogleARCore(-1) != MultiplayerConfiguration.GOOGLE_ARCORE_ENABLED))
             {
@@ -109,7 +109,7 @@ namespace YourNetworkingTools
         private void PlayWithGyroscopePressed()
 		{
             SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
-            CardboardLoaderVR.SaveEnableCardboard(false);
+            CardboardLoaderVR.Instance.SaveEnableCardboard(false);
 #if ENABLE_GOOGLE_ARCORE
             if (!MenuScreenController.Instance.AskToEnableBackgroundARCore || (MultiplayerConfiguration.LoadGoogleARCore(-1) != MultiplayerConfiguration.GOOGLE_ARCORE_ENABLED))
             {

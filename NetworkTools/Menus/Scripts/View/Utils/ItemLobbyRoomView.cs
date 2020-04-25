@@ -40,7 +40,11 @@ namespace YourNetworkingTools
 		{
 			get { return m_room; }
 		}
-		public string IPAddress
+        public string DisplayName
+        {
+            get { return m_text.text; }
+        }
+        public string IPAddress
 		{
 			get { return m_ipAddress; }
 		}

@@ -135,7 +135,8 @@ namespace YourNetworkingTools
 
 			if (roomSelected != null)
 			{
-				NetworkEventController.Instance.MenuController_SaveRoomNumberInServer(roomSelected.Room);
+                PlayerPrefs.SetString(ScreenCreateRoomView.PLAYERPREFS_YNT_ROOMNAME, roomSelected.DisplayName);
+                NetworkEventController.Instance.MenuController_SaveRoomNumberInServer(roomSelected.Room);
                 MultiplayerConfiguration.SaveExtraData(roomSelected.ExtraData);
 
                 // JOIN ROOM IN LOBBY

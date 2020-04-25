@@ -102,7 +102,7 @@ namespace YourNetworkingTools
                 }
                 else
                 {
-                    CardboardLoaderVR.SaveEnableCardboard(true);
+                    CardboardLoaderVR.Instance.SaveEnableCardboard(true);
                     MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
                     Destroy();
                     UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
@@ -136,7 +136,7 @@ namespace YourNetworkingTools
                 }
                 else
                 {
-                    CardboardLoaderVR.SaveEnableCardboard(true);
+                    CardboardLoaderVR.Instance.SaveEnableCardboard(true);
                     MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
                     Destroy();
                     UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
