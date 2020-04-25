@@ -175,11 +175,14 @@ namespace YourNetworkingTools
 		{
             base.OnMenuEvent(_nameEvent, _list);
 
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
-			{
-				ExitPressed();
-			}
-			if (_nameEvent == MenuScreenController.EVENT_CONFIRMATION_POPUP)
+            if (this.gameObject.activeSelf)
+            {
+                if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+                {
+                    ExitPressed();
+                }
+            }
+            if (_nameEvent == MenuScreenController.EVENT_CONFIRMATION_POPUP)
 			{
 				string subEvent = (string)_list[2];
 				if (subEvent == SUB_EVENT_SCREENMAIN_CONFIRMATION_EXIT_APP)

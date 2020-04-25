@@ -131,10 +131,13 @@ namespace YourNetworkingTools
 		{
 			base.OnMenuEvent(_nameEvent, _list);
 
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
-			{
-				BackPressed();
-			}
+            if (this.gameObject.activeSelf)
+            {
+                if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+                {
+                    BackPressed();
+                }
+            }
             if (_nameEvent == EVENT_SCREENCREATEROOM_CREATE_RANDOM_NAME)
             {
                 m_container.Find("RoomName").GetComponent<InputField>().text = "NameRoom" + UnityEngine.Random.Range(1000, 100000);

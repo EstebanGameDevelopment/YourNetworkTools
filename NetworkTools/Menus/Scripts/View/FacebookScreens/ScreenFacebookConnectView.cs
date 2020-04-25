@@ -159,10 +159,14 @@ namespace YourNetworkingTools
 			{
 				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenFacebookMainView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
 			}
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
-			{
-				BackPressed();
-			}
-		}
-	}
+            if (this.gameObject.activeSelf)
+            {
+                if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+                {
+                    BackPressed();
+                }
+            }
+
+        }
+    }
 }

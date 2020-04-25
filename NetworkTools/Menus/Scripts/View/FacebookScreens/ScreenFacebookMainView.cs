@@ -130,11 +130,15 @@ namespace YourNetworkingTools
 		{
 			base.OnMenuEvent(_nameEvent, _list);
 
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
-			{
-				BackPressed();
-			}
-			if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_LIST_OF_GAME_ROOMS)
+            if (this.gameObject.activeSelf)
+            {
+                if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+                {
+                    BackPressed();
+                }
+            }
+
+            if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_LIST_OF_GAME_ROOMS)
 			{
 				m_acceptInvitation.transform.Find("Number").GetComponent<Text>().text = ClientTCPEventsController.Instance.RoomsInvited.Count.ToString();
 			}

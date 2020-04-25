@@ -133,10 +133,13 @@ namespace YourNetworkingTools
                 UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenMainLobbyView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
 #endif
             }
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
-			{
-				BackPressed();
-			}
-		}
+            if (this.gameObject.activeSelf)
+            {
+                if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+                {
+                    BackPressed();
+                }
+            }
+        }
 	}
 }
