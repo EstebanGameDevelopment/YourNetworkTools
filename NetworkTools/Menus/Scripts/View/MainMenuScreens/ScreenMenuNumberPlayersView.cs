@@ -154,7 +154,8 @@ namespace YourNetworkingTools
 			{
 				m_finalNumberOfPlayers = -1;
 			}
-			MenuScreenController.Instance.LoadCustomGameScreenOrCreateGame(false, m_finalNumberOfPlayers, "", null);
+            Destroy();
+            MenuScreenController.Instance.LoadCustomGameScreenOrCreateGame(false, m_finalNumberOfPlayers, "", null);
 		}
 	}
 }
