@@ -696,7 +696,7 @@ namespace YourNetworkingTools
             {
                 if (m_animation != _animation)
                 {
-                    if (NetworkID != null) NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GAMECHARACTER_NEW_ANIMATION, NetworkID.NetID.ToString(), NetworkID.UID.ToString(), _animation.ToString(), _isLoop.ToString());
+                    if (NetworkID != null) NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_GAMECHARACTER_NEW_ANIMATION, 0.01f, NetworkID.NetID.ToString(), NetworkID.UID.ToString(), _animation.ToString(), _isLoop.ToString());
                 }
                 base.ChangeAnimation(_animation, _isLoop);
             }
