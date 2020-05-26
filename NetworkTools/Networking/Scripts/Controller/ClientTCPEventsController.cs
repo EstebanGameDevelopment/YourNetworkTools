@@ -45,7 +45,7 @@ namespace YourNetworkingTools
 		// ----------------------------------------------
 		public const char TOKEN_SEPARATOR_EVENTS = '%';
 		public const char TOKEN_SEPARATOR_PARTY = '@';
-		public const char TOKEN_SEPARATOR_PLAYERS_IDS = ',';
+		public const char TOKEN_SEPARATOR_PLAYERS_IDS = '~';
 
 		// ----------------------------------------------
 		// SINGLETON
@@ -809,11 +809,38 @@ namespace YourNetworkingTools
 			}
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * GetExtraDataForRoom
+		 */
+        public string GetExtraDataForRoom(int _idRoom)
+        {
+            for (int i = 0; i < m_roomsLobby.Count; i++)
+            {
+                ItemMultiTextEntry room = m_roomsLobby[i];
+                int idRoom = -1;
+                string extraData = "";
+                // JOIN ROOM IN LOBBY
+#if ENABLE_BALANCE_LOADER
+				idRoom = int.Parse(room.Items[0]);
+                extraData = room.Items[4];
+#else
+                idRoom = int.Parse(room.Items[1]);
+                extraData = room.Items[3];
+#endif
+                if (idRoom == _idRoom)
+                {
+                    return extraData;
+                }
+            }
+            return "";
+        }
+
+        // -------------------------------------------
+        /* 
 		* Display information about the operation mode
 		*/
-		void OnGUI()
+        void OnGUI()
 		{
 			if (MultiplayerConfiguration.DEBUG_MODE)
 			{
