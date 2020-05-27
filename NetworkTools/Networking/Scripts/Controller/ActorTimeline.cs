@@ -601,7 +601,7 @@ namespace YourNetworkingTools
             m_targetPath = Utilities.Clone(_target);
             if (PathFindingController.Instance.IsPrecalculated)
             {
-                m_targetPath = PathFindingController.Instance.GetPath(_origin, m_targetPath, m_pathWaypoints, _oneLayer, _raycastFilter);
+                m_targetPath = PathFindingController.Instance.GetPath(_origin, m_targetPath, m_pathWaypoints, (_oneLayer?0:-1), _raycastFilter);
                 m_pathWaypoints.Clear();
                 m_pathWaypoints.Add(m_targetPath);
                 /*
@@ -612,7 +612,7 @@ namespace YourNetworkingTools
             }
             else
             { 
-                PathFindingController.Instance.GetPath(this.transform.position, m_targetPath, m_pathWaypoints, _oneLayer, _raycastFilter, _limitSearch);
+                PathFindingController.Instance.GetPath(this.transform.position, m_targetPath, m_pathWaypoints, (_oneLayer ? 0 : -1), _raycastFilter, _limitSearch);
                 if (m_pathWaypoints.Count > 0)
                 {
                     m_currentPathWaypoint = 0;
