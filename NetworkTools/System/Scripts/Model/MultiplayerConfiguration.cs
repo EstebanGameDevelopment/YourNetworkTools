@@ -263,7 +263,8 @@ namespace YourNetworkingTools
 		 */
         public static string LoadExtraData()
         {
-            return PlayerPrefs.GetString(EXTRA_DATA_COOCKIE, "");
+            string extraData = PlayerPrefs.GetString(EXTRA_DATA_COOCKIE, "");
+            return extraData;
         }
 
         // -------------------------------------------

@@ -522,7 +522,8 @@ namespace YourNetworkingTools
                         }
                         else
                         {
-                            Debug.LogError("CREATE NEW ROOM IN SERVER[" + m_extraData + "][" + m_numberOfPlayers + "]+++++++++++");
+                            // Debug.LogError("CREATE NEW ROOM IN SERVER[" + m_extraData + "][" + m_numberOfPlayers + "]+++++++++++");
+                            Debug.LogError("CREATE NEW ROOM IN SERVER[" + m_numberOfPlayers + "]+++++++++++");
                             CreateRoomInServer(m_numberOfPlayers, m_extraData, _checkScreenGameOptions);
                         }
                     }
