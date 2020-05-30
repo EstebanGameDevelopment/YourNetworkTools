@@ -279,7 +279,14 @@ public class ServerClients extends Thread {
 				roomName = m_currentConnection.GetPlayerID();
 			}
 			String friendsIDs = dataConnection[8];
-			String extraData = dataConnection[9];
+			String extraData = "";
+			if (dataConnection.length > 9)
+			{
+				if (dataConnection[9] != null)
+				{
+					extraData = dataConnection[9];
+				}
+			}
 			if (roomNumber == ROOM_NUMBER_TO_JOIN_THE_LAST_CREATED_ROOM)
 			{
 				if (m_listRooms.size() > 0)
