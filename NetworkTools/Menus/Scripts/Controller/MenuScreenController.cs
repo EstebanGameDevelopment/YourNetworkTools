@@ -418,9 +418,9 @@ namespace YourNetworkingTools
 				}
 				else
 				{
-                    if ((ScreenGameOptions.Length > 0) && !_checkScreenGameOptions)
+                    if ((GetScreenGameOptions().Length > 0) && !_checkScreenGameOptions)
 					{
-						UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenGameOptions, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+						UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
 					}
 					else
 					{
@@ -431,7 +431,7 @@ namespace YourNetworkingTools
 			}
 			else
 			{
-				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
 				CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), LanguageController.Instance.GetText("screen.player.number.not.right.number"), null, "");
 			}
 		}
@@ -462,9 +462,9 @@ namespace YourNetworkingTools
 			NetworkEventController.Instance.MenuController_SaveNumberOfPlayers(m_numberOfPlayers);
             if (_loadNextScreen)
             {
-                if (ScreenGameOptions.Length > 0)
+                if (GetScreenGameOptions().Length > 0)
                 {
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenGameOptions, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
                 }
                 else
                 {
@@ -487,9 +487,9 @@ namespace YourNetworkingTools
 
             if (NetworkEventController.Instance.MenuController_LoadNumberOfPlayers() == MultiplayerConfiguration.VALUE_FOR_JOINING)
             {
-                if (_checkScreenGameOptions && (MenuScreenController.Instance.ScreenGameOptions.Length > 0))
+                if (_checkScreenGameOptions && (GetScreenGameOptions().Length > 0))
                 {
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, MenuScreenController.Instance.ScreenGameOptions, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
                 }
                 else
                 {
@@ -537,7 +537,6 @@ namespace YourNetworkingTools
             }
         }
 
-
 		// -------------------------------------------
 		/* 
 		* Client has selected a room to join
@@ -565,5 +564,14 @@ namespace YourNetworkingTools
 #endif
 			}
 		}
-	}
+
+        // -------------------------------------------
+        /* 
+		* GetScreenGameOptions
+		*/
+        protected virtual string GetScreenGameOptions()
+        {
+            return ScreenGameOptions;
+        }
+    }
 }
