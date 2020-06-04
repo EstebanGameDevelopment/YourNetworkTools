@@ -24,7 +24,7 @@ namespace YourNetworkingTools
         // ----------------------------------------------
         // PUBLIC MEMBERS
         // ----------------------------------------------	
-        public int MaximumNumberOfPlayers = 6;
+        public int MaximumNumberOfPlayers = 10;
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
