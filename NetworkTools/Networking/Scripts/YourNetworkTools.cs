@@ -528,7 +528,7 @@ namespace YourNetworkingTools
 					{
 						string[] friendIDs = friends.Split(',');
 						int idRoomLobby = MultiplayerConfiguration.LoadRoomNumberInServer(-1);
-						ClientTCPEventsController.Instance.CreateRoomForFriends(idRoomLobby, friendIDs, "extraData");
+						ClientTCPEventsController.Instance.CreateRoomForFriends(idRoomLobby, friendIDs, "");
 					}
 					else
 					{
@@ -536,7 +536,7 @@ namespace YourNetworkingTools
 						if (nameRoomLobby.Length > 0)
 						{
 							int idRoomLobby = MultiplayerConfiguration.LoadRoomNumberInServer(-1);
-							ClientTCPEventsController.Instance.CreateRoomForLobby(idRoomLobby, nameRoomLobby, totalPlayersConfigurated, "extraData");
+							ClientTCPEventsController.Instance.CreateRoomForLobby(idRoomLobby, nameRoomLobby, totalPlayersConfigurated, "");
 						}
 						else
 						{
@@ -551,11 +551,11 @@ namespace YourNetworkingTools
 					{
 						if (MultiplayerConfiguration.LoadIsRoomLobby())
 						{
-							ClientTCPEventsController.Instance.JoinRoomOfLobby(idRoomLobby, "null", "extraData");
+							ClientTCPEventsController.Instance.JoinRoomOfLobby(idRoomLobby, "null", "");
 						}
 						else
 						{
-							ClientTCPEventsController.Instance.JoinRoomForFriends(idRoomLobby, "null", "extraData");
+							ClientTCPEventsController.Instance.JoinRoomForFriends(idRoomLobby, "null", "");
 						}
 					}
 					else

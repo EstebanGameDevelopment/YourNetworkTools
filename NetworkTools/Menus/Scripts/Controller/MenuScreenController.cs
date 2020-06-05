@@ -93,7 +93,7 @@ namespace YourNetworkingTools
 		private int m_numberOfPlayers = -1;
 		private string m_friends;
 		private List<string> m_friendsIDs;
-		private string m_extraData = "extraData";
+		private string m_extraData = "";
 
 		// ----------------------------------------------
 		// GETTERS/SETTERS
@@ -550,7 +550,7 @@ namespace YourNetworkingTools
 				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
 				NetworkEventController.Instance.MenuController_LoadGameScene(TargetGameScene);
 #else
-				NetworkEventController.Instance.MenuController_JoinRoomOfLobby(MultiplayerConfiguration.LoadRoomNumberInServer(-1), "null", "extraData");
+				NetworkEventController.Instance.MenuController_JoinRoomOfLobby(MultiplayerConfiguration.LoadRoomNumberInServer(-1), "null", "");
 #endif
 			}
 			else
@@ -560,7 +560,7 @@ namespace YourNetworkingTools
 				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
 				NetworkEventController.Instance.MenuController_LoadGameScene(TargetGameScene);
 #else
-				NetworkEventController.Instance.MenuController_JoinRoomForFriends(MultiplayerConfiguration.LoadRoomNumberInServer(-1), "null", "extraData");
+				NetworkEventController.Instance.MenuController_JoinRoomForFriends(MultiplayerConfiguration.LoadRoomNumberInServer(-1), "null", "");
 #endif
 			}
 		}
