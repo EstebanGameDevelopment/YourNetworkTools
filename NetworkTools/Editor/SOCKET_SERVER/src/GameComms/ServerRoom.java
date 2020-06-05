@@ -23,6 +23,7 @@ public class ServerRoom extends Thread {
 	public static String EVENT_STREAMSERVER_REPORT_CLOSED_STREAM 	= "EVENT_STREAMSERVER_REPORT_CLOSED_STREAM";
 	public static String EVENT_SYSTEM_PLAYER_HAS_BEEN_DESTROYED		= "EVENT_SYSTEM_PLAYER_HAS_BEEN_DESTROYED";
 	public static String EVENT_CLIENT_TCP_CLOSE_CURRENT_ROOM		= "EVENT_CLIENT_TCP_CLOSE_CURRENT_ROOM";
+	public static String EVENT_CLIENT_TCP_UPDATE_EXTRA_ROOM_DATA	= "EVENT_CLIENT_TCP_UPDATE_EXTRA_ROOM_DATA";
 
 	public static String EVENT_SERVERROOM_DESTROYED 	= "EVENT_SERVERROOM_DESTROYED";
 	
@@ -46,7 +47,7 @@ public class ServerRoom extends Thread {
 	private ClientConnection m_currentConnection;
 	private int m_totalPlayers = -1;
 	private int m_hostRoomID = -1;
-	private String m_extraData = "null";
+	private String m_extraData = "";
 	private boolean m_destroyedResources = false;
 	
 	public int GetTotalNumberPlayers()
@@ -68,7 +69,7 @@ public class ServerRoom extends Thread {
 		m_extraData = _extraData;
 		if ((m_extraData == null) || (m_extraData.length()==0))
 		{
-			m_extraData = "null";
+			m_extraData = "-1,";
 		}
 		if (m_totalPlayers > 0)
 		{
@@ -304,11 +305,26 @@ public class ServerRoom extends Thread {
 		}
 		else
 		{
-			if (_event.indexOf(EVENT_CLIENT_TCP_CLOSE_CURRENT_ROOM)!=-1)
+			if (IsRoomOpen)
 			{
-				IsRoomOpen = false;
-				m_totalPlayers = m_listClients.size();
-				if (ServerGame.EnableLogMessages) System.out.println("ServerRoom::ProcessEvent:CLOSING ROOM WITH "+ m_totalPlayers + " PLAYERS");
+				if (_event.indexOf(EVENT_CLIENT_TCP_CLOSE_CURRENT_ROOM)!=-1)
+				{
+					IsRoomOpen = false;
+					m_totalPlayers = m_listClients.size();
+					if (ServerGame.EnableLogMessages) System.out.println("ServerRoom::ProcessEvent:CLOSING ROOM WITH "+ m_totalPlayers + " PLAYERS");
+				}
+				else
+				{
+					if (_event.indexOf(EVENT_CLIENT_TCP_UPDATE_EXTRA_ROOM_DATA)!=-1)
+					{
+						String[] eventParamsExtra = _event.split(ServerGame.TOKEN_SEPARATOR_EVENTS);
+						m_extraData = eventParamsExtra[eventParamsExtra.length - 1];
+					}
+					else
+					{
+						BroadCastEvent(_event);	
+					}
+				}
 			}
 			else
 			{
