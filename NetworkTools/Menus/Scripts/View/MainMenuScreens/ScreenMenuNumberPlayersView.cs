@@ -93,9 +93,6 @@ namespace YourNetworkingTools
             UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);
 
             m_container.Find("PlayerValue").GetComponent<InputField>().text = "2";
-#if ENABLE_OCULUS || ENABLE_WORLDSENSE
-            m_container.Find("PlayerValue").GetComponent<InputField>().text = "1";
-#endif
         }
 
         // -------------------------------------------
