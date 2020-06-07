@@ -623,7 +623,7 @@ namespace YourNetworkingTools
 				{
 					networkGameObject = (GameObject)networkObject;
 					InterpolatorController.Instance.Interpolate(networkGameObject, position, TimeToUpdateTransforms * 1.01f);
-					networkGameObject.transform.forward = forward;
+					InterpolatorController.Instance.InterpolateForward(networkGameObject, forward, TimeToUpdateTransforms * 1.01f);
 					networkGameObject.transform.localScale = scale;
 				}
 			}
