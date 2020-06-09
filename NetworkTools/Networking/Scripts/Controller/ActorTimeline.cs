@@ -302,6 +302,17 @@ namespace YourNetworkingTools
 
         // -------------------------------------------
         /* 
+		* InitializeLocalData
+		*/
+        public void InitializeLocalData(string _initialData)
+        {
+#if ENABLE_CONFUSION
+            InitializeWithData(_initialData);
+#endif
+        }
+
+        // -------------------------------------------
+        /* 
 		* InitializeWithData
 		*/
         protected virtual void InitializeWithData(string _initialData)
