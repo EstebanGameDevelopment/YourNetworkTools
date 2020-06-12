@@ -37,6 +37,7 @@ namespace YourNetworkingTools
         public const string EVENT_GAMEPLAYER_SETUP_AVATAR           = "EVENT_GAMEPLAYER_SETUP_AVATAR";
         public const string EVENT_GAMEPLAYER_CREATED_NEW            = "EVENT_GAMEPLAYER_CREATED_NEW";
         public const string EVENT_GAMECHARACTER_NEW_ANIMATION       = "EVENT_GAMECHARACTER_NEW_ANIMATION";
+        public const string EVENT_GAMECHARACTER_NEW_STATE           = "EVENT_GAMECHARACTER_NEW_STATE";
         public const string EVENT_GAMEPLAYER_HUMAN_PLAYER_NAME      = "EVENT_GAMEPLAYER_HUMAN_PLAYER_NAME";
         public const string EVENT_GAMEPLAYER_HUMAN_DIRECTOR_NAME    = "EVENT_GAMEPLAYER_HUMAN_DIRECTOR_NAME";
         public const string EVENT_GAMEPLAYER_HUMAN_SPECTATOR_NAME   = "EVENT_GAMEPLAYER_HUMAN_SPECTATOR_NAME";
@@ -50,6 +51,9 @@ namespace YourNetworkingTools
         public const string LAYER_ENEMIES = "ENEMIES";
         public const string LAYER_NPCS    = "NPCS";
         public const string LAYER_ITEMS   = "ITEMS";
+
+        public const char SEPARATOR_ANIMATION_ENTRY = '#';
+        public const char SEPARATOR_PARAMS_ANIMATION = ';';
 
         // ----------------------------------------------
         // CONSTANTS
@@ -91,6 +95,8 @@ namespace YourNetworkingTools
         protected GameObject m_ghostPlayer;
         protected Vector3 m_positionLocalPlayer = Vector3.zero;
         protected float m_timeForGhost = 0;
+
+        protected Dictionary<string, int> m_customAnimations = new Dictionary<string, int>();
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -331,6 +337,30 @@ namespace YourNetworkingTools
                 NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, NetworkID.GetID(), m_initialData);
             }
             InitializeCommon();
+            if (initialData.Length > 5)
+            {
+                InitializeCustomAnimations(initialData[5]);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		* InitializeCustomAnimations
+		*/
+        protected void InitializeCustomAnimations(string _data)
+        {
+            m_customAnimations = new Dictionary<string, int>();
+            string[] anims = _data.Split(SEPARATOR_ANIMATION_ENTRY);
+            for (int i = 0; i < anims.Length; i++)
+            {
+                if (anims[i].IndexOf(SEPARATOR_PARAMS_ANIMATION) != -1)
+                {
+                    string[] parmsAnim = anims[i].Split(SEPARATOR_PARAMS_ANIMATION);
+                    string nameAnimation = parmsAnim[0];
+                    int indexAnimation = int.Parse(parmsAnim[1]);
+                    m_customAnimations.Add(nameAnimation, indexAnimation);
+                }
+            }
         }
 
         // -------------------------------------------
@@ -550,6 +580,20 @@ namespace YourNetworkingTools
                     }
                 }
             }
+            if (_nameEvent == EVENT_GAMECHARACTER_NEW_STATE)
+            {
+                if (!IsMine())
+                {
+                    if (NetworkID != null)
+                    {
+                        if ((NetworkID.NetID == int.Parse((string)_list[0])) && (NetworkID.UID == int.Parse((string)_list[1])))
+                        {
+                            int newState = int.Parse((string)_list[2]);
+                            base.ChangeState(newState);
+                        }
+                    }
+                }
+            }
         }
 
 
@@ -713,6 +757,22 @@ namespace YourNetworkingTools
             }
         }
 
+        // -------------------------------------------
+        /* 
+		 * ChangeState
+		 */
+        public override void ChangeState(int newState)
+        {
+            if (IsMine())
+            {
+                if (m_state != newState)
+                {
+                    if (NetworkID != null) NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_GAMECHARACTER_NEW_STATE, 0.01f, NetworkID.NetID.ToString(), NetworkID.UID.ToString(), newState.ToString());
+                }
+                base.ChangeState(newState);
+            }
+        }
+
         // ---------------------------------------------------
         /**
 		 * InitGhostPlayer
@@ -772,6 +832,8 @@ namespace YourNetworkingTools
 		 */
         public override void Logic()
         {
+            base.Logic();
+
             if (GetModel() == null) return;
 
 #if ENABLE_MULTIPLAYER_TIMELINE
