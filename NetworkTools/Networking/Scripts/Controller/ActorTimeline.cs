@@ -798,16 +798,19 @@ namespace YourNetworkingTools
             if (m_ghostPlayer != null)
             {
                 Transform modelOtherPlayer = GetModel();
-                float finalY =  + modelOtherPlayer.transform.localPosition.y;
-                if (Mathf.Abs(this.gameObject.transform.position.y - m_positionLocalPlayer.y) > DISTANCE_TO_ACTIVATE_GHOST)
+                if (modelOtherPlayer != null)
                 {
-                    if (!m_ghostPlayer.activeSelf) m_ghostPlayer.SetActive(true);
-                    float finalPosition = m_positionLocalPlayer.y - (m_ghostPlayer.transform.localScale.y / 2);
-                    m_ghostPlayer.transform.position = new Vector3(m_ghostPlayer.transform.position.x, finalPosition, m_ghostPlayer.transform.position.z);
-                }
-                else
-                {
-                    if (m_ghostPlayer.activeSelf) m_ghostPlayer.SetActive(false);
+                    float finalY = modelOtherPlayer.transform.localPosition.y;
+                    if (Mathf.Abs(this.gameObject.transform.position.y - m_positionLocalPlayer.y) > DISTANCE_TO_ACTIVATE_GHOST)
+                    {
+                        if (!m_ghostPlayer.activeSelf) m_ghostPlayer.SetActive(true);
+                        float finalPosition = m_positionLocalPlayer.y - (m_ghostPlayer.transform.localScale.y / 2);
+                        m_ghostPlayer.transform.position = new Vector3(m_ghostPlayer.transform.position.x, finalPosition, m_ghostPlayer.transform.position.z);
+                    }
+                    else
+                    {
+                        if (m_ghostPlayer.activeSelf) m_ghostPlayer.SetActive(false);
+                    }
                 }
             }
         }
