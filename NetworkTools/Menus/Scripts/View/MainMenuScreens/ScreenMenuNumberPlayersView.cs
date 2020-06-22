@@ -22,11 +22,6 @@ namespace YourNetworkingTools
 		public const string SCREEN_NAME = "SCREEN_PLAYER_NUMBER";
 
         // ----------------------------------------------
-        // PUBLIC MEMBERS
-        // ----------------------------------------------	
-        public int MaximumNumberOfPlayers = 10;
-
-        // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
         private GameObject m_root;
@@ -54,11 +49,22 @@ namespace YourNetworkingTools
             }
             set
             {
-                if ((value > 0) && (value <= MaximumNumberOfPlayers))
+                if ((value > 0) && (value <= MenuScreenController.Instance.MaxPlayers))
                 {
                     m_finalNumberOfPlayers = value;
-                    m_container.Find("PlayerValue").GetComponent<InputField>().text = m_finalNumberOfPlayers.ToString();
                 }
+                else
+                {
+                    if (value <= 0)
+                    {
+                        m_finalNumberOfPlayers = 1;
+                    }
+                    else
+                    {
+                        m_finalNumberOfPlayers = MenuScreenController.Instance.MaxPlayers;
+                    }
+                }
+                m_container.Find("PlayerValue").GetComponent<InputField>().text = m_finalNumberOfPlayers.ToString();
             }
         }
 
@@ -93,6 +99,40 @@ namespace YourNetworkingTools
             UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);
 
             m_container.Find("PlayerValue").GetComponent<InputField>().text = "2";
+            m_container.Find("PlayerValue").GetComponent<InputField>().onEndEdit.AddListener(OnEndEditNumber);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Destroy
+		 */
+        public override bool Destroy()
+        {
+            if (base.Destroy()) return true;
+
+            UIEventController.Instance.UIEvent -= OnMenuEvent;
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * OnEndEditNumber
+		 */
+        private void OnEndEditNumber(string arg0)
+        {
+            string numberOfPlayers = m_container.Find("PlayerValue").GetComponent<InputField>().text;
+
+            // NUMBER OF PLAYERS
+            int finalNumberOfPlayers = -1;
+            if (int.TryParse(numberOfPlayers, out finalNumberOfPlayers))
+            {
+                FinalNumberOfPlayers = finalNumberOfPlayers;
+            }
+            else
+            {
+                m_container.Find("PlayerValue").GetComponent<InputField>().text = m_finalNumberOfPlayers.ToString();
+            }
         }
 
         // -------------------------------------------
@@ -120,19 +160,6 @@ namespace YourNetworkingTools
         public GameObject GetGameObject()
 		{
 			return this.gameObject;
-		}
-
-		// -------------------------------------------
-		/* 
-		 * Destroy
-		 */
-		public override bool Destroy()
-		{
-			if (base.Destroy()) return true;
-
-            UIEventController.Instance.UIEvent -= OnMenuEvent;
-            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
-			return false;
 		}
 
 		// -------------------------------------------
