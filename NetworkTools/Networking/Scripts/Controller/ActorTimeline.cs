@@ -221,14 +221,21 @@ namespace YourNetworkingTools
         }
         public bool IsMine()
         {
-            if (this.gameObject.GetComponent<ActorNetwork>() == null)
+            if (this.gameObject != null)
             {
-                return true;
+                if (this.gameObject.GetComponent<ActorNetwork>() == null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return this.gameObject.GetComponent<ActorNetwork>().IsMine();
+                }
             }
             else
             {
-                return this.gameObject.GetComponent<ActorNetwork>().IsMine();
-            }            
+                return false;
+            }
         }
         public virtual bool EnableBackgroundVR
         {
