@@ -28,6 +28,8 @@ namespace YourNetworkingTools
         MonoBehaviour
 #endif
     {
+        public bool IsSinglePlayer = false;
+
         public bool receivedBroadcast { get; private set; }
 		public int BroadcastInterval = 1000;
 		public string ServerIp { get; private set; }
@@ -43,12 +45,17 @@ namespace YourNetworkingTools
 		{
 			Debug.Log("NetworkDiscoveryUNET::START!!!!");
 
-#if ENABLE_CONFUSION
-            broadcastData = Utilities.RandomCodeGeneration(UnityEngine.Random.Range(0, 10).ToString());
-            broadcastKey = UnityEngine.Random.Range(2000, 6000);
-            broadcastPort = UnityEngine.Random.Range(20000, 90000);
-            broadcastSubVersion = UnityEngine.Random.Range(1, 9);
-#endif
+            if (MultiplayerConfiguration.LoadNumberOfPlayers() == 1)
+            {
+                broadcastData = Utilities.RandomCodeGeneration(UnityEngine.Random.Range(0, 10).ToString());
+                broadcastKey = UnityEngine.Random.Range(2000, 6000);
+                broadcastPort = UnityEngine.Random.Range(20000, 90000);
+                broadcastSubVersion = UnityEngine.Random.Range(1, 9);
+
+                NetworkEventController.Instance.DelayLocalEvent(NetworkEventController.EVENT_COMMUNICATIONSCONTROLLER_REGISTER_ALL_NETWORK_PREFABS, 0.2f);
+                BasicSystemEventController.Instance.DelayBasicSystemEvent(CommunicationsController.EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER, 0.3f);
+                return;
+            }
 
             // Initializes NetworkDiscovery.
             Initialize();

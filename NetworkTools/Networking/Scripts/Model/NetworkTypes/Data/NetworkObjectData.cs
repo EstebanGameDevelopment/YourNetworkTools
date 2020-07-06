@@ -140,11 +140,14 @@ namespace YourNetworkingTools
 		 */
 		public bool IsLocalPlayer()
 		{
-#if !ENABLE_CONFUSION
-            return (CommunicationsController.Instance.NetworkID == NetID);
-#else
-            return true;
-#endif
+            if (MultiplayerConfiguration.LoadNumberOfPlayers() != 1)
+            {
+                return (CommunicationsController.Instance.NetworkID == NetID);
+            }
+            else
+            {
+                return true;
+            }
         }
 
 		// -------------------------------------------

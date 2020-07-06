@@ -319,9 +319,10 @@ namespace YourNetworkingTools
 		*/
         public void InitializeLocalData(string _initialData)
         {
-#if ENABLE_CONFUSION
-            InitializeWithData(_initialData);
-#endif
+            if (MultiplayerConfiguration.LoadNumberOfPlayers() == 1)
+            {
+                InitializeWithData(_initialData);
+            }
         }
 
         // -------------------------------------------

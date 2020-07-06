@@ -71,11 +71,14 @@ namespace YourNetworkingTools
 			{
 				if (IsLocalGame)
 				{
-#if !ENABLE_CONFUSION
-                    return CommunicationsController.Instance.IsServer;
-#else
-                    return true;
-#endif
+                    if (MultiplayerConfiguration.LoadNumberOfPlayers() != 1)
+                    {
+                        return CommunicationsController.Instance.IsServer;
+                    }
+                    else
+                    {
+                        return true;
+                    }
                 }
 				else
 				{
@@ -136,48 +139,51 @@ namespace YourNetworkingTools
 
 			if (IsLocalGame)
 			{
-#if !ENABLE_CONFUSION
-                // INSTANTIATE LOCAL NETWORK PREFAB MANAGERS
-                for (int j = 0; j < LocalNetworkPrefabManagers.Length; j++)
-				{
-					Utilities.AddChild(transform, LocalNetworkPrefabManagers[j]);
-				}
+                if (MultiplayerConfiguration.LoadNumberOfPlayers() != 1)
+                {
+                    // INSTANTIATE LOCAL NETWORK PREFAB MANAGERS
+                    for (int j = 0; j < LocalNetworkPrefabManagers.Length; j++)
+                    {
+                        Utilities.AddChild(transform, LocalNetworkPrefabManagers[j]);
+                    }
 
-				// NETWORK VARIABLES MANAGER
-				Utilities.AddChild(transform, NetworkVariablesManager);
+                    // NETWORK VARIABLES MANAGER
+                    Utilities.AddChild(transform, NetworkVariablesManager);
 
-				// ASSIGN THE GAME OBJECTS TO THE CONTROLLER
-				WorldObjectController worldObjectController = GameObject.FindObjectOfType<WorldObjectController>();
-				if (worldObjectController != null)
-				{
-					worldObjectController.AppWorldObjects = new GameObject[GameObjects.Length];
-					for (int i = 0; i < GameObjects.Length; i++)
-					{
-						GameObject prefabToNetwork = GameObjects[i];
+                    // ASSIGN THE GAME OBJECTS TO THE CONTROLLER
+                    WorldObjectController worldObjectController = GameObject.FindObjectOfType<WorldObjectController>();
+                    if (worldObjectController != null)
+                    {
+                        worldObjectController.AppWorldObjects = new GameObject[GameObjects.Length];
+                        for (int i = 0; i < GameObjects.Length; i++)
+                        {
+                            GameObject prefabToNetwork = GameObjects[i];
 #if !DISABLE_UNET_COMMS
-						if (prefabToNetwork.GetComponent<NetworkWorldObjectData>() == null)
-						{
-							prefabToNetwork.AddComponent<NetworkWorldObjectData>();
-						}
-						else
-						{
-							prefabToNetwork.GetComponent<NetworkWorldObjectData>().enabled = true;
-						}
+                            if (prefabToNetwork.GetComponent<NetworkWorldObjectData>() == null)
+                            {
+                                prefabToNetwork.AddComponent<NetworkWorldObjectData>();
+                            }
+                            else
+                            {
+                                prefabToNetwork.GetComponent<NetworkWorldObjectData>().enabled = true;
+                            }
 #endif
-						if (prefabToNetwork.GetComponent<NetworkID>() != null)
-						{
-							prefabToNetwork.GetComponent<NetworkID>().enabled = false;
-						}
-						if (prefabToNetwork.GetComponent<ActorNetwork>() == null)
-						{
-							prefabToNetwork.AddComponent<ActorNetwork>();
-						}
-						worldObjectController.AppWorldObjects[i] = prefabToNetwork;
-					}
-				}
-#else
-                        NetworkEventController.Instance.DelayLocalEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_LOCAL_COMPLETED, 0.2f, 1);
-#endif
+                            if (prefabToNetwork.GetComponent<NetworkID>() != null)
+                            {
+                                prefabToNetwork.GetComponent<NetworkID>().enabled = false;
+                            }
+                            if (prefabToNetwork.GetComponent<ActorNetwork>() == null)
+                            {
+                                prefabToNetwork.AddComponent<ActorNetwork>();
+                            }
+                            worldObjectController.AppWorldObjects[i] = prefabToNetwork;
+                        }
+                    }
+                }
+                else
+                {
+                    NetworkEventController.Instance.DelayLocalEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_LOCAL_COMPLETED, 0.2f, 1);
+                }                
             }
 			else
 			{
@@ -232,11 +238,14 @@ namespace YourNetworkingTools
 		{
 			if (IsLocalGame)
 			{
-#if !ENABLE_CONFUSION
-                return CommunicationsController.Instance.NetworkID;
-#else
-                return 1;
-#endif
+                if (MultiplayerConfiguration.LoadNumberOfPlayers() != 1)
+                {
+                    return CommunicationsController.Instance.NetworkID;
+                }
+                else
+                {
+                    return 1;
+                }
             }
 			else
 			{

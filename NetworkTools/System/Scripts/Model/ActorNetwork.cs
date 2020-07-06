@@ -96,11 +96,14 @@ namespace YourNetworkingTools
 		 */
         public bool IsMine()
         {
-#if !ENABLE_CONFUSION 
-            return (YourNetworkTools.Instance.GetUniversalNetworkID() == NetworkID.NetID);
-#else
-            return true;
-#endif
+            if (MultiplayerConfiguration.LoadNumberOfPlayers() != 1)
+            {
+                return (YourNetworkTools.Instance.GetUniversalNetworkID() == NetworkID.NetID);
+            }
+            else
+            {
+                return true;
+            }
         }
 
 		// -------------------------------------------
@@ -113,9 +116,11 @@ namespace YourNetworkingTools
 			Debug.LogError("[ActorNetwork] ++SEND++ SIGNAL FOR AUTODESTRUCTION");
 #endif
 			NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
-#if !ENABLE_CONFUSION
-            NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST, NetworkID.NetID.ToString(), NetworkID.UID.ToString());
-#endif
+
+            if (MultiplayerConfiguration.LoadNumberOfPlayers() != 1)
+            {
+                NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST, NetworkID.NetID.ToString(), NetworkID.UID.ToString());
+            }
         }
 
 		// -------------------------------------------
