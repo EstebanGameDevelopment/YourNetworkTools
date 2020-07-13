@@ -172,12 +172,14 @@ namespace YourNetworkingTools
 
 			string numberOfPlayers = m_container.Find("PlayerValue").GetComponent<InputField>().text;
 
+
 			// NUMBER OF PLAYERS
 			m_finalNumberOfPlayers = -1;
 			if (!int.TryParse(numberOfPlayers, out m_finalNumberOfPlayers))
 			{
 				m_finalNumberOfPlayers = -1;
 			}
+            UIEventController.Instance.DispatchUIEvent(MenuScreenController.EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME, m_finalNumberOfPlayers);
             Destroy();
             MenuScreenController.Instance.LoadCustomGameScreenOrCreateGame(false, m_finalNumberOfPlayers, "", null);
 		}

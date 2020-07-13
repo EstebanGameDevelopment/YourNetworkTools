@@ -22,7 +22,8 @@ namespace YourNetworkingTools
 		// ----------------------------------------------
 		// EVENTS
 		// ----------------------------------------------	
-		public const string EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE = "EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE";
+		public const string EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE  = "EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE";
+        public const string EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME      = "EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME";
 
         // ----------------------------------------------
         // SINGLETON
@@ -424,7 +425,7 @@ namespace YourNetworkingTools
 					}
 					else
 					{
-						UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
+                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
 						NetworkEventController.Instance.MenuController_LoadGameScene(TargetGameScene);
 					}
 				}
