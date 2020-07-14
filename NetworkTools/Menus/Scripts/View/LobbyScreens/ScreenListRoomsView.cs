@@ -33,6 +33,8 @@ namespace YourNetworkingTools
 		private Button m_buttonBack;
 		private List<ItemLobbyRoomView> m_rooms = new List<ItemLobbyRoomView>();
 
+        private string m_screenBack = "";
+
 		// -------------------------------------------
 		/* 
 		 * Constructor
@@ -40,6 +42,11 @@ namespace YourNetworkingTools
 		public override void Initialize(params object[] _list)
 		{
 			base.Initialize(_list);
+
+            if (_list.Length > 0)
+            {
+                m_screenBack = (string)_list[0];
+            }
 
 			m_root = this.gameObject;
 			m_container = m_root.transform.Find("Content");
@@ -115,7 +122,14 @@ namespace YourNetworkingTools
 		private void BackPressed()
 		{
 			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
-			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenMainLobbyView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+            if (m_screenBack.Length > 0)
+            {
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, m_screenBack, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+            }
+            else
+            {
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenMainLobbyView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+            }			
 		}
 
 		// -------------------------------------------
