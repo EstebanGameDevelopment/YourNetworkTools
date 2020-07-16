@@ -457,9 +457,12 @@ namespace YourNetworkingTools
 		 */
 		public void MenuController_LoadGameScene(string _targetScene)
 		{
-			m_targetScene = _targetScene;
-			StartCoroutine(LoadScene());
-		}
+            if (m_targetScene.Length == 0)
+            {
+                m_targetScene = _targetScene;
+                StartCoroutine(LoadScene());
+            }
+        }
 
 		// -------------------------------------------
 		/* 
@@ -468,10 +471,9 @@ namespace YourNetworkingTools
 		IEnumerator LoadScene()
 		{
             UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_LOAD_NEW_SCENE);
-			yield return new WaitForSeconds(0.1f);
+			yield return new WaitForSeconds(0.3f);
 			SceneManager.LoadScene(m_targetScene);
 		}
-
 
         // -------------------------------------------
         /* 
