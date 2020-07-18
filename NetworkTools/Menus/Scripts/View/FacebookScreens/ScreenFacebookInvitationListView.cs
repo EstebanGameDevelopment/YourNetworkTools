@@ -110,7 +110,9 @@ namespace YourNetworkingTools
 
 				m_rooms.Add(instance.GetComponent<ItemRoomView>());
 			}
-		}
+
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_RELOAD_SCREEN_DATA, true);
+        }
 
 		// -------------------------------------------
 		/* 

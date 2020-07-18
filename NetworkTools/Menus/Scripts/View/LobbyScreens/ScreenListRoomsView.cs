@@ -45,7 +45,10 @@ namespace YourNetworkingTools
 
             if (_list.Length > 0)
             {
-                m_screenBack = (string)_list[0];
+                if (_list[0] != null)
+                {
+                    m_screenBack = (string)_list[0];
+                }                
             }
 
 			m_root = this.gameObject;
@@ -113,6 +116,8 @@ namespace YourNetworkingTools
 #endif
 				m_rooms.Add(instance.GetComponent<ItemLobbyRoomView>());
 			}
+
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_RELOAD_SCREEN_DATA, true);
 		}
 
 		// -------------------------------------------
