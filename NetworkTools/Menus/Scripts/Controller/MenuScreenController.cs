@@ -104,6 +104,11 @@ namespace YourNetworkingTools
 			get { return m_extraData; }
 			set { m_extraData = value; }
 		}
+        public int NumberOfPlayers
+        {
+            get { return m_numberOfPlayers; }
+            set { m_numberOfPlayers = value; }
+        }
 #if ENABLE_YOURVRUI
         public int ScreensVREnabled
         {
