@@ -9,11 +9,11 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
-public class SlotDataCellRenderer extends JPanel implements ListCellRenderer {
+public class SlotDataConnectionCellRenderer extends JPanel implements ListCellRenderer {
 
 	private JLabel labelItem = new JLabel();
 	     
-    public SlotDataCellRenderer() {
+    public SlotDataConnectionCellRenderer() {
         setLayout(new BorderLayout());
          
         labelItem.setOpaque(true);
@@ -25,7 +25,7 @@ public class SlotDataCellRenderer extends JPanel implements ListCellRenderer {
     @Override
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus) {
-    	SlotData object = (SlotData) value;
+    	SlotDataConnection object = (SlotDataConnection) value;
 		
     	if (object.GetTotalPlayers() == -1)
         {

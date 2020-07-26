@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import GameComms.*;
+import Common.*;
 
 public class Server 
 {

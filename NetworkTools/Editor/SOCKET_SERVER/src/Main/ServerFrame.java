@@ -145,7 +145,7 @@ public class ServerFrame extends Thread {
 		m_listLocalClients = new JList(m_listLocalModelClients);		
 		m_listLocalClients.setBounds(28, 108, 534, 203);
 		m_listLocalClients.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		m_listLocalClients.setCellRenderer(new SlotDataCellRenderer());
+		m_listLocalClients.setCellRenderer(new SlotDataConnectionCellRenderer());
 		m_listLocalClients.addListSelectionListener(new ListSelectionListener()
 		{
  		   public void valueChanged(ListSelectionEvent e) 
@@ -165,7 +165,7 @@ public class ServerFrame extends Thread {
 		m_listLocalRooms = new JList(m_listLocalModelRooms);		
 		m_listLocalRooms.setBounds(28, 348, 534, 180);
 		m_listLocalRooms.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		m_listLocalRooms.setCellRenderer(new SlotDataCellRenderer());
+		m_listLocalRooms.setCellRenderer(new SlotDataConnectionCellRenderer());
 		m_listLocalRooms.addListSelectionListener(new ListSelectionListener()
 		{
  		   public void valueChanged(ListSelectionEvent e) 
@@ -225,11 +225,11 @@ public class ServerFrame extends Thread {
 	/**
 	 * GetPlayerById
 	 */
-	private SlotData GetPlayerById(int _idUser)
+	private SlotDataConnection GetPlayerById(int _idUser)
 	{
 		for (int i = 0; i < m_listLocalModelClients.size(); i++)
 		{
-			SlotData sPlayer = (SlotData)m_listLocalModelClients.getElementAt(i);			
+			SlotDataConnection sPlayer = (SlotDataConnection)m_listLocalModelClients.getElementAt(i);			
 			if (sPlayer.GetUID() == _idUser)
 			{
 				return sPlayer;
@@ -246,7 +246,7 @@ public class ServerFrame extends Thread {
 	{
 		for (int i = 0; i < m_listLocalModelClients.size(); i++)
 		{
-			SlotData sPlayer = (SlotData)m_listLocalModelClients.getElementAt(i);			
+			SlotDataConnection sPlayer = (SlotDataConnection)m_listLocalModelClients.getElementAt(i);			
 			if (sPlayer.GetUID() == _idUser)
 			{
 				m_listLocalModelClients.removeElementAt(i);
@@ -260,11 +260,11 @@ public class ServerFrame extends Thread {
 	/**
 	 * GetRoomById
 	 */
-	private SlotData GetRoomById(int _idRoom)
+	private SlotDataConnection GetRoomById(int _idRoom)
 	{
 		for (int i = 0; i < m_listLocalModelRooms.size(); i++)
 		{
-			SlotData sRoom = (SlotData)m_listLocalModelRooms.getElementAt(i);			
+			SlotDataConnection sRoom = (SlotDataConnection)m_listLocalModelRooms.getElementAt(i);			
 			if (sRoom.GetUID() == _idRoom)
 			{
 				return sRoom;
@@ -281,7 +281,7 @@ public class ServerFrame extends Thread {
 	{
 		for (int i = 0; i < m_listLocalModelRooms.size(); i++)
 		{
-			SlotData sRoom = (SlotData)m_listLocalModelRooms.getElementAt(i);			
+			SlotDataConnection sRoom = (SlotDataConnection)m_listLocalModelRooms.getElementAt(i);			
 			if (sRoom.GetUID() == _idRoom)
 			{
 				m_listLocalModelRooms.removeElementAt(i);
@@ -313,7 +313,7 @@ public class ServerFrame extends Thread {
 				System.out.println("\t\t NEW PLAYER["+idNewUser+"] CONNECTED!!!");
 			}
 			String nameNewUser = (String)_event.GetParams()[1];
-			SlotData newSlot = new SlotData(idNewUser, nameNewUser);
+			SlotDataConnection newSlot = new SlotDataConnection(idNewUser, nameNewUser);
 			m_listLocalModelClients.addElement(newSlot);
 		}
 		if (_event.GetType().equals(ServerClients.EVENT_CLIENT_TCP_ROOM_ID))
@@ -322,14 +322,14 @@ public class ServerFrame extends Thread {
 			int roomNumber = (int)_event.GetParams()[1];
 			String roomName = (String)_event.GetParams()[2];
 			int numberPlayers = (int)_event.GetParams()[3];
-			SlotData sRoomSlot = GetRoomById(roomNumber);
+			SlotDataConnection sRoomSlot = GetRoomById(roomNumber);
 			if (sRoomSlot == null)
 			{
 				if (ServerGame.EnableLogMessages)
 				{
 					System.out.println("\t\t NEW ROOM[" + roomNumber + "-" + roomName + "]");
 				}
-				sRoomSlot = new SlotData(roomNumber, roomName, numberPlayers);
+				sRoomSlot = new SlotDataConnection(roomNumber, roomName, numberPlayers);
 				m_listLocalModelRooms.addElement(sRoomSlot);
 			}
 			sRoomSlot.SetConnectedPlayers(sRoomSlot.GetConnectedPlayers() + 1);

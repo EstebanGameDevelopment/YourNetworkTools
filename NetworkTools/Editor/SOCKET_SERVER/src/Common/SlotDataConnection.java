@@ -16,7 +16,7 @@ import java.math.*;
 /**
  @brief Contains data of the server
 */
-public class SlotData
+public class SlotDataConnection
 {
 	public static final String STATE_PLAYER_CONNECTED 	= "CONNECTED";
 	public static final String STATE_PLAYER_INGAME 		= "IN-GAME";
@@ -32,14 +32,14 @@ public class SlotData
 	public int GetConnectedPlayers() { return m_connectedPlayers; }
 	public void SetConnectedPlayers(int _value) { m_connectedPlayers = _value; }
 	
-    public SlotData(int _uid, String _nameItem)
+    public SlotDataConnection(int _uid, String _nameItem)
 	{
     	m_uid = _uid;
     	m_nameItem = _nameItem; 
     	m_totalPlayers = -1;
 	}
 
-    public SlotData(int _uid, String _nameItem, int _totalPlayers)
+    public SlotDataConnection(int _uid, String _nameItem, int _totalPlayers)
 	{
     	m_uid = _uid;
     	m_nameItem = _nameItem; 
