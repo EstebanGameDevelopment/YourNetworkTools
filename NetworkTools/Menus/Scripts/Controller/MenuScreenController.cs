@@ -24,6 +24,7 @@ namespace YourNetworkingTools
 		// ----------------------------------------------	
 		public const string EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE  = "EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE";
         public const string EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME      = "EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME";
+        public const string EVENT_MENUEVENTCONTROLLER_JOIN_EXISTING_GAME    = "EVENT_MENUEVENTCONTROLLER_JOIN_EXISTING_GAME";
 
         // ----------------------------------------------
         // SINGLETON

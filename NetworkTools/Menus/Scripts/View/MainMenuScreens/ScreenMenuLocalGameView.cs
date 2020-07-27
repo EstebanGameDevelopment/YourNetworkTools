@@ -101,7 +101,8 @@ namespace YourNetworkingTools
 		 */
 		private void JoinGamePressed()
 		{
-			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
+            UIEventController.Instance.DispatchUIEvent(MenuScreenController.EVENT_MENUEVENTCONTROLLER_JOIN_EXISTING_GAME);
+            SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
 			NetworkEventController.Instance.MenuController_SaveNumberOfPlayers(MultiplayerConfiguration.VALUE_FOR_JOINING);
 			MenuScreenController.Instance.CreateOrJoinRoomInServer(true);
 		}
