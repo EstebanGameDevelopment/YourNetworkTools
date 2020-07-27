@@ -74,7 +74,10 @@ namespace YourNetworkingTools
         public static void SaveNumberOfPlayers(int _players)
         {
             PlayerPrefs.SetInt(NUMBER_OF_PLAYERS_COOCKIE, _players);
+            NumberOfPlayers = -2;
         }
+
+        public static int NumberOfPlayers = -2;
 
         // -------------------------------------------
         /* 
@@ -82,7 +85,11 @@ namespace YourNetworkingTools
 		 */
         public static int LoadNumberOfPlayers()
         {
-            return PlayerPrefs.GetInt(NUMBER_OF_PLAYERS_COOCKIE, -1);
+            if (NumberOfPlayers == -2)
+            {
+                NumberOfPlayers = PlayerPrefs.GetInt(NUMBER_OF_PLAYERS_COOCKIE, -1);
+            }
+            return NumberOfPlayers;
         }
 
         // -------------------------------------------
