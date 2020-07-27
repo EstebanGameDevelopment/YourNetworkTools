@@ -96,6 +96,8 @@ namespace YourNetworkingTools
         protected Vector3 m_positionLocalPlayer = Vector3.zero;
         protected float m_timeForGhost = 0;
 
+        private int m_owner = -1;
+
         protected Dictionary<string, int> m_customAnimations = new Dictionary<string, int>();
 
         // ----------------------------------------------
@@ -249,6 +251,11 @@ namespace YourNetworkingTools
         {
             get { return 3f; }
         }
+        public int Owner
+        {
+            get { return m_owner; }
+        }
+
 
         // -------------------------------------------
         /* 
@@ -349,6 +356,10 @@ namespace YourNetworkingTools
             {
                 InitializeCustomAnimations(initialData[5]);
             }
+            if (initialData.Length > 6)
+            {
+                m_owner = int.Parse(initialData[6]);
+            }
         }
 
         // -------------------------------------------
@@ -357,16 +368,19 @@ namespace YourNetworkingTools
 		*/
         protected void InitializeCustomAnimations(string _data)
         {
-            m_customAnimations = new Dictionary<string, int>();
-            string[] anims = _data.Split(SEPARATOR_ANIMATION_ENTRY);
-            for (int i = 0; i < anims.Length; i++)
+            if (_data.Length > 1)
             {
-                if (anims[i].IndexOf(SEPARATOR_PARAMS_ANIMATION) != -1)
+                m_customAnimations = new Dictionary<string, int>();
+                string[] anims = _data.Split(SEPARATOR_ANIMATION_ENTRY);
+                for (int i = 0; i < anims.Length; i++)
                 {
-                    string[] parmsAnim = anims[i].Split(SEPARATOR_PARAMS_ANIMATION);
-                    string nameAnimation = parmsAnim[0];
-                    int indexAnimation = int.Parse(parmsAnim[1]);
-                    m_customAnimations.Add(nameAnimation, indexAnimation);
+                    if (anims[i].IndexOf(SEPARATOR_PARAMS_ANIMATION) != -1)
+                    {
+                        string[] parmsAnim = anims[i].Split(SEPARATOR_PARAMS_ANIMATION);
+                        string nameAnimation = parmsAnim[0];
+                        int indexAnimation = int.Parse(parmsAnim[1]);
+                        m_customAnimations.Add(nameAnimation, indexAnimation);
+                    }
                 }
             }
         }
