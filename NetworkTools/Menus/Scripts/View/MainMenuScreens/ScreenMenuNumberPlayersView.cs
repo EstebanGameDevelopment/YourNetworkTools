@@ -129,10 +129,7 @@ namespace YourNetworkingTools
             {
                 FinalNumberOfPlayers = finalNumberOfPlayers;
             }
-            else
-            {
-                m_container.Find("PlayerValue").GetComponent<InputField>().text = m_finalNumberOfPlayers.ToString();
-            }
+            m_container.Find("PlayerValue").GetComponent<InputField>().text = m_finalNumberOfPlayers.ToString();
         }
 
         // -------------------------------------------
@@ -169,19 +166,9 @@ namespace YourNetworkingTools
 		private void ConfirmNumberPlayers()
 		{
 			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
-
-			string numberOfPlayers = m_container.Find("PlayerValue").GetComponent<InputField>().text;
-
-
-			// NUMBER OF PLAYERS
-			m_finalNumberOfPlayers = -1;
-			if (!int.TryParse(numberOfPlayers, out m_finalNumberOfPlayers))
-			{
-				m_finalNumberOfPlayers = -1;
-			}
-            UIEventController.Instance.DispatchUIEvent(MenuScreenController.EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME, m_finalNumberOfPlayers);
+            UIEventController.Instance.DispatchUIEvent(MenuScreenController.EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME, FinalNumberOfPlayers);
             Destroy();
-            MenuScreenController.Instance.LoadCustomGameScreenOrCreateGame(false, m_finalNumberOfPlayers, "", null);
+            MenuScreenController.Instance.LoadCustomGameScreenOrCreateGame(false, FinalNumberOfPlayers, "", null);
 		}
 	}
 }
