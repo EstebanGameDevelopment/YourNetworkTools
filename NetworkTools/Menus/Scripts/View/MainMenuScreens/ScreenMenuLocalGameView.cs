@@ -52,7 +52,10 @@ namespace YourNetworkingTools
 			joinGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.local.game.join.local.game");
 			joinGame.GetComponent<Button>().onClick.AddListener(JoinGamePressed);
 
-			m_container.Find("Button_Back").GetComponent<Button>().onClick.AddListener(BackPressed);
+            if (m_container.Find("Button_Back") != null)
+            {
+                m_container.Find("Button_Back").GetComponent<Button>().onClick.AddListener(BackPressed);
+            }
 
 			UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);			
 		}
