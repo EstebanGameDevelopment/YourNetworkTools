@@ -42,7 +42,14 @@ namespace YourNetworkingTools
 			m_root = this.gameObject;
 			m_container = m_root.transform.Find("Content");
 
-			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.title");
+            if (LanguageController.Instance.ExistsText("message.organize.game.conn"))
+            {
+                m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.organize.game.conn");
+            }
+            else
+            {
+                m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.title");
+            }
 
 			GameObject createGame = m_container.Find("Button_CreateGame").gameObject;
 			createGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.local.game.start.a.new.game");
