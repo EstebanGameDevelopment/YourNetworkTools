@@ -510,7 +510,14 @@ namespace YourNetworkingTools
             {
                 if (_checkScreenGameOptions && (GetScreenGameOptions().Length > 0))
                 {
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                    if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
+                    {
+                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                    }
+                    else
+                    {
+                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                    }
                 }
                 else
                 {
