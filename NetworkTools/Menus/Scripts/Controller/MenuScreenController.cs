@@ -302,6 +302,7 @@ namespace YourNetworkingTools
             }
             else
             {
+                // GENERIC SCREEN
                 int layerScreen = 0;
                 int indexToCheck = -1;
                 float depth = 0;
@@ -369,25 +370,41 @@ namespace YourNetworkingTools
                         }
                     }
                 }
+
+                // INFORMATION SCREEN
+                layerScreen = 0;
+                indexToCheck = -1;
+                depth = 0;
                 if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN)
                 {
-                    string nameScreen = (string)_list[0];
-                    UIScreenTypePreviousAction previousAction = (UIScreenTypePreviousAction)_list[1];
-                    string title = (string)_list[2];
-                    string description = (string)_list[3];
-                    Sprite image = (Sprite)_list[4];
-                    string eventData = (string)_list[5];
+                    depth = 0;
+                    indexToCheck = 0;
+                }
+                if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_INFORMATION_SCREEN)
+                {
+                    layerScreen = (int)_list[0];
+                    depth = layerScreen * 0.1f;
+                    indexToCheck = 2;
+                }
+                if (indexToCheck != -1)
+                {
+                    string nameScreen = (string)_list[indexToCheck];
+                    UIScreenTypePreviousAction previousAction = (UIScreenTypePreviousAction)_list[indexToCheck + 1];
+                    string title = (string)_list[indexToCheck + 2];
+                    string description = (string)_list[indexToCheck + 3];
+                    Sprite image = (Sprite)_list[indexToCheck + 4];
+                    string eventData = (string)_list[indexToCheck + 5];
                     float scaleScreen = -1;
-                    if (_list.Length > 6)
+                    if (_list.Length > indexToCheck + 6)
                     {
-                        if (_list[6] is float)
+                        if (_list[indexToCheck + 6] is float)
                         {
-                            scaleScreen = (float)_list[6];
+                            scaleScreen = (float)_list[indexToCheck + 6];
                         }
                     }
                     List<PageInformation> pages = new List<PageInformation>();
                     pages.Add(new PageInformation(title, description, image, eventData, "", ""));
-                    YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[0]), pages, 1.4f, -1, false, scaleScreen, previousAction, ScreenController.TOTAL_LAYERS_SCREENS - 1);
+                    YourVRUIScreenController.Instance.CreateScreenLinkedToCamera(GetScreenPrefabByName((string)_list[indexToCheck]), pages, 1.4f, -1, false, scaleScreen, previousAction, ScreenController.TOTAL_LAYERS_SCREENS - 1);
                 }
                 if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_LOAD_NEW_SCENE)
                 {
