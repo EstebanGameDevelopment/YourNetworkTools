@@ -19,6 +19,7 @@ namespace YourNetworkingTools
 	{
 		public const string SOUND_MAIN_MENU		= "SOUND_MAIN_MENU";
 		public const string SOUND_SELECTION_FX	= "SOUND_FX_SELECTION";
+		public const string SOUND_UNSELECTION_FX = "SOUND_FX_UNSELECTION";
 	}
 }
 
