@@ -168,7 +168,7 @@ namespace YourNetworkingTools
 
 #if ENABLE_WORLDSENSE || ENABLE_OCULUS
             KeysEventInputController.Instance.EnableActionOnMouseDown = false;
-            Invoke("StartSplashScreen", 0.2f);
+            Invoke("StartSplashScreen", 0.1f);
 #else
             StartSplashScreen();
 #endif
