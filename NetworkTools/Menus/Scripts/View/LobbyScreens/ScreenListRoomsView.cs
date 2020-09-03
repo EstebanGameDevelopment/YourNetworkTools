@@ -157,7 +157,6 @@ namespace YourNetworkingTools
                 PlayerPrefs.SetString(ScreenCreateRoomView.PLAYERPREFS_YNT_ROOMNAME, roomSelected.DisplayName);
                 NetworkEventController.Instance.MenuController_SaveRoomNumberInServer(roomSelected.Room);
                 MenuScreenController.Instance.ExtraData = roomSelected.ExtraData;
-                MultiplayerConfiguration.SaveExtraData(roomSelected.ExtraData);
 
                 // JOIN ROOM IN LOBBY
 #if ENABLE_BALANCE_LOADER

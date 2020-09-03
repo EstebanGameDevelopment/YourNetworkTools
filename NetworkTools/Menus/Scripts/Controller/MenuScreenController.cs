@@ -27,6 +27,11 @@ namespace YourNetworkingTools
         public const string EVENT_MENUEVENTCONTROLLER_JOIN_EXISTING_GAME    = "EVENT_MENUEVENTCONTROLLER_JOIN_EXISTING_GAME";
 
         // ----------------------------------------------
+        // PUBLIC CONSTANTS
+        // ----------------------------------------------	
+        public const string BLOCKCHAIN_TAG_BEGIN = "<blockchain>";
+
+        // ----------------------------------------------
         // SINGLETON
         // ----------------------------------------------	
         private static MenuScreenController instance;
@@ -97,18 +102,44 @@ namespace YourNetworkingTools
 		private List<string> m_friendsIDs;
 		private string m_extraData = "";
 
-		// ----------------------------------------------
-		// GETTERS/SETTERS
-		// ----------------------------------------------	
-		public string ExtraData
+        private string m_extraDataBlockchain = "";
+        private decimal m_priceBlockchainService = 0;
+        private string m_currencySelected = "";
+        private string m_publicKeyAddressProvider = "";
+
+        // ----------------------------------------------
+        // GETTERS/SETTERS
+        // ----------------------------------------------	
+        public string ExtraData
 		{
 			get { return m_extraData; }
-			set { m_extraData = value; }
+			set {
+                m_extraData = value;
+                MultiplayerConfiguration.SaveExtraData(m_extraData);
+                GetBlockchainFromExtraData();
+            }
 		}
         public int NumberOfPlayers
         {
             get { return m_numberOfPlayers; }
             set { m_numberOfPlayers = value; }
+        }
+        public decimal PriceBlockchain
+        {
+            get { return m_priceBlockchainService; }
+            set { m_priceBlockchainService = value; }
+        }
+        public string CurrencySelected
+        {
+            get { return m_currencySelected; }
+        }
+        public string PublicKeyAddressProvider
+        {
+            get { return m_publicKeyAddressProvider; }
+        }
+        public string ExtraDataBlockchain
+        {
+            get { return m_extraDataBlockchain; }
         }
 #if ENABLE_YOURVRUI
         public int ScreensVREnabled
@@ -208,11 +239,45 @@ namespace YourNetworkingTools
 			UIEventController.Instance.UIEvent -= OnUIEvent;
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * GetBlockchainFromExtraData
+		 */
+        public bool GetBlockchainFromExtraData()
+        {
+            if (m_extraDataBlockchain.Length == 0)
+            {
+                m_extraDataBlockchain = MultiplayerConfiguration.LoadExtraData();
+            }
+
+            if (m_extraDataBlockchain.IndexOf(BLOCKCHAIN_TAG_BEGIN) == -1)
+            {
+                m_extraDataBlockchain = "";
+            }
+            else
+            {
+                int startingBlockchainAddress = m_extraDataBlockchain.IndexOf(BLOCKCHAIN_TAG_BEGIN) + BLOCKCHAIN_TAG_BEGIN.Length;
+                string dataBlockchain = m_extraDataBlockchain.Substring(startingBlockchainAddress, m_extraDataBlockchain.Length - startingBlockchainAddress);
+                Debug.LogError("GetBlockchainFromExtraData=" + dataBlockchain);
+                string[] paramsToPay = dataBlockchain.Split(':');
+
+                if (paramsToPay.Length == 3)
+                {
+                    m_priceBlockchainService = decimal.Parse(paramsToPay[0]);
+                    m_currencySelected = (string)paramsToPay[1];
+                    m_publicKeyAddressProvider = (string)paramsToPay[2];
+
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Manager of global events
 		 */
-		protected override void OnUIEvent(string _nameEvent, params object[] _list)
+        protected override void OnUIEvent(string _nameEvent, params object[] _list)
 		{
             if (!PreProcessScreenEvents(_nameEvent, _list)) return;
 
@@ -543,13 +608,11 @@ namespace YourNetworkingTools
                         if (!YourNetworkTools.GetIsLocalGame())
                         {
                             UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-                            MultiplayerConfiguration.SaveExtraData(m_extraData);
                             JoinARoomInServer();
                         }
                         else
                         {
                             UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-                            MultiplayerConfiguration.SaveExtraData(m_extraData);
                             NetworkEventController.Instance.MenuController_LoadGameScene(TargetGameScene);
                         }
                     }
@@ -574,7 +637,6 @@ namespace YourNetworkingTools
                     }
                     else
                     {
-                        MultiplayerConfiguration.SaveExtraData(m_extraData);
                         UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
                         NetworkEventController.Instance.MenuController_LoadGameScene(TargetGameScene);
                     }
