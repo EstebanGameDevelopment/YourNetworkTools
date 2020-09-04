@@ -30,6 +30,7 @@ namespace YourNetworkingTools
         // PUBLIC CONSTANTS
         // ----------------------------------------------	
         public const string BLOCKCHAIN_TAG_BEGIN = "<blockchain>";
+        public const string BLOCKCHAIN_TAG_END = "</blockchain>";
 
         // ----------------------------------------------
         // SINGLETON
@@ -255,10 +256,10 @@ namespace YourNetworkingTools
                 m_extraDataBlockchain = "";
             }
             else
-            {
+            {                
                 int startingBlockchainAddress = m_extraDataBlockchain.IndexOf(BLOCKCHAIN_TAG_BEGIN) + BLOCKCHAIN_TAG_BEGIN.Length;
-                string dataBlockchain = m_extraDataBlockchain.Substring(startingBlockchainAddress, m_extraDataBlockchain.Length - startingBlockchainAddress);
-                Debug.LogError("GetBlockchainFromExtraData=" + dataBlockchain);
+                int sizeBlockchainAddress = m_extraDataBlockchain.IndexOf(BLOCKCHAIN_TAG_END) - startingBlockchainAddress;
+                string dataBlockchain = m_extraDataBlockchain.Substring(startingBlockchainAddress, sizeBlockchainAddress);
                 string[] paramsToPay = dataBlockchain.Split(':');
 
                 if (paramsToPay.Length == 3)
@@ -271,6 +272,47 @@ namespace YourNetworkingTools
                 }
             }
             return false;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * RemoveBlockchainFromExtraData
+		 */
+        public string RemoveBlockchainFromExtraData(string _extraData)
+        {
+            if (_extraData.IndexOf(BLOCKCHAIN_TAG_BEGIN) == -1)
+            {
+                return _extraData;
+            }
+            else
+            {
+                int startingBlockchainAddress = _extraData.IndexOf(BLOCKCHAIN_TAG_BEGIN);
+                int endBlockchainAddress = _extraData.IndexOf(BLOCKCHAIN_TAG_END) + BLOCKCHAIN_TAG_END.Length;
+
+                string part1 = _extraData.Substring(0, startingBlockchainAddress);
+                string part2 = _extraData.Substring(endBlockchainAddress, _extraData.Length - endBlockchainAddress);
+
+                return part1 + part2;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * AddBlockchainToExtraData
+		 */
+        public void AddBlockchainToExtraData(decimal _price, string _currency, string _providerAddress)
+        {
+            ExtraData = RemoveBlockchainFromExtraData(ExtraData);
+            ExtraData += GetBlockchainExtraData(_price, _currency, _providerAddress);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * GetBlockchainExtraData
+		 */
+        public string GetBlockchainExtraData(decimal _price, string _currency, string _providerAddress)
+        {
+            return BLOCKCHAIN_TAG_BEGIN + _price + ":" + _currency + ":" + _providerAddress + BLOCKCHAIN_TAG_END;
         }
 
         // -------------------------------------------
