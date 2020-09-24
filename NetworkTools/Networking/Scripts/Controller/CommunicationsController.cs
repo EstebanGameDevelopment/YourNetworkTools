@@ -493,7 +493,8 @@ namespace YourNetworkingTools
 		*/
 		void OnGUI()
 		{
-			if (MultiplayerConfiguration.DEBUG_MODE)
+#if UNITY_EDITOR
+            if (MultiplayerConfiguration.DEBUG_MODE)
 			{
 				GUILayout.BeginVertical();
 				if (m_networkID == -1)
@@ -506,7 +507,8 @@ namespace YourNetworkingTools
 				}
 				GUILayout.EndVertical();
 			}
-		}
+#endif
+        }
 
 		// -------------------------------------------
 		/* 
