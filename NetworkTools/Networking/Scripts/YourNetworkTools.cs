@@ -15,11 +15,11 @@ namespace YourNetworkingTools
 	 * @author Esteban Gallardo
 	 */
 	public class YourNetworkTools : MonoBehaviour
-	{
-		// ----------------------------------------------
-		// EVENTS
-		// ----------------------------------------------	
-		public const string EVENT_YOURNETWORKTOOLS_NETID_NEW = "EVENT_YOURNETWORKTOOLS_NETID_NEW";
+    {
+        // ----------------------------------------------
+        // EVENTS
+        // ----------------------------------------------	
+        public const string EVENT_YOURNETWORKTOOLS_NETID_NEW = "EVENT_YOURNETWORKTOOLS_NETID_NEW";
 		public const string EVENT_YOURNETWORKTOOLS_DESTROYED_GAMEOBJECT = "EVENT_YOURNETWORKTOOLS_DESTROYED_GAMEOBJECT";
 
 		public const string COOCKIE_IS_LOCAL_GAME = "COOCKIE_IS_LOCAL_GAME";
@@ -45,7 +45,7 @@ namespace YourNetworkingTools
 		// PUBLIC MEMBERS
 		// ----------------------------------------------
 		public bool IsLocalGame = true;
-		public float TimeToUpdateTransforms = 0.2f;
+        public float TimeToUpdateTransforms = 0.2f;
 		public GameObject[] LocalNetworkPrefabManagers;
 		public GameObject NetworkVariablesManager;
 		public GameObject[] GameObjects;
@@ -65,7 +65,9 @@ namespace YourNetworkingTools
 		private int m_uidCounter = 0;
 		private bool m_hasBeenInitialized = false;
 
-		public bool IsServer
+        private bool m_enabledPhotonEngine = false;
+
+        public bool IsServer
 		{
 			get
 			{
@@ -96,30 +98,29 @@ namespace YourNetworkingTools
 			get { return m_hasBeenInitialized; }
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Stores in the coockie if it's a local game
 		 */
-		public static void SetLocalGame(bool _isLocalGame)
+        public static void SetLocalGame(bool _isLocalGame)
 		{
 			PlayerPrefs.SetInt(COOCKIE_IS_LOCAL_GAME, (_isLocalGame ? -1 : 1));
 		}
 
-
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Stores in the coockie if it's a local game
 		 */
-		public static bool GetIsLocalGame()
+        public static bool GetIsLocalGame()
 		{
 			return (PlayerPrefs.GetInt(COOCKIE_IS_LOCAL_GAME, -1000) == -1);
 		}
 
-		// -------------------------------------------
-		/* 
-		 * Converts the normal GameObjects in Network GameObjects
-		 */
-		void Start()
+        // -------------------------------------------
+        /* 
+        * Converts the normal GameObjects in Network GameObjects
+        */
+        void Start()
 		{
 			System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
 			customCulture.NumberFormat.NumberDecimalSeparator = ".";
@@ -183,42 +184,44 @@ namespace YourNetworkingTools
                 else
                 {
                     NetworkEventController.Instance.DelayLocalEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_LOCAL_COMPLETED, 0.2f, 1);
-                }                
+                }
             }
 			else
 			{
-				// CONNECT TO THE SERVER
-				ClientTCPEventsController.Instance.Initialitzation(MultiplayerConfiguration.LoadIPAddressServer(), MultiplayerConfiguration.LoadPortServer(), MultiplayerConfiguration.LoadRoomNumberInServer(0), MultiplayerConfiguration.LoadMachineIDServer(0), MultiplayerConfiguration.LoadBufferSizeReceive(), MultiplayerConfiguration.LoadTimeoutReceive(), MultiplayerConfiguration.LoadBufferSizeSend(), MultiplayerConfiguration.LoadTimeoutSend());
+#if !ENABLE_PHOTON
+                    // CONNECT TO THE SERVER
+                    ClientTCPEventsController.Instance.Initialitzation(MultiplayerConfiguration.LoadIPAddressServer(), MultiplayerConfiguration.LoadPortServer(), MultiplayerConfiguration.LoadRoomNumberInServer(0), MultiplayerConfiguration.LoadMachineIDServer(0), MultiplayerConfiguration.LoadBufferSizeReceive(), MultiplayerConfiguration.LoadTimeoutReceive(), MultiplayerConfiguration.LoadBufferSizeSend(), MultiplayerConfiguration.LoadTimeoutSend());
 
-                // NETWORK VARIABLES MANAGER
-                Utilities.AddChild(transform, NetworkVariablesManager);
+                    // NETWORK VARIABLES MANAGER
+                    Utilities.AddChild(transform, NetworkVariablesManager);
 
-				// ADD NETWORK IDENTIFICATION TO THE GAME OBJECTS
-				for (int i = 0; i < GameObjects.Length; i++)
-				{
-					GameObject prefabToNetwork = GameObjects[i];
-					if (prefabToNetwork.GetComponent<NetworkID>() == null)
-					{
-						prefabToNetwork.AddComponent<NetworkID>();
-					}
-					else
-					{
-						prefabToNetwork.GetComponent<NetworkID>().enabled = true;
-					}
+                    // ADD NETWORK IDENTIFICATION TO THE GAME OBJECTS
+                    for (int i = 0; i < GameObjects.Length; i++)
+                    {
+                        GameObject prefabToNetwork = GameObjects[i];
+                        if (prefabToNetwork.GetComponent<NetworkID>() == null)
+                        {
+                            prefabToNetwork.AddComponent<NetworkID>();
+                        }
+                        else
+                        {
+                            prefabToNetwork.GetComponent<NetworkID>().enabled = true;
+                        }
 #if !DISABLE_UNET_COMMS
-					if (prefabToNetwork.GetComponent<NetworkWorldObjectData>() != null)
-					{
-						prefabToNetwork.GetComponent<NetworkWorldObjectData>().enabled = false;
-					}
+                        if (prefabToNetwork.GetComponent<NetworkWorldObjectData>() != null)
+                        {
+                            prefabToNetwork.GetComponent<NetworkWorldObjectData>().enabled = false;
+                        }
 #endif
-					if (prefabToNetwork.GetComponent<ActorNetwork>() == null)
-					{
-						prefabToNetwork.AddComponent<ActorNetwork>();
-					}
-				}
-			}
+                        if (prefabToNetwork.GetComponent<ActorNetwork>() == null)
+                        {
+                            prefabToNetwork.AddComponent<ActorNetwork>();
+                        }
+                    }
+#endif
+            }
 
-			m_hasBeenInitialized = true;
+            m_hasBeenInitialized = true;
 		}
 
 		// -------------------------------------------
@@ -774,5 +777,5 @@ namespace YourNetworkingTools
 		{
 			UpdateRemoteTransforms(false);
 		}
-	}
+    }
 }

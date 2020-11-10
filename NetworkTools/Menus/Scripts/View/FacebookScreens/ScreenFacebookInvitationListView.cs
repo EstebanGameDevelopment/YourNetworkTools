@@ -142,6 +142,7 @@ namespace YourNetworkingTools
 			if (roomSelected != null)
 			{
 				NetworkEventController.Instance.MenuController_SaveRoomNumberInServer(roomSelected.Room);
+				NetworkEventController.Instance.MenuController_SaveRoomNameInServer(roomSelected.DisplayName);
 
 				// JOIN ROOM IN FACEBOOK
 #if ENABLE_BALANCE_LOADER

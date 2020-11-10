@@ -64,6 +64,10 @@ namespace YourNetworkingTools
 				}
 			}
 		}
+        public string DisplayName
+        {
+            get { return m_text.text; }
+        }
 
 		// -------------------------------------------
 		/* 

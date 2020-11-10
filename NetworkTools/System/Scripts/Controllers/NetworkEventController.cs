@@ -1,3 +1,8 @@
+#if ENABLE_PHOTON
+using ExitGames.Client.Photon;
+using Photon.Pun;
+using Photon.Realtime;
+#endif
 using UnityEngine;
 using System;
 using System.Collections;
@@ -20,13 +25,18 @@ namespace YourNetworkingTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class NetworkEventController : MonoBehaviour
-	{
-		// ----------------------------------------------
-		// EVENTS
-		// ----------------------------------------------	
-		// SYSTEM
-		public const string EVENT_SYSTEM_INITIALITZATION_LOCAL_COMPLETED = "EVENT_SYSTEM_INITIALITZATION_LOCAL_COMPLETED";
+	public class NetworkEventController :
+#if ENABLE_PHOTON
+        MonoBehaviourPunCallbacks
+#else
+        MonoBehaviour
+#endif
+    {
+        // ----------------------------------------------
+        // EVENTS
+        // ----------------------------------------------	
+        // SYSTEM
+        public const string EVENT_SYSTEM_INITIALITZATION_LOCAL_COMPLETED = "EVENT_SYSTEM_INITIALITZATION_LOCAL_COMPLETED";
 		public const string EVENT_SYSTEM_INITIALITZATION_REMOTE_COMPLETED = "EVENT_SYSTEM_INITIALITZATION_REMOTE_COMPLETED";
 		public const string EVENT_SYSTEM_DESTROY_NETWORK_COMMUNICATIONS = "EVENT_SYSTEM_DESTROY_NETWORK_COMMUNICATIONS";
 		public const string EVENT_SYSTEM_DESTROY_NETWORK_SCREENS = "EVENT_SYSTEM_DESTROY_NETWORK_SCREENS";
@@ -149,11 +159,22 @@ namespace YourNetworkingTools
 		{
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * Awake
+		 */
+        void Awake()
+        {
+#if ENABLE_PHOTON
+            PhotonNetwork.AutomaticallySyncScene = true;
+#endif
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Destroy
 		 */
-		void OnDestroy()
+        void OnDestroy()
 		{
 			Destroy();
 		}
@@ -352,23 +373,21 @@ namespace YourNetworkingTools
 		 */
 		public void MenuController_CreateNewLobbyRoom(string _nameLobby, int _finalNumberOfPlayers, string _extraData)
 		{
-			// CREATE ROOM IN LOBBY
-			MultiplayerConfiguration.SaveNameRoomLobby(_nameLobby);
+            MultiplayerConfiguration.SaveNameRoomLobby(_nameLobby);
 #if ENABLE_BALANCE_LOADER
 			UIEventController.Instance.DispatchUIEvent(MenuScreenController.EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE);
 			CommsHTTPConfiguration.CreateNewRoom(true, _nameLobby, ClientTCPEventsController.GetPlayersString(_finalNumberOfPlayers), _extraData);
 #else
 			MenuController_CreateRoomForLobby(_nameLobby, _finalNumberOfPlayers, _extraData);
 #endif
-		}
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Will create a new room for friends
 		 */
-		public void MenuController_CreateNewFacebookRoom(string _friends, List<string> _friendsIDs, string _extraData)
+        public void MenuController_CreateNewFacebookRoom(string _friends, List<string> _friendsIDs, string _extraData)
 		{
-			// CREATE ROOM IN FACEBOOK
 #if ENABLE_BALANCE_LOADER
 			UIEventController.Instance.DispatchUIEvent(MenuScreenController.EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE);
 			MultiplayerConfiguration.SaveFriendsGame(_friends);
@@ -385,17 +404,29 @@ namespace YourNetworkingTools
 		 */
 		public void MenuController_InitialitzationSocket(int _numberRoom, int _idMachineHost)
 		{
-			ClientTCPEventsController.Instance.Initialitzation(MultiplayerConfiguration.LoadIPAddressServer(), MultiplayerConfiguration.LoadPortServer(), MultiplayerConfiguration.LoadRoomNumberInServer(_numberRoom), MultiplayerConfiguration.LoadMachineIDServer(_idMachineHost), MultiplayerConfiguration.LoadBufferSizeReceive(), MultiplayerConfiguration.LoadTimeoutReceive(), MultiplayerConfiguration.LoadBufferSizeSend(), MultiplayerConfiguration.LoadTimeoutSend());
-		}
+#if ENABLE_PHOTON
+            PhotonNetwork.LocalPlayer.NickName = Utilities.RandomCodeGeneration(UnityEngine.Random.Range(100, 999).ToString());
+            PhotonNetwork.ConnectUsingSettings();
+#else
+            ClientTCPEventsController.Instance.Initialitzation(MultiplayerConfiguration.LoadIPAddressServer(), MultiplayerConfiguration.LoadPortServer(), MultiplayerConfiguration.LoadRoomNumberInServer(_numberRoom), MultiplayerConfiguration.LoadMachineIDServer(_idMachineHost), MultiplayerConfiguration.LoadBufferSizeReceive(), MultiplayerConfiguration.LoadTimeoutReceive(), MultiplayerConfiguration.LoadBufferSizeSend(), MultiplayerConfiguration.LoadTimeoutSend());
+#endif
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Will connect the socket to create the lobby
 		 */
-		public void MenuController_CreateRoomForLobby(string _nameLobby, int _finalNumberOfPlayers, string _extraData)
+        public void MenuController_CreateRoomForLobby(string _nameLobby, int _finalNumberOfPlayers, string _extraData)
 		{
+#if ENABLE_PHOTON
+            Debug.LogError("CreateRoomForLobby::_nameLobby="+ _nameLobby);
+            RoomOptions options = new RoomOptions { MaxPlayers = (byte)_finalNumberOfPlayers, PlayerTtl = 10000 };
+            PhotonNetwork.CreateRoom(_nameLobby, options, null);
+            Debug.LogError("CreateRoomForLobby::CREATING THE ROOM...");
+#else
 			ClientTCPEventsController.Instance.CreateRoomForLobby(_nameLobby, _finalNumberOfPlayers, _extraData);
-		}
+#endif
+        }
 
 		// -------------------------------------------
 		/* 
@@ -412,23 +443,50 @@ namespace YourNetworkingTools
 		 */
 		public void MenuController_JoinRoomOfLobby(int _room, string _players, string _extraData)
 		{
+#if !ENABLE_PHOTON
 			ClientTCPEventsController.Instance.JoinRoomOfLobby(_room, _players, _extraData);
-		}
+#endif
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * Will join to an existing room of the lobby
+		 */
+        public void MenuController_JoinRoomOfLobby(string _room, string _players, string _extraData)
+        {
+#if ENABLE_PHOTON
+            if (PhotonNetwork.InLobby)
+            {
+                PhotonNetwork.LeaveLobby();
+            }
+
+            PhotonNetwork.JoinRoom(_room);
+#endif
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Will save the room number we should connect
 		 */
-		public void MenuController_SaveRoomNumberInServer(int _value)
+        public void MenuController_SaveRoomNumberInServer(int _value)
 		{
 			MultiplayerConfiguration.SaveRoomNumberInServer(_value);
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * Will save the room number we should connect
+		 */
+        public void MenuController_SaveRoomNameInServer(string _value)
+        {
+            MultiplayerConfiguration.SaveRoomNameInServer(_value);
+        }
+
+        // -------------------------------------------
+        /* 
 		 * We save the IP address we should connect
 		 */
-		public void MenuController_SaveIPAddressServer(string _value)
+        public void MenuController_SaveIPAddressServer(string _value)
 		{
 			MultiplayerConfiguration.SaveIPAddressServer(_value);
 		}
@@ -525,6 +583,72 @@ namespace YourNetworkingTools
                 }
             }
         }
+
+#if ENABLE_PHOTON
+        // -------------------------------------------
+        /* 
+		 * OnConnectedToMaster
+		 */
+        public override void OnConnectedToMaster()
+        {
+            UIEventController.Instance.DispatchUIEvent(ClientTCPEventsController.EVENT_CLIENT_TCP_ESTABLISH_NETWORK_ID, -1);
+        }
+
+        public override void OnRoomListUpdate(List<RoomInfo> roomList)
+        {
+            Debug.LogError("YourNetworkTools::OnRoomListUpdate");
+        }
+
+        public override void OnLeftLobby()
+        {
+            Debug.LogError("YourNetworkTools::OnLeftLobby");
+        }
+
+        public override void OnCreateRoomFailed(short returnCode, string message)
+        {
+            Debug.LogError("YourNetworkTools::OnCreateRoomFailed");
+        }
+
+        public override void OnJoinRoomFailed(short returnCode, string message)
+        {
+            Debug.LogError("YourNetworkTools::OnJoinRoomFailed");
+        }
+
+        public override void OnJoinRandomFailed(short returnCode, string message)
+        {
+            Debug.LogError("YourNetworkTools::OnJoinRandomFailed");
+        }
+
+        public override void OnJoinedRoom()
+        {
+            Debug.LogError("YourNetworkTools::OnJoinedRoom");
+        }
+
+        public override void OnLeftRoom()
+        {
+            Debug.LogError("YourNetworkTools::OnLeftRoom");
+        }
+
+        public override void OnPlayerEnteredRoom(Player newPlayer)
+        {
+            Debug.LogError("YourNetworkTools::OnPlayerEnteredRoom");
+        }
+
+        public override void OnPlayerLeftRoom(Player otherPlayer)
+        {
+            Debug.LogError("YourNetworkTools::XXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+        }
+
+        public override void OnMasterClientSwitched(Player newMasterClient)
+        {
+            Debug.LogError("YourNetworkTools::OnMasterClientSwitched");
+        }
+
+        public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+        {
+            Debug.LogError("YourNetworkTools::OnPlayerPropertiesUpdate");
+        }
+#endif
 
         // -------------------------------------------
         /* 

@@ -677,14 +677,18 @@ namespace YourNetworkingTools
 		{
 			if (NetworkEventController.Instance.IsLobbyMode)
 			{
-				// JOIN ROOM IN LOBBY
+#if ENABLE_PHOTON
+                NetworkEventController.Instance.MenuController_JoinRoomOfLobby(MultiplayerConfiguration.LoadRoomNameInServer(""), "null", "");
+#else
+                // JOIN ROOM IN LOBBY
 #if ENABLE_BALANCE_LOADER
 				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
 				NetworkEventController.Instance.MenuController_LoadGameScene(TargetGameScene);
 #else
-				NetworkEventController.Instance.MenuController_JoinRoomOfLobby(MultiplayerConfiguration.LoadRoomNumberInServer(-1), "null", "");
+                NetworkEventController.Instance.MenuController_JoinRoomOfLobby(MultiplayerConfiguration.LoadRoomNumberInServer(-1), "null", "");
 #endif
-			}
+#endif
+            }
 			else
 			{
 				// JOIN ROOM IN FACEBOOK

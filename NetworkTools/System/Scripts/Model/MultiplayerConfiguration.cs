@@ -36,6 +36,7 @@ namespace YourNetworkingTools
         public const string CREATE_ROOM_COOCKIE = "CREATE_ROOM_COOCKIE";
         public const string LIST_ROOMS_COOCKIE = "LIST_ROOMS_COOCKIE";
         public const string ROOM_NUMBER_COOCKIE = "ROOM_NUMBER_COOCKIE";
+        public const string ROOM_NAME_COOCKIE = "ROOM_NAME_COOCKIE";
         public const string MACHINE_ID_HOST_ROOM_COOCKIE = "MACHINE_ID_HOST_ROOM_COOCKIE";
 
         public const string FACEBOOK_FRIENDS_COOCKIE = "FACEBOOK_FRIENDS_COOCKIE";
@@ -163,6 +164,25 @@ namespace YourNetworkingTools
         {
             return PlayerPrefs.GetInt(ROOM_NUMBER_COOCKIE, _defaultRoom);
         }
+
+        // -------------------------------------------
+        /* 
+		 * Will save the room number to use in the server
+		 */
+        public static void SaveRoomNameInServer(string _room)
+        {
+            PlayerPrefs.SetString(ROOM_NAME_COOCKIE, _room);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Will load the port server address
+		 */
+        public static string LoadRoomNameInServer(string _defaultRoom)
+        {
+            return PlayerPrefs.GetString(ROOM_NAME_COOCKIE, _defaultRoom);
+        }
+        
 
         // -------------------------------------------
         /* 
