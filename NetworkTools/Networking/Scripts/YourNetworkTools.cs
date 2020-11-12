@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using YourCommonTools;
+#if ENABLE_PHOTON
+using Photon.Pun;
+#endif
 
 namespace YourNetworkingTools
 {
@@ -20,7 +23,8 @@ namespace YourNetworkingTools
         // EVENTS
         // ----------------------------------------------	
         public const string EVENT_YOURNETWORKTOOLS_NETID_NEW = "EVENT_YOURNETWORKTOOLS_NETID_NEW";
-		public const string EVENT_YOURNETWORKTOOLS_DESTROYED_GAMEOBJECT = "EVENT_YOURNETWORKTOOLS_DESTROYED_GAMEOBJECT";
+        public const string EVENT_YOURNETWORKTOOLS_CREATED_GAMEOBJECT = "EVENT_YOURNETWORKTOOLS_CREATED_GAMEOBJECT";
+        public const string EVENT_YOURNETWORKTOOLS_DESTROYED_GAMEOBJECT = "EVENT_YOURNETWORKTOOLS_DESTROYED_GAMEOBJECT";
 
 		public const string COOCKIE_IS_LOCAL_GAME = "COOCKIE_IS_LOCAL_GAME";
 		public const char TOKEN_SEPARATOR_NAME = '_';
@@ -84,9 +88,13 @@ namespace YourNetworkingTools
                 }
 				else
 				{
-					return ClientTCPEventsController.Instance.IsServer();
-				}
-			}
+#if ENABLE_PHOTON
+                    return PhotonController.Instance.IsServer();
+#else
+                    return ClientTCPEventsController.Instance.IsServer();
+#endif
+                }
+            }
 		}
 		public bool ActivateTransformUpdate
 		{
@@ -194,6 +202,7 @@ namespace YourNetworkingTools
 
                     // NETWORK VARIABLES MANAGER
                     Utilities.AddChild(transform, NetworkVariablesManager);
+#endif
 
                     // ADD NETWORK IDENTIFICATION TO THE GAME OBJECTS
                     for (int i = 0; i < GameObjects.Length; i++)
@@ -218,7 +227,6 @@ namespace YourNetworkingTools
                             prefabToNetwork.AddComponent<ActorNetwork>();
                         }
                     }
-#endif
             }
 
             m_hasBeenInitialized = true;
@@ -252,9 +260,13 @@ namespace YourNetworkingTools
             }
 			else
 			{
-				return ClientTCPEventsController.Instance.UniqueNetworkID;
-			}
-		}
+#if ENABLE_PHOTON
+                return PhotonController.Instance.UniqueNetworkID;
+#else
+                return ClientTCPEventsController.Instance.UniqueNetworkID;
+#endif
+            }
+        }
 
         // -------------------------------------------
         /* 
@@ -367,7 +379,21 @@ namespace YourNetworkingTools
 			}
 			else
 			{
-				GameObject networkGameObject = Utilities.AddChild(this.gameObject.transform, GetPrefabByName(_prefabName));
+#if ENABLE_PHOTON
+                object[] instantiationData = { GetUniversalNetworkID(), m_uidCounter };
+                GameObject networkGameObject = PhotonNetwork.Instantiate(_prefabName, Vector3.zero, Quaternion.identity, 0, instantiationData);
+                networkGameObject.transform.position = new Vector3(_x, _y, _z);
+                networkGameObject.GetComponent<NetworkID>().NetID = GetUniversalNetworkID();
+                networkGameObject.GetComponent<NetworkID>().UID = m_uidCounter;
+                m_uidCounter++;
+                networkGameObject.GetComponent<NetworkID>().IndexPrefab = GetPrefabIndexOfName(_prefabName);
+                m_tcpNetworkObjects.Add(networkGameObject);
+                if (networkGameObject.GetComponent<IGameNetworkActor>() != null)
+                {
+                    networkGameObject.GetComponent<IGameNetworkActor>().Initialize(_initialData);
+                }
+#else
+                GameObject networkGameObject = Utilities.AddChild(this.gameObject.transform, GetPrefabByName(_prefabName));
                 networkGameObject.transform.position = new Vector3(_x, _y, _z);
                 networkGameObject.GetComponent<NetworkID>().NetID = GetUniversalNetworkID();
 				networkGameObject.GetComponent<NetworkID>().UID = m_uidCounter;
@@ -379,7 +405,8 @@ namespace YourNetworkingTools
 					networkGameObject.GetComponent<IGameNetworkActor>().Initialize(_initialData);
 				}
 				ClientTCPEventsController.Instance.SendTranform(networkGameObject.GetComponent<NetworkID>().NetID, networkGameObject.GetComponent<NetworkID>().UID, networkGameObject.GetComponent<NetworkID>().IndexPrefab, networkGameObject.transform.position, networkGameObject.transform.forward, networkGameObject.transform.localScale);
-			}
+#endif
+            }
 		}
 
 		// -------------------------------------------
@@ -442,7 +469,7 @@ namespace YourNetworkingTools
 		*/
 		private bool CheckExistingInitialDataForObject(string _keyID, GameObject _objectToInit)
 		{
-			if (m_initialData.ContainsKey(_keyID))
+            if (m_initialData.ContainsKey(_keyID))
 			{
 				string initialData = "";
 				if (m_initialData.TryGetValue(_keyID, out initialData))
@@ -588,12 +615,14 @@ namespace YourNetworkingTools
 			}
 			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA)
 			{
-				if (!m_initialData.ContainsKey((string)_list[0]))
-				{
-					m_initialData.Add((string)_list[0], (string)_list[1]);
-					CheckInitializationObjects();
-				}
-			}
+                if (!m_initialData.ContainsKey((string)_list[0]))
+                {
+                    string keyNetworkGO = (string)_list[0];
+                    string dataNetworkGO = (string)_list[1];
+                    m_initialData.Add(keyNetworkGO, dataNetworkGO);
+                    CheckInitializationObjects();
+                }
+            }
 			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST)
 			{
 				DestroyNetworkObject(int.Parse((string)_list[0]), int.Parse((string)_list[1]));
@@ -608,7 +637,17 @@ namespace YourNetworkingTools
 			{
 				Debug.Log("----------------------DISCONNECTED PLAYER[" + (int)_list[0] + "]");
 			}
-			if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_TRANSFORM_DATA)
+#if ENABLE_PHOTON
+            if (_nameEvent == EVENT_YOURNETWORKTOOLS_CREATED_GAMEOBJECT)
+            {
+                GameObject newGO = (GameObject)_list[0];
+                if (!m_tcpNetworkObjects.Contains(newGO))
+                {
+                    m_tcpNetworkObjects.Add(newGO);
+                }
+            }
+#endif
+            if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_TRANSFORM_DATA)
 			{
 				int NetID = (int)_list[0];
 				int UID = (int)_list[1];
@@ -715,7 +754,8 @@ namespace YourNetworkingTools
 			{
 				if (!IsLocalGame)
 				{
-					m_timeoutUpdateRemoteNetworkObject += Time.deltaTime;
+#if !ENABLE_PHOTON
+                    m_timeoutUpdateRemoteNetworkObject += Time.deltaTime;
 					if ((m_timeoutUpdateRemoteNetworkObject >= TimeToUpdateTransforms) || _force)
 					{
 						m_timeoutUpdateRemoteNetworkObject = 0;
@@ -734,7 +774,8 @@ namespace YourNetworkingTools
 							}
 						}
 					}
-				}
+#endif
+                }
 				else
 				{
 #if !DISABLE_UNET_COMMS

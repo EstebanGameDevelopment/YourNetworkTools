@@ -70,7 +70,7 @@ namespace YourNetworkingTools
 			UIEventController.Instance.DelayUIEvent(MenuScreenController.EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE, 0.1f);
 			CommsHTTPConfiguration.GetListRooms(true, "PLAYER_LOBBY");
 #else
-			LoadRooms(ClientTCPEventsController.Instance.RoomsLobby);
+			LoadRooms(NetworkEventController.Instance.RoomsLobby);
 #endif
 
 			UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);			
@@ -208,7 +208,7 @@ namespace YourNetworkingTools
 			}
 			if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_LIST_OF_GAME_ROOMS)
 			{
-				LoadRooms(ClientTCPEventsController.Instance.RoomsLobby);
+				LoadRooms(NetworkEventController.Instance.RoomsLobby);
 			}
 			if (_nameEvent == MenuScreenController.EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE)
 			{

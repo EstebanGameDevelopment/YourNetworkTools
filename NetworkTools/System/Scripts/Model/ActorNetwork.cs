@@ -1,4 +1,7 @@
-﻿using System;
+﻿#if ENABLE_PHOTON
+using Photon.Pun;
+#endif
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,10 +25,14 @@ namespace YourNetworkingTools
 		private NetworkID m_networkID;
 		private string m_eventNameObjectCreated = "";
 
-		// ----------------------------------------------
-		// GETTERS/SETTERS
-		// ----------------------------------------------	
-		public NetworkID NetworkID
+#if ENABLE_PHOTON
+        private PhotonView m_photonView;
+#endif
+
+        // ----------------------------------------------
+        // GETTERS/SETTERS
+        // ----------------------------------------------	
+        public NetworkID NetworkID
 		{
 			get
 			{
@@ -45,30 +52,51 @@ namespace YourNetworkingTools
 			set { m_eventNameObjectCreated = value; }
 		}
 
-		// -------------------------------------------
-		/* 
+#if ENABLE_PHOTON
+        // -------------------------------------------
+        /* 
+		* Awake
+		*/
+        public void Awake()
+        {
+            if (!YourNetworkTools.Instance.IsLocalGame)
+            {
+                m_photonView = GetComponent<PhotonView>();
+
+                if (m_photonView.InstantiationData != null)
+                {
+                    NetworkID.NetID = (int)(m_photonView.InstantiationData[0]);
+                    NetworkID.UID = (int)(m_photonView.InstantiationData[1]);
+                }
+            }
+        }
+#endif
+
+        // -------------------------------------------
+        /* 
 		 * Report the event in the system when a new player has been created.
 		 * 
 		 * The player could have been created by a remote client so we should throw an event
 		 * so that the controller will be listening to it.
 		 */
-		void Start()
+        void Start()
 		{
 			if (m_eventNameObjectCreated == "")
 			{
 				Debug.LogError("ReportCreationObject::YOU SHOULD DEFINE IN THE CONSTRUCTOR THE EVENT TO REPORT THE CREATION OF THE GAME OBJECT IN THE SYSTEM");
 			}
 			NetworkEventController.Instance.DispatchLocalEvent(m_eventNameObjectCreated, this.gameObject);
-			if (IsMine())
+            NetworkEventController.Instance.DispatchLocalEvent(YourNetworkTools.EVENT_YOURNETWORKTOOLS_CREATED_GAMEOBJECT, this.gameObject);
+            if (IsMine())
 			{
-				NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_LOCAL_CREATION_CONFIRMATION, this.gameObject);
+                NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_LOCAL_CREATION_CONFIRMATION, this.gameObject);
 			}
 			else
 			{
-				NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_REMOTE_CREATION_CONFIRMATION, this.gameObject);
+                NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_REMOTE_CREATION_CONFIRMATION, this.gameObject);
 			}
-			NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);
-		}
+            NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);            
+        }
 
 		// -------------------------------------------
 		/* 

@@ -34,6 +34,7 @@ namespace YourNetworkingTools
         public const string EVENT_ACTORTIMELINE_GO_ACTION_ENDED     = "EVENT_ACTORTIMELINE_STATE_FACE_PLAYER";
         public const string EVENT_ACTORTIMELINE_WAYPOINT_UPDATED    = "EVENT_ACTORTIMELINE_WAYPOINT_UPDATED";
 
+        public const string EVENT_GAMEPLAYER_INIT_GO                 = "EVENT_GAMEPLAYER_INIT_GO";
         public const string EVENT_GAMEPLAYER_SETUP_AVATAR           = "EVENT_GAMEPLAYER_SETUP_AVATAR";
         public const string EVENT_GAMEPLAYER_CREATED_NEW            = "EVENT_GAMEPLAYER_CREATED_NEW";
         public const string EVENT_GAMECHARACTER_NEW_ANIMATION       = "EVENT_GAMECHARACTER_NEW_ANIMATION";
@@ -566,12 +567,25 @@ namespace YourNetworkingTools
                 }
             }
 #endif
+            if (_nameEvent == NetworkEventController.EVENT_SYSTEM_INITIALITZATION_REMOTE_COMPLETED)
+            {
+                if (m_initialData!= null)
+                {
+                    if (m_initialData.Length > 0)
+                    {
+                        NetworkEventController.Instance.PriorityDelayNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, 1, NetworkID.GetID(), m_initialData);
+                    }
+                }                
+            }
             if (_nameEvent == EVENT_GAMEPLAYER_CREATED_NEW)
             {
                 GameObject newPlayer = ((GameObject)_list[0]);
-                if (newPlayer != this.gameObject)
+                if (newPlayer != null)
                 {
-                    if (NetworkID!=null) NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, NetworkID.GetID(), m_initialData);
+                    if (newPlayer != this.gameObject)
+                    {
+                        if (NetworkID != null) NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, NetworkID.GetID(), m_initialData);
+                    }
                 }
             }
             if ((_nameEvent == EVENT_GAMEPLAYER_HUMAN_DIRECTOR_NAME) || (_nameEvent == EVENT_GAMEPLAYER_HUMAN_SPECTATOR_NAME))

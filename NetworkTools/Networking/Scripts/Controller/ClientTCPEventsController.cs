@@ -21,6 +21,8 @@ namespace YourNetworkingTools
 	 */
 	public class ClientTCPEventsController : MonoBehaviour
 	{
+		public const bool DEBUG = false;
+
 		public const int MESSAGE_EVENT = 0;
 		public const int MESSAGE_TRANSFORM = 1;
 		public const int MESSAGE_DATA = 2;
@@ -183,7 +185,9 @@ namespace YourNetworkingTools
 			CloseSocket(true);
 			Destroy(_instance.gameObject);
 			_instance = null;
-		}
+
+            if (DEBUG) Debug.LogError("ClientTCPEventsController::Destroy::SOCKEDT CONNECTION HAS BEEN SUCCESSFULLY DESTROYED!!!!!!!!!!!!!!!!!!!!!!!!");
+        }
 
 		// -------------------------------------------
 		/* 

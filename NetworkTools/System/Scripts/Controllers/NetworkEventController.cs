@@ -25,12 +25,7 @@ namespace YourNetworkingTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class NetworkEventController :
-#if ENABLE_PHOTON
-        MonoBehaviourPunCallbacks
-#else
-        MonoBehaviour
-#endif
+	public class NetworkEventController : MonoBehaviour
     {
         // ----------------------------------------------
         // EVENTS
@@ -131,13 +126,15 @@ namespace YourNetworkingTools
 		// PRIVATE MEMBERS
 		// ----------------------------------------------
 		private List<AppEventData> m_listEvents = new List<AppEventData>();
-        private List<AppEventData> m_listPriorityEvents = new List<AppEventData>();
+        private List<AppEventData> m_listPriorityEvents = new List<AppEventData>();        
 
         private string m_nameRoomLobby = "";
 		private bool m_isLobbyMode = false;
 		private string m_targetScene = "";
         private bool m_checkIgnoreEvent = false;
         private string m_nameIgnoreEvent = "";
+
+        private int m_totalNumberOfPlayers = -1;
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -150,14 +147,17 @@ namespace YourNetworkingTools
 		{
 			get { return m_isLobbyMode; }
 		}
-
-		// -------------------------------------------
-		/* 
-		 * Constructor
-		 */
-		private NetworkEventController()
-		{
-		}
+        public List<ItemMultiTextEntry> RoomsLobby
+        {
+            get
+            {
+#if ENABLE_PHOTON
+                return PhotonController.Instance.RoomsLobby;
+#else
+                return ClientTCPEventsController.Instance.RoomsLobby;
+#endif
+            }
+        }
 
         // -------------------------------------------
         /* 
@@ -169,6 +169,15 @@ namespace YourNetworkingTools
             PhotonNetwork.AutomaticallySyncScene = true;
 #endif
         }
+
+        // -------------------------------------------
+        /* 
+		 * Constructor
+		 */
+        private NetworkEventController()
+		{
+		}
+
 
         // -------------------------------------------
         /* 
@@ -187,11 +196,28 @@ namespace YourNetworkingTools
 		{
 			if (instance != null)
 			{
-				DispatchLocalEvent(EVENT_SYSTEM_DESTROY_NETWORK_COMMUNICATIONS);
-				Destroy(instance.gameObject);
-				instance = null;
-			}
-		}
+                try
+                {
+                    DispatchLocalEvent(EVENT_SYSTEM_DESTROY_NETWORK_COMMUNICATIONS);
+                    Destroy(instance.gameObject);
+                }
+                catch (Exception err) { };
+                instance = null;
+
+                try
+                {
+                    if (m_isLobbyMode)
+                    {
+#if ENABLE_PHOTON
+                        PhotonController.Instance.Destroy();
+#else
+                        ClientTCPEventsController.Instance.Destroy();
+#endif
+                    }
+                }
+                catch (Exception err) { };
+            }
+        }
 
         // -------------------------------------------
         /* 
@@ -405,8 +431,7 @@ namespace YourNetworkingTools
 		public void MenuController_InitialitzationSocket(int _numberRoom, int _idMachineHost)
 		{
 #if ENABLE_PHOTON
-            PhotonNetwork.LocalPlayer.NickName = Utilities.RandomCodeGeneration(UnityEngine.Random.Range(100, 999).ToString());
-            PhotonNetwork.ConnectUsingSettings();
+            PhotonController.Instance.Login();
 #else
             ClientTCPEventsController.Instance.Initialitzation(MultiplayerConfiguration.LoadIPAddressServer(), MultiplayerConfiguration.LoadPortServer(), MultiplayerConfiguration.LoadRoomNumberInServer(_numberRoom), MultiplayerConfiguration.LoadMachineIDServer(_idMachineHost), MultiplayerConfiguration.LoadBufferSizeReceive(), MultiplayerConfiguration.LoadTimeoutReceive(), MultiplayerConfiguration.LoadBufferSizeSend(), MultiplayerConfiguration.LoadTimeoutSend());
 #endif
@@ -419,10 +444,7 @@ namespace YourNetworkingTools
         public void MenuController_CreateRoomForLobby(string _nameLobby, int _finalNumberOfPlayers, string _extraData)
 		{
 #if ENABLE_PHOTON
-            Debug.LogError("CreateRoomForLobby::_nameLobby="+ _nameLobby);
-            RoomOptions options = new RoomOptions { MaxPlayers = (byte)_finalNumberOfPlayers, PlayerTtl = 10000 };
-            PhotonNetwork.CreateRoom(_nameLobby, options, null);
-            Debug.LogError("CreateRoomForLobby::CREATING THE ROOM...");
+            PhotonController.Instance.CreateRoom(_nameLobby, _finalNumberOfPlayers, _extraData);
 #else
 			ClientTCPEventsController.Instance.CreateRoomForLobby(_nameLobby, _finalNumberOfPlayers, _extraData);
 #endif
@@ -455,12 +477,7 @@ namespace YourNetworkingTools
         public void MenuController_JoinRoomOfLobby(string _room, string _players, string _extraData)
         {
 #if ENABLE_PHOTON
-            if (PhotonNetwork.InLobby)
-            {
-                PhotonNetwork.LeaveLobby();
-            }
-
-            PhotonNetwork.JoinRoom(_room);
+           PhotonController.Instance.JoinRoom(_room, _players, _extraData);
 #endif
         }
 
@@ -583,72 +600,6 @@ namespace YourNetworkingTools
                 }
             }
         }
-
-#if ENABLE_PHOTON
-        // -------------------------------------------
-        /* 
-		 * OnConnectedToMaster
-		 */
-        public override void OnConnectedToMaster()
-        {
-            UIEventController.Instance.DispatchUIEvent(ClientTCPEventsController.EVENT_CLIENT_TCP_ESTABLISH_NETWORK_ID, -1);
-        }
-
-        public override void OnRoomListUpdate(List<RoomInfo> roomList)
-        {
-            Debug.LogError("YourNetworkTools::OnRoomListUpdate");
-        }
-
-        public override void OnLeftLobby()
-        {
-            Debug.LogError("YourNetworkTools::OnLeftLobby");
-        }
-
-        public override void OnCreateRoomFailed(short returnCode, string message)
-        {
-            Debug.LogError("YourNetworkTools::OnCreateRoomFailed");
-        }
-
-        public override void OnJoinRoomFailed(short returnCode, string message)
-        {
-            Debug.LogError("YourNetworkTools::OnJoinRoomFailed");
-        }
-
-        public override void OnJoinRandomFailed(short returnCode, string message)
-        {
-            Debug.LogError("YourNetworkTools::OnJoinRandomFailed");
-        }
-
-        public override void OnJoinedRoom()
-        {
-            Debug.LogError("YourNetworkTools::OnJoinedRoom");
-        }
-
-        public override void OnLeftRoom()
-        {
-            Debug.LogError("YourNetworkTools::OnLeftRoom");
-        }
-
-        public override void OnPlayerEnteredRoom(Player newPlayer)
-        {
-            Debug.LogError("YourNetworkTools::OnPlayerEnteredRoom");
-        }
-
-        public override void OnPlayerLeftRoom(Player otherPlayer)
-        {
-            Debug.LogError("YourNetworkTools::XXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-        }
-
-        public override void OnMasterClientSwitched(Player newMasterClient)
-        {
-            Debug.LogError("YourNetworkTools::OnMasterClientSwitched");
-        }
-
-        public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
-        {
-            Debug.LogError("YourNetworkTools::OnPlayerPropertiesUpdate");
-        }
-#endif
 
         // -------------------------------------------
         /* 
