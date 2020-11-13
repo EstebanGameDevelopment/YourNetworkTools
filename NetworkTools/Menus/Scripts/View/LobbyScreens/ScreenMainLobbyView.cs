@@ -94,11 +94,7 @@ namespace YourNetworkingTools
 		private void ListOfRooms()
 		{
             SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
-#if ENABLE_PHOTON
-            PhotonController.Instance.GetListRooms();
-#else
 			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenListRoomsView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-#endif
         }
 
         // -------------------------------------------
@@ -111,30 +107,5 @@ namespace YourNetworkingTools
             NetworkEventController.Instance.Destroy();
 			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenRemoteModeView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
 		}
-
-		// -------------------------------------------
-		/* 
-		* OnMenuBasicEvent
-		*/
-		protected override void OnMenuEvent(string _nameEvent, params object[] _list)
-		{
-			base.OnMenuEvent(_nameEvent, _list);
-
-            if (this.gameObject.activeSelf)
-            {
-                if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_LIST_OF_GAME_ROOMS)
-                {
-#if ENABLE_PHOTON
-                    UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP);
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenListRoomsView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-#endif
-                }
-                if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
-                {
-                    BackPressed();
-                }
-            }
-
-        }
     }
 }

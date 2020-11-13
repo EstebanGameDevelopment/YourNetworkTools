@@ -95,14 +95,20 @@ namespace YourNetworkingTools
 			{
                 NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_REMOTE_CREATION_CONFIRMATION, this.gameObject);
 			}
-            NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);            
+            NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);
+#if ENABLE_PHOTON
+            if (!YourNetworkTools.Instance.IsLocalGame)
+            {
+                this.gameObject.transform.parent = YourNetworkTools.Instance.gameObject.transform;
+            }
+#endif           
         }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		* Initialize the identification of the network object
 		*/
-		public void Initialize()
+        public void Initialize()
 		{
 			if (m_networkID == null)
 			{

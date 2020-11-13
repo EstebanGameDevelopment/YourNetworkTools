@@ -74,8 +74,10 @@ namespace YourNetworkingTools
 
 		private int m_uniqueNetworkID = -1;
 		private int m_idNetworkServer = -1;
+        private bool m_isConnected = false;
+        private bool m_requestInitialitzationReport = false;
 
-		private string m_uidPlayer = "null";
+        private string m_uidPlayer = "null";
 
 		private int m_room = -1;
 		private int m_hostRoomID = -1;
@@ -101,6 +103,10 @@ namespace YourNetworkingTools
 		{
 			get { return m_roomsLobby; }
 		}
+        public bool IsConnected
+        {
+            get { return m_isConnected; }
+        }
 
         // -------------------------------------------
         /* 
@@ -181,7 +187,7 @@ namespace YourNetworkingTools
             }
             else
             {
-                if (DEBUG) Debug.LogError("PhotonController::GetListRooms::++ERROR++ THE CLIENT IS NOT IN THE LOBBY");
+                UIEventController.Instance.DispatchUIEvent(ClientTCPEventsController.EVENT_CLIENT_TCP_LIST_OF_GAME_ROOMS);
             }
         }
 
@@ -337,7 +343,9 @@ namespace YourNetworkingTools
         public override void OnConnectedToMaster()
         {
             if (DEBUG) Debug.LogError("PhotonController::OnConnectedToMaster");
-            UIEventController.Instance.DispatchUIEvent(ClientTCPEventsController.EVENT_CLIENT_TCP_ESTABLISH_NETWORK_ID, -1);
+            m_isConnected = true;
+            m_requestInitialitzationReport = true;
+            GetListRooms();
         }
 
         // -------------------------------------------
@@ -371,6 +379,11 @@ namespace YourNetworkingTools
             }
             if (DEBUG) Debug.LogError("PhotonController::OnRoomListUpdate::REPORTING LIST OF ROOMS["+ m_roomsLobby.Count + "]");
             UIEventController.Instance.DispatchUIEvent(ClientTCPEventsController.EVENT_CLIENT_TCP_LIST_OF_GAME_ROOMS);
+            if (m_requestInitialitzationReport)
+            {
+                m_requestInitialitzationReport = false;
+                UIEventController.Instance.DispatchUIEvent(ClientTCPEventsController.EVENT_CLIENT_TCP_ESTABLISH_NETWORK_ID, -1);
+            }
         }
 
         // -------------------------------------------
@@ -502,7 +515,12 @@ namespace YourNetworkingTools
                     ItemMultiObjectEntry item = m_events[0];
                     m_events.RemoveAt(0);
                     int uniqueNetworkID = (int)item.Objects[1];
-                    PhotonMessageHUB.Instance.PrepareMessage((string)item.Objects[0], uniqueNetworkID, (int)item.Objects[2], (string[])item.Objects[3]);
+                    string[] paramsEvent = new string[0];
+                    if (item.Objects.Count > 3)
+                    {
+                        paramsEvent = (string[])item.Objects[3];
+                    }
+                    PhotonMessageHUB.Instance.PrepareMessage((string)item.Objects[0], uniqueNetworkID, (int)item.Objects[2], paramsEvent);
                 }
             }
         }

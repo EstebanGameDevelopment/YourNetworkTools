@@ -158,6 +158,17 @@ namespace YourNetworkingTools
 #endif
             }
         }
+        public bool IsConnected
+        {
+            get
+            {
+#if ENABLE_PHOTON
+                return PhotonController.Instance.IsConnected;
+#else
+                return ClientTCPEventsController.Instance.SocketConnected;
+#endif
+            }
+        }
 
         // -------------------------------------------
         /* 
