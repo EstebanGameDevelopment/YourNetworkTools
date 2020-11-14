@@ -487,6 +487,7 @@ namespace YourNetworkingTools
 		*/
         void OnGUI()
         {
+#if UNITY_EDITOR
             if (MultiplayerConfiguration.DEBUG_MODE)
             {
                 GUILayout.BeginVertical();
@@ -500,6 +501,7 @@ namespace YourNetworkingTools
                 }
                 GUILayout.EndVertical();
             }
+#endif
         }
 
         // -------------------------------------------
