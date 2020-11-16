@@ -813,10 +813,11 @@ namespace YourNetworkingTools
         /**
 		 * InitGhostPlayer
 		 */
-        protected void InitGhostPlayer(string _classNamePrefab, Transform _root, Transform _model, Material _materialOnTop)
+        protected virtual void InitGhostPlayer(string _classNamePrefab, Transform _root, Transform _model, Material _materialOnTop)
         {
 #if !DISABLE_GHOST
             m_ghostPlayer = Utilities.AttachChild(_root, AssetbundleController.Instance.CreateGameObject(_classNamePrefab));
+            m_ghostPlayer.name = "Ghost";
             Utilities.ApplyMaterialOnMeshes(m_ghostPlayer, _materialOnTop);
             m_ghostPlayer.transform.localScale = Utilities.Clone(_model.localScale);
             m_ghostPlayer.transform.localPosition = Utilities.Clone(_model.localPosition);
