@@ -25,7 +25,7 @@ namespace YourNetworkingTools
 	 */
     public class PhotonController : MonoBehaviourPunCallbacks
     {
-        public const bool DEBUG = true;
+        public const bool DEBUG = false;
 
 		public const int MESSAGE_EVENT = 0;
 		public const int MESSAGE_TRANSFORM = 1;
@@ -345,7 +345,7 @@ namespace YourNetworkingTools
             if (DEBUG) Debug.LogError("PhotonController::OnConnectedToMaster");
             m_isConnected = true;
             m_requestInitialitzationReport = true;
-            GetListRooms();
+            Invoke("GetListRooms", 0.2f);
         }
 
         // -------------------------------------------
@@ -354,7 +354,7 @@ namespace YourNetworkingTools
 		 */
         public override void OnRoomListUpdate(List<RoomInfo> roomList)
         {
-            if (DEBUG) Debug.LogError("PhotonController::OnRoomListUpdate");
+            if (DEBUG) Debug.LogError("PhotonController::OnRoomListUpdate:roomList.Count["+ roomList.Count + "]");
             m_roomsLobby.Clear();
             for (int i = 0; i < roomList.Count; i++)
             {
