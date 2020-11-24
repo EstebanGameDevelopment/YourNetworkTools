@@ -546,7 +546,7 @@ namespace YourNetworkingTools
             if (m_targetScene.Length == 0)
             {
                 m_targetScene = _targetScene;
-#if ENABLE_OCULUS || ENABLE_WORLDSENSE
+#if ENABLE_OCULUS || ENABLE_WORLDSENSE || ENABLE_HTCVIVE
             MultiplayerConfiguration.SaveDirectorMode(MultiplayerConfiguration.DIRECTOR_MODE_DISABLED);
 #endif
                 StartCoroutine(LoadScene());
