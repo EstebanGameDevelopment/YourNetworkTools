@@ -183,10 +183,8 @@ namespace YourNetworkingTools
 
 #if ENABLE_WORLDSENSE || ENABLE_OCULUS || ENABLE_HTCVIVE
             KeysEventInputController.Instance.EnableActionOnMouseDown = false;
-            Invoke("StartSplashScreen", 0.1f);
-#else
-            StartSplashScreen();
 #endif
+            StartSplashScreen();
         }
 
         // -------------------------------------------
