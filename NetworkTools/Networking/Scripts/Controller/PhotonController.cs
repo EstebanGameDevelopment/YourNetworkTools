@@ -78,6 +78,7 @@ namespace YourNetworkingTools
         private bool m_requestInitialitzationReport = false;
 
         private string m_uidPlayer = "null";
+        private string m_serverIPAddress = "";
 
 		private int m_room = -1;
 		private int m_hostRoomID = -1;
@@ -107,6 +108,11 @@ namespace YourNetworkingTools
         {
             get { return m_isConnected; }
         }
+        public string ServerIPAdress
+        {
+            get { return m_serverIPAddress; }
+            set { m_serverIPAddress = value; }
+        }
 
         // -------------------------------------------
         /* 
@@ -115,7 +121,16 @@ namespace YourNetworkingTools
         public void Login()
 		{
             PhotonNetwork.LocalPlayer.NickName = Utilities.RandomCodeGeneration(UnityEngine.Random.Range(100, 999).ToString());
-            PhotonNetwork.ConnectUsingSettings();
+            if (m_serverIPAddress.Length > 0)
+            {
+                AppSettings appSet = new AppSettings();
+                appSet.AppIdRealtime = m_serverIPAddress;
+                PhotonNetwork.ConnectUsingSettings(appSet);
+            }
+            else
+            {
+                PhotonNetwork.ConnectUsingSettings();
+            }
 
             NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);
             UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
@@ -332,7 +347,15 @@ namespace YourNetworkingTools
             if (_nameEvent == EVENT_PHOTONCONTROLLER_GAME_STARTED)
             {
                 NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_LOCAL_COMPLETED, m_uniqueNetworkID);
-                BasicSystemEventController.Instance.DispatchBasicSystemEvent(CommunicationsController.EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER);
+                bool isServer = true;
+                if (_list.Length > 0)
+                {
+                    isServer = (bool)_list[0];
+                }
+                if (isServer)
+                {
+                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(CommunicationsController.EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER);
+                }                
             }
         }
 
@@ -483,6 +506,39 @@ namespace YourNetworkingTools
 
         // -------------------------------------------
         /* 
+		* GetRoomIDByName
+		*/
+        public int GetRoomIDByName(string _roomName)
+        {
+            foreach(ItemMultiTextEntry room in m_roomsLobby)
+            {
+                if (room.Items[2] == _roomName)
+                {
+                    return int.Parse(room.Items[1]);
+                }
+            }
+            return -1;
+        }
+
+        // -------------------------------------------
+        /* 
+		* GetExtraDataForRoom
+		*/
+        public string GetExtraDataForRoom(int _roomID)
+        {
+            foreach (ItemMultiTextEntry room in m_roomsLobby)
+            {
+                if (int.Parse(room.Items[1]) == _roomID)
+                {
+                    return room.Items[3];
+                }
+            }
+            return "";
+        }
+        
+
+        // -------------------------------------------
+        /* 
 		* Display information about the operation mode
 		*/
         void OnGUI()
@@ -493,11 +549,11 @@ namespace YourNetworkingTools
                 GUILayout.BeginVertical();
                 if (m_uniqueNetworkID == -1)
                 {
-                    GUILayout.Label(new GUIContent("--[PHOTON]--SERVER IS SETTING UP. WAIT..."));
+                    GUILayout.Box(new GUIContent("--[PHOTON]--SERVER IS SETTING UP. WAIT..."));
                 }
                 else
                 {
-                    GUILayout.Label(new GUIContent("++[PHOTON]++MACHINE CONNECTION[" + m_uniqueNetworkID + "][" + (IsServer() ? "SERVER" : "CLIENT") + "]"));
+                    GUILayout.Box(new GUIContent("++[PHOTON]++MACHINE CONNECTION[" + m_uniqueNetworkID + "][" + (IsServer() ? "SERVER" : "CLIENT") + "]"));
                 }
                 GUILayout.EndVertical();
             }

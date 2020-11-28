@@ -36,11 +36,11 @@ namespace YourNetworkingTools
         // ----------------------------------------------
         // PUBLIC MEMBERS
         // ----------------------------------------------	
-        public const char PARAMS_SEPARATOR = '/';
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
+        public const char PARAMS_SEPARATOR = '~';
         private PhotonView m_photonView;
 
         // -------------------------------------------

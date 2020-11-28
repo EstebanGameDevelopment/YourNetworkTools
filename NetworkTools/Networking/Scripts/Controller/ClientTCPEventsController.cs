@@ -85,6 +85,7 @@ namespace YourNetworkingTools
 		private int m_idNetworkServer = -1;
 
 		private string m_uidPlayer = "null";
+		private string m_serverIPAddress = "";
 
 		private NetworkStream m_theStream;
 		private StreamWriter m_theWriter;
@@ -124,12 +125,17 @@ namespace YourNetworkingTools
 		{
 			get { return m_roomsLobby; }
 		}
+        public string ServerIPAddress
+        {
+            get { return m_serverIPAddress; }
+            set { m_serverIPAddress = value; }
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Set up the connection with the server
 		 */
-		public void Initialitzation(string _host, int _port, int _room, int _hostRoomID, int _bufferReceive = 65536, int _timeoutReceive = 0, int _bufferSend = 65536, int _timeoutSend = 0)
+        public void Initialitzation(string _host, int _port, int _room, int _hostRoomID, int _bufferReceive = 65536, int _timeoutReceive = 0, int _bufferSend = 65536, int _timeoutSend = 0)
 		{
 			if (m_socketConnected)
 			{
@@ -144,7 +150,15 @@ namespace YourNetworkingTools
 			{
 				m_host = _host;
 				m_port = _port;
-				m_mySocket = new TcpClient(m_host, m_port);
+                if (m_serverIPAddress.Length > 0)
+                {
+                    m_host = m_serverIPAddress;
+                    m_mySocket = new TcpClient(m_serverIPAddress, m_port);
+                }
+                else
+                {
+                    m_mySocket = new TcpClient(m_host, m_port);
+                }				
                 m_mySocket.SendBufferSize = _bufferSend;
                 m_mySocket.ReceiveBufferSize = _bufferReceive;
                 m_mySocket.ReceiveTimeout = _timeoutReceive;

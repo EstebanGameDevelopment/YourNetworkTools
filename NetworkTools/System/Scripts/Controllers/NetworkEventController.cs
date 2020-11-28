@@ -169,6 +169,25 @@ namespace YourNetworkingTools
 #endif
             }
         }
+        public string ServerIPAdress
+        {
+            get
+            {
+#if ENABLE_PHOTON
+                return PhotonController.Instance.ServerIPAdress;
+#else
+                return ClientTCPEventsController.Instance.ServerIPAddress;
+#endif
+            }
+            set
+            {
+#if ENABLE_PHOTON
+                PhotonController.Instance.ServerIPAdress = value;
+#else
+                ClientTCPEventsController.Instance.ServerIPAddress = value; 
+#endif
+            }
+        }
 
         // -------------------------------------------
         /* 
@@ -229,6 +248,33 @@ namespace YourNetworkingTools
                 catch (Exception err) { };
             }
         }
+
+        // -------------------------------------------
+        /* 
+		 * GetRoomIDByName
+		 */
+        public int GetRoomIDByName(string _roomName)
+        {
+#if ENABLE_PHOTON
+            return PhotonController.Instance.GetRoomIDByName(_roomName);
+#else
+            return ClientTCPEventsController.Instance.GetRoomIDByName(_roomName);
+#endif
+        }
+
+        // -------------------------------------------
+        /* 
+		 * GetExtraDataForRoom
+		 */
+        public string GetExtraDataForRoom(int _roomID)
+        {
+#if ENABLE_PHOTON
+            return PhotonController.Instance.GetExtraDataForRoom(_roomID);
+#else
+            return ClientTCPEventsController.Instance.GetExtraDataForRoom(_roomID);
+#endif
+        }
+
 
         // -------------------------------------------
         /* 
