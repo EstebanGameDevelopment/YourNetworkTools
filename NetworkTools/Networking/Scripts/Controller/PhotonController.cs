@@ -80,7 +80,7 @@ namespace YourNetworkingTools
         private string m_uidPlayer = "null";
         private string m_serverIPAddress = "";
 
-		private int m_room = -1;
+        private int m_room = -1;
 		private int m_hostRoomID = -1;
         private int m_totalNumberOfPlayers = -1;
         private List<ItemMultiObjectEntry> m_events = new List<ItemMultiObjectEntry>();
@@ -178,12 +178,28 @@ namespace YourNetworkingTools
         /* 
 		 * CreateRoom
 		 */
-        public void CreateRoom(string _nameLobby, int _finalNumberOfPlayers, string _extraData)
+        public void CreateRoom(string _nameLobby, int _finalNumberOfPlayers, string _extraData = "")
 		{
             if (m_totalNumberOfPlayers == -1)
             {
                 m_totalNumberOfPlayers = _finalNumberOfPlayers;
-                RoomOptions options = new RoomOptions { MaxPlayers = (byte)_finalNumberOfPlayers, PlayerTtl = 10000 };
+                ExitGames.Client.Photon.Hashtable properties = null;
+                if (_extraData != null)
+                {
+                    if (_extraData.Length > 0)
+                    {
+                        properties = new ExitGames.Client.Photon.Hashtable { { "extraData", "" } };
+                    }
+                }
+                RoomOptions options = null;
+                if (properties != null)
+                {
+                    options = new RoomOptions { MaxPlayers = (byte)_finalNumberOfPlayers, PlayerTtl = 10000, CustomRoomProperties = properties };
+                }
+                else
+                {
+                    options = new RoomOptions { MaxPlayers = (byte)_finalNumberOfPlayers, PlayerTtl = 10000 };
+                }
                 PhotonNetwork.CreateRoom(_nameLobby, options, null);
                 if (DEBUG) Debug.LogError("PhotonController::CreateRoom::CREATING THE ROOM...");
             }
@@ -390,7 +406,11 @@ namespace YourNetworkingTools
                 string extraData = "extraData";
                 if (info.CustomProperties != null)
                 {
-                    extraData = info.CustomProperties.ToString();
+                    ExitGames.Client.Photon.Hashtable customData = info.CustomProperties;
+                    foreach (object k in customData)
+                    {
+                        extraData = (string)customData[(string)k];
+                    }
                     if (extraData.Length == 0)
                     {
                         extraData = "extraData";
@@ -452,6 +472,41 @@ namespace YourNetworkingTools
                 }
                 UIEventController.Instance.DispatchUIEvent(ClientTCPEventsController.EVENT_CLIENT_TCP_CONNECTED_ROOM, m_totalNumberOfPlayers);
             }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * SetRoomExtraData
+		 */
+        public void SetRoomExtraData(string _extraData)
+        {
+            if (_extraData != null)
+            {
+                if (_extraData.Length > 0)
+                {
+                    ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable { { "extraData", _extraData } };
+                    PhotonNetwork.CurrentRoom.SetCustomProperties(properties);
+                    // Debug.LogError("PhotonController::SetRoomExtraData::properties.Count[" + PhotonNetwork.CurrentRoom.CustomProperties.Count + "]!!!!!!!!!!!");
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * GetRoomExtraData
+		 */
+        public string GetRoomExtraData()
+        {
+            string extraData = "";
+            if (PhotonNetwork.CurrentRoom.CustomProperties != null)
+            {
+                ExitGames.Client.Photon.Hashtable customData = PhotonNetwork.CurrentRoom.CustomProperties;
+                foreach (object k in customData)
+                {
+                    extraData = (string)customData[(string)k];
+                }
+            }
+            return extraData;
         }
 
         // -------------------------------------------

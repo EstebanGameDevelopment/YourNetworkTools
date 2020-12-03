@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 
 namespace YourNetworkingTools
 {
-#if !DISABLE_UNET_COMMS
+
     /******************************************
 	 * 
 	 * NetworkWorldObjectData
@@ -16,8 +16,15 @@ namespace YourNetworkingTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
+#if !DISABLE_UNET_COMMS
 	[RequireComponent(typeof(NetworkIdentity))]
-	public class NetworkWorldObjectData : NetworkObjectData, INetworkObject
+#endif
+
+#if DISABLE_UNET_COMMS
+    public class NetworkWorldObjectData : MonoBehaviour
+    { 
+#else
+    public class NetworkWorldObjectData : NetworkObjectData, INetworkObject
 	{
 		// -----------------------------------------
 		// CONSTANTS
@@ -204,6 +211,7 @@ namespace YourNetworkingTools
 		{
 			return m_localPosition.ToString() + "::" + m_localForward.ToString() + "::" + m_localScale.ToString();
 		}
-	}
 #endif
+    }
+
 }
