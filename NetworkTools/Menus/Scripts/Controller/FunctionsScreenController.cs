@@ -71,6 +71,9 @@ namespace YourNetworkingTools
         [Tooltip("Allow the option to enable AR or VR gaming")]
         public bool AskToEnableBackgroundARCore = false;
 
+        [HideInInspector]
+        public object ParamsScreenGameOptions = null;
+
         // ----------------------------------------------
         // PUBLIC MEMBERS
         // ----------------------------------------------
@@ -534,11 +537,11 @@ namespace YourNetworkingTools
 					{
                         if (AlphaAnimationNameStack != -1)
                         {
-                            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, AlphaAnimationNameStack }, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true, null);
+                            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, AlphaAnimationNameStack }, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true, ParamsScreenGameOptions);
                         }
                         else
                         {
-                            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, ParamsScreenGameOptions);
                         }						
 					}
 					else
@@ -585,11 +588,11 @@ namespace YourNetworkingTools
                 {
                     if (AlphaAnimationNameStack != -1)
                     {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, AlphaAnimationNameStack }, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, AlphaAnimationNameStack }, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, ParamsScreenGameOptions);
                     }
                     else
                     {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, ParamsScreenGameOptions);
                     }
                 }
                 else
@@ -617,11 +620,11 @@ namespace YourNetworkingTools
                 {
                     if (AlphaAnimationNameStack != -1)
                     {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, AlphaAnimationNameStack }, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, AlphaAnimationNameStack }, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, ParamsScreenGameOptions);
                     }
                     else
                     {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, GetScreenGameOptions(), UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, ParamsScreenGameOptions);
                     }
                 }
                 else
