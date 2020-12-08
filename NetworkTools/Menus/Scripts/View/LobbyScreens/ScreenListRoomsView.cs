@@ -75,10 +75,13 @@ namespace YourNetworkingTools
             m_buttonText.text = LanguageController.Instance.GetText("screen.lobby.join.the.selected.room");
 			m_joinRoom.onClick.AddListener(OnJoinRoom);
 
-			m_buttonBack = m_container.Find("Button_Back").GetComponent<Button>();
-			m_buttonBack.onClick.AddListener(BackPressed);
+            if (m_container.Find("Button_Back") != null)
+            {
+                m_buttonBack = m_container.Find("Button_Back").GetComponent<Button>();
+                m_buttonBack.onClick.AddListener(BackPressed);
+            }
 
-			m_grid = m_container.Find("ScrollList/Grid").gameObject;
+            m_grid = m_container.Find("ScrollList/Grid").gameObject;
 
             if (m_container.Find("RoomName") != null)
             {

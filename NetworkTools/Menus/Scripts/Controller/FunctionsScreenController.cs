@@ -71,6 +71,9 @@ namespace YourNetworkingTools
         [Tooltip("Allow the option to enable AR or VR gaming")]
         public bool AskToEnableBackgroundARCore = false;
 
+        [Tooltip("Maximum number of rooms allowed in server")]
+        public int MaxAllowedRooms = 15;
+
         [HideInInspector]
         public object ParamsScreenGameOptions = null;
 
