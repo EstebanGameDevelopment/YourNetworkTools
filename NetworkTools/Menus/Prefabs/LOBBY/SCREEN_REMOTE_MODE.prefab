@@ -804,7 +804,7 @@ GameObject:
   - component: {fileID: 223241196076727414}
   - component: {fileID: 114818783249849490}
   - component: {fileID: 114525676871088220}
-  - component: {fileID: 114636345109278974}
+  - component: {fileID: 2427519316732799428}
   m_Layer: 5
   m_Name: SCREEN_REMOTE_MODE
   m_TagString: Untagged
@@ -892,7 +892,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &114636345109278974
+--- !u!114 &2427519316732799428
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -901,10 +901,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1599555398940322}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea91ade2d5db6e040b931258c69b7687, type: 3}
+  m_Script: {fileID: 11500000, guid: 8f8978e4b538d794d9bdd78c549071f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   SelectorGraphic: {fileID: 0}
+  Instructions: []
 --- !u!1 &1600643366080744
 GameObject:
   m_ObjectHideFlags: 0

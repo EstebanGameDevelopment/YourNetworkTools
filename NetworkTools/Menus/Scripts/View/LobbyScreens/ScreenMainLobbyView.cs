@@ -28,11 +28,13 @@ namespace YourNetworkingTools
 		private GameObject m_root;
 		private Transform m_container;
 
-		// -------------------------------------------
-		/* 
+        private Transform m_btnBack;
+
+        // -------------------------------------------
+        /* 
 		 * Constructor
 		 */
-		public override void Initialize(params object[] _list)
+        public override void Initialize(params object[] _list)
 		{
 			base.Initialize(_list);
 
@@ -49,7 +51,15 @@ namespace YourNetworkingTools
 			joinGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.lobby.join.room");
 			joinGame.GetComponent<Button>().onClick.AddListener(ListOfRooms);
 
-			m_container.Find("Button_Back").GetComponent<Button>().onClick.AddListener(BackPressed);
+            m_btnBack = m_container.Find("Button_Back");
+            if (m_btnBack != null)
+            {
+                Button bkBtn = m_btnBack.GetComponent<Button>();
+                if (bkBtn != null)
+                {
+                    bkBtn.onClick.AddListener(BackPressed);
+                }
+            }
 
 			UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);			
 		}
@@ -84,7 +94,28 @@ namespace YourNetworkingTools
 		private void CreateRoom()
 		{
 			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
-			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenCreateRoomView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+            if (NetworkEventController.Instance.RoomsLobby.Count > MenuScreenController.Instance.MaxAllowedRooms)
+            {
+                if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
+                {
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_INFORMATION_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.warning"), LanguageController.Instance.GetText("screen.lobby.max.rooms.reached"), null, "");
+                }
+                else
+                {
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.warning"), LanguageController.Instance.GetText("screen.lobby.max.rooms.reached"), null, "");
+                }
+            }
+            else
+            {
+                if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
+                {
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenCreateRoomView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                }
+                else
+                {
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenCreateRoomView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                }
+            }
 		}
 
 		// -------------------------------------------
@@ -94,7 +125,14 @@ namespace YourNetworkingTools
 		private void ListOfRooms()
 		{
             SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
-			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenListRoomsView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+            if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
+            {
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenListRoomsView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+            }
+            else
+            {
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenListRoomsView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+            }
         }
 
         // -------------------------------------------

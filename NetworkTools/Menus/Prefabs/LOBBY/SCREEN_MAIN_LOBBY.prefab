@@ -412,7 +412,7 @@ GameObject:
   - component: {fileID: 223661915912571904}
   - component: {fileID: 114485456914269756}
   - component: {fileID: 114173450421580368}
-  - component: {fileID: 114128474059284042}
+  - component: {fileID: 2816582858804193696}
   m_Layer: 5
   m_Name: SCREEN_MAIN_LOBBY
   m_TagString: Untagged
@@ -500,7 +500,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &114128474059284042
+--- !u!114 &2816582858804193696
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

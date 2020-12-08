@@ -37,11 +37,13 @@ namespace YourNetworkingTools
         private GameObject m_root;
 		private Transform m_container;
 
-		// -------------------------------------------
-		/* 
+        private Transform m_btnBack;
+
+        // -------------------------------------------
+        /* 
 		 * Constructor
 		 */
-		public override void Initialize(params object[] _list)
+        public override void Initialize(params object[] _list)
 		{
 			base.Initialize(_list);
 
@@ -57,9 +59,18 @@ namespace YourNetworkingTools
 			createGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.lobby.create.with.name.room");
 			createGame.GetComponent<Button>().onClick.AddListener(CreateRoom);
 
-			m_container.Find("Button_Back").GetComponent<Button>().onClick.AddListener(BackPressed);
+            m_btnBack = m_container.Find("Button_Back");
+            if (m_btnBack != null)
+            {
+                Button bkBtn = m_btnBack.GetComponent<Button>();
+                if (bkBtn != null)
+                {
+                    bkBtn.onClick.AddListener(BackPressed);
+                }
+            }
 
-			UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);			
+
+            UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);			
 		}
 
 		// -------------------------------------------
@@ -107,7 +118,14 @@ namespace YourNetworkingTools
 				}
 				else
 				{
-					UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenMenuNumberPlayersView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
+                    if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
+                    {
+                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenMenuNumberPlayersView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                    }
+                    else
+                    {
+                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenMenuNumberPlayersView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, m_nameOfScreen);
+                    }
 				}
                 Destroy();
             }			
@@ -135,7 +153,10 @@ namespace YourNetworkingTools
             {
                 if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
                 {
-                    BackPressed();
+                    if (m_btnBack != null)
+                    {
+                        BackPressed();
+                    }                        
                 }
             }
             if (_nameEvent == EVENT_SCREENCREATEROOM_CREATE_RANDOM_NAME)

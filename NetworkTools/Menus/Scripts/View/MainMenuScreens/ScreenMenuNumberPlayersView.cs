@@ -19,15 +19,16 @@ namespace YourNetworkingTools
 	 */
 	public class ScreenMenuNumberPlayersView : ScreenBaseView, IBasicView
 	{
-		public const string SCREEN_NAME = "SCREEN_PLAYER_NUMBER";
+        public const string SCREEN_NAME = "SCREEN_PLAYER_NUMBER";
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
         private GameObject m_root;
-		private Transform m_container;
+        private Transform m_container;
+        private Transform m_buttonUnlock;
 
-		private int m_finalNumberOfPlayers;
+        private int m_finalNumberOfPlayers;
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -49,15 +50,20 @@ namespace YourNetworkingTools
             }
             set
             {
-                if ((value > 0) && (value <= MenuScreenController.Instance.MaxPlayers))
+                int minValuePlayers = 0;
+                if (!YourNetworkTools.GetIsLocalGame())
+                {
+                    minValuePlayers = 1;
+                }
+                if ((value > minValuePlayers) && (value <= MenuScreenController.Instance.MaxPlayers))
                 {
                     m_finalNumberOfPlayers = value;
                 }
                 else
                 {
-                    if (value <= 0)
+                    if (value <= minValuePlayers)
                     {
-                        m_finalNumberOfPlayers = 1;
+                        m_finalNumberOfPlayers = minValuePlayers + 1;
                     }
                     else
                     {
@@ -73,18 +79,18 @@ namespace YourNetworkingTools
 		 * Constructor
 		 */
         public override void Initialize(params object[] _list)
-		{
-			base.Initialize(_list);
+        {
+            base.Initialize(_list);
 
-			m_root = this.gameObject;
-			m_container = m_root.transform.Find("Content");
+            m_root = this.gameObject;
+            m_container = m_root.transform.Find("Content");
 
-			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.player.number.create.new.game");
+            m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.player.number.create.new.game");
 
-			m_container.Find("Button_Ok").GetComponent<Button>().onClick.AddListener(ConfirmNumberPlayers);
-			m_container.Find("Button_Ok/Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.player.number.create.new.game");
+            m_container.Find("Button_Ok").GetComponent<Button>().onClick.AddListener(ConfirmNumberPlayers);
+            m_container.Find("Button_Ok/Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.player.number.create.new.game");
 
-			m_container.Find("Description").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.player.number.description");
+            m_container.Find("Description").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.player.number.description");
 
             if (m_container.Find("Button_Plus") != null)
             {
@@ -98,8 +104,22 @@ namespace YourNetworkingTools
 
             UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);
 
-            m_container.Find("PlayerValue").GetComponent<InputField>().text = "2";
+            if (YourNetworkTools.GetIsLocalGame())
+            {
+                m_container.Find("PlayerValue").GetComponent<InputField>().text = "1";
+            }
+            else
+            {
+                m_container.Find("PlayerValue").GetComponent<InputField>().text = "2";
+            }
             m_container.Find("PlayerValue").GetComponent<InputField>().onEndEdit.AddListener(OnEndEditNumber);
+
+            m_buttonUnlock = m_container.Find("Button_Unlock");
+
+            if (m_buttonUnlock != null)
+            {
+                m_buttonUnlock.gameObject.SetActive(false);
+            }
         }
 
         // -------------------------------------------
@@ -155,20 +175,37 @@ namespace YourNetworkingTools
 		 * GetGameObject
 		 */
         public GameObject GetGameObject()
-		{
-			return this.gameObject;
-		}
+        {
+            return this.gameObject;
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * ConfirmNumberPlayers
 		 */
-		private void ConfirmNumberPlayers()
-		{
-			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
-            UIEventController.Instance.DispatchUIEvent(MenuScreenController.EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME, FinalNumberOfPlayers);
-            Destroy();
-            MenuScreenController.Instance.LoadCustomGameScreenOrCreateGame(false, FinalNumberOfPlayers, "", null);
-		}
-	}
+        private void ConfirmNumberPlayers()
+        {
+            bool loadNextScreen = true;
+
+            if (loadNextScreen)
+            {
+                SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
+                UIEventController.Instance.DispatchUIEvent(MenuScreenController.EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME, FinalNumberOfPlayers);
+                if (FinalNumberOfPlayers == 1)
+                {
+                    MultiplayerConfiguration.SaveDirectorMode(MultiplayerConfiguration.DIRECTOR_MODE_DISABLED);
+                }
+                MenuScreenController.Instance.LoadCustomGameScreenOrCreateGame(false, FinalNumberOfPlayers, "", null);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Global manager of events
+		 */
+        protected override void OnMenuEvent(string _nameEvent, params object[] _list)
+        {
+            base.OnMenuEvent(_nameEvent, _list);
+        }
+    }
 }

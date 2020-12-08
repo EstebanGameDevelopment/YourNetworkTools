@@ -737,7 +737,7 @@ GameObject:
   - component: {fileID: 223294209909469868}
   - component: {fileID: 114373890487504398}
   - component: {fileID: 114351676869201570}
-  - component: {fileID: 114889932263390456}
+  - component: {fileID: 3784445079925397813}
   m_Layer: 5
   m_Name: SCREEN_CREATE_ROOM
   m_TagString: Untagged
@@ -825,7 +825,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &114889932263390456
+--- !u!114 &3784445079925397813
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
