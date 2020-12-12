@@ -368,7 +368,7 @@ namespace YourNetworkingTools
         {
             if ((NetworkEvent != null) && CheckToApplyEvent(_nameEvent))
             {
-                m_listPriorityEvents.Insert(0, new AppEventData(_nameEvent, AppEventData.CONFIGURATION_INTERNAL_EVENT, false, YourNetworkTools.Instance.GetUniversalNetworkID(), _time, _list));
+                m_listPriorityEvents.Add(new AppEventData(_nameEvent, AppEventData.CONFIGURATION_INTERNAL_EVENT, false, YourNetworkTools.Instance.GetUniversalNetworkID(), _time, _list));
             }
         }
 

@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+#if ENABLE_MIRROR
+using Mirror;
+#else
 using UnityEngine.Networking;
+#endif
 using UnityEngine.SceneManagement;
 
 namespace YourNetworkingTools
@@ -19,7 +23,7 @@ namespace YourNetworkingTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
-#if !DISABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS && !ENABLE_MIRROR
     [NetworkSettings(sendInterval = 0.033f)]
 #endif
     public class PlayerConnectionController : NetworkBehaviour
@@ -55,16 +59,23 @@ namespace YourNetworkingTools
 				return;
 			}
 
-			if (isLocalPlayer)
+#if ENABLE_MIRROR
+            int netID = (int)this.netId;
+            syncInterval = 0.033f;
+#else
+            int netID = (int)this.netId.Value;
+#endif
+
+            if (isLocalPlayer)
 			{
-				CommunicationsController.Instance.SetLocalInstance((int)this.netId.Value, this);
-				NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnBasicEvent);
+                CommunicationsController.Instance.SetLocalInstance(netID, this);
+                NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnBasicEvent);
 			}
 			else
 			{
-				// Adds the new connections to the list of connected clients in the server
-				CommunicationsController.Instance.ClientNewConnection((int)this.netId.Value, this.gameObject);
-				Debug.Log("PlayerController::Start::REMOTE PLAYER");
+                // Adds the new connections to the list of connected clients in the server
+                CommunicationsController.Instance.ClientNewConnection(netID, this.gameObject);
+                Debug.Log("PlayerController::Start::REMOTE PLAYER");
 			}
 
 			m_sharedWorldAnchorTransform = SharedCollection.Instance.gameObject.transform;
@@ -72,11 +83,11 @@ namespace YourNetworkingTools
 
 			if (isLocalPlayer)
 			{
-				NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_LOCAL_COMPLETED, (int)this.netId.Value);
+				NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_LOCAL_COMPLETED, netID);
 			}
 			else
 			{
-				NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_REMOTE_COMPLETED, ((int)this.netId.Value).ToString());
+				NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_REMOTE_COMPLETED, netID.ToString());
 			}
 		}
 
@@ -101,8 +112,13 @@ namespace YourNetworkingTools
 				{
 					if (CommunicationsController.Instance.IsServer)
 					{
-						// REMOVE A PLAYER FROM THE LIST OF CONNECTIONS OF THE SERVER
-						CommunicationsController.Instance.ClientDisconnected((int)this.netId.Value);
+                        // REMOVE A PLAYER FROM THE LIST OF CONNECTIONS OF THE SERVER
+#if ENABLE_MIRROR
+                        int netID = (int)this.netId;
+#else
+                        int netID = (int)this.netId.Value;
+#endif
+                        CommunicationsController.Instance.ClientDisconnected(netID);
 					}
 				}
 			}
@@ -290,7 +306,12 @@ namespace YourNetworkingTools
 				{
 					if (isLocalPlayer)
 					{
-						if (int.Parse((string)_list[0]) == (int)this.netId.Value)
+#if ENABLE_MIRROR
+                        int netID = (int)this.netId;
+#else
+                        int netID = (int)this.netId.Value;
+#endif
+                        if (int.Parse((string)_list[0]) == netID)
 						{
 							NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_SYSTEM_DESTROY_NETWORK_COMMUNICATIONS);
 							NetworkEventController.Instance.DelayLocalEvent(NetworkEventController.EVENT_PLAYERCONNECTIONCONTROLLER_CONFIRMATION_KICKED_OUT_PLAYER, 0.1f);
@@ -312,7 +333,12 @@ namespace YourNetworkingTools
 					bool allowServerChange = (bool)_list[7];
 					bool allowClientChange = (bool)_list[8];
 
-					CmdNetworkObject(classNetworkResources, typeObjects, prefabName, uid, (int)this.netId.Value, position, preservePosition, assignedName, allowServerChange, allowClientChange);
+#if ENABLE_MIRROR
+                    int netID = (int)this.netId;
+#else
+                    int netID = (int)this.netId.Value;
+#endif
+                    CmdNetworkObject(classNetworkResources, typeObjects, prefabName, uid, netID, position, preservePosition, assignedName, allowServerChange, allowClientChange);
 				}
 				if (_nameEvent == NetworkEventController.EVENT_PLAYERCONNECTIONCONTROLLER_COMMAND_UPDATE_PROPERTY)
 				{
@@ -338,7 +364,12 @@ namespace YourNetworkingTools
 				}
 				if (_nameEvent == NetworkEventController.EVENT_PLAYERCONNECTIONCONTROLLER_COMMAND_MESSAGE)
 				{
-					CmdMessageFromClientsToServer((int)this.netId.Value, (string)_list[0]);
+#if ENABLE_MIRROR
+                    int netID = (int)this.netId;
+#else
+                    int netID = (int)this.netId.Value;
+#endif
+                    CmdMessageFromClientsToServer(netID, (string)_list[0]);
 				}
 				if (_nameEvent == NetworkEventController.EVENT_PLAYERCONNECTIONCONTROLLER_RPC_MESSAGE)
 				{
@@ -346,10 +377,15 @@ namespace YourNetworkingTools
 				}
 				if (_nameEvent == NetworkEventController.EVENT_BINARY_SEND_DATA_MESSAGE)
 				{
-					CmdBinaryDataFromClientsToServer((int)this.netId.Value, (byte[])_list[0]);
+#if ENABLE_MIRROR
+                    int netID = (int)this.netId;
+#else
+                    int netID = (int)this.netId.Value;
+#endif
+                    CmdBinaryDataFromClientsToServer(netID, (byte[])_list[0]);
 				}
 			}
 		}
 #endif
-    }
+            }
 }

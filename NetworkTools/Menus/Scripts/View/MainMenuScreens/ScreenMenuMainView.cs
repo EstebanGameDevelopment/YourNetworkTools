@@ -121,20 +121,30 @@ namespace YourNetworkingTools
 		 */
 		private void OnRemotePartyGame()
 		{
-			NetworkEventController.Instance.MenuController_SetLocalGame(false);
-			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
-#if ENABLE_CUSTOM_SERVERS
-            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenSetUpAddressView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+            NetworkEventController.Instance.MenuController_SetLocalGame(false);
+            SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
+            NetworkEventController.Instance.MenuController_SetLobbyMode(true);
+            if (NetworkEventController.Instance.IsConnected)
+            {
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenMainLobbyView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+            }
+            else
+            {
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_WAIT, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("screen.lobby.connecting.wait"), null, "");
+                // NO CONNECT TCP, GO TO LOBBY
+#if ENABLE_BALANCE_LOADER
+			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenMainLobbyView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
 #else
-            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenRemoteModeView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+                NetworkEventController.Instance.MenuController_InitialitzationSocket(-1, 0);
 #endif
+            }
         }
 
-		// -------------------------------------------
-		/* 
-		 * InstructionsGamePressed
-		 */
-		private void InstructionsGame()
+        // -------------------------------------------
+        /* 
+        * InstructionsGamePressed
+        */
+        private void InstructionsGame()
 		{
 			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
 			List<PageInformation> pages = new List<PageInformation>();
@@ -197,6 +207,15 @@ namespace YourNetworkingTools
 			{
 				NetworkEventController.Instance.MenuController_LoadGameScene(MenuScreenController.Instance.TargetGameScene);
 			}
-		}
-	}
+            if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_ESTABLISH_NETWORK_ID)
+            {
+                UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP);
+#if DISABLE_CREATE_ROOM
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenListRoomsView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+#else
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenMainLobbyView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+#endif
+            }
+        }
+    }
 }

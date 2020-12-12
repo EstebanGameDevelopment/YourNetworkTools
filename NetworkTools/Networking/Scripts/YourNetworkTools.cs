@@ -177,6 +177,9 @@ namespace YourNetworkingTools
                                 prefabToNetwork.GetComponent<NetworkWorldObjectData>().enabled = true;
                             }
 #endif
+#if ENABLE_MIRROR
+                            GameObject.FindObjectOfType<NetworkDiscoveryUNET>().spawnPrefabs.Add(prefabToNetwork);
+#endif
                             if (prefabToNetwork.GetComponent<NetworkID>() != null)
                             {
                                 prefabToNetwork.GetComponent<NetworkID>().enabled = false;

@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+#if ENABLE_MIRROR
+using Mirror;
+#else
 using UnityEngine.Networking;
+#endif
 
 namespace YourNetworkingTools
 {
 #if !DISABLE_UNET_COMMS
-	/******************************************
+    /******************************************
 	 * 
 	 * NetworkObjectData
 	 * 
@@ -13,9 +17,11 @@ namespace YourNetworkingTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	[NetworkSettings(sendInterval = 0.033f)]
-	[AddComponentMenu("NetworkIdentity")]
-	public class NetworkObjectData : NetworkBehaviour, INetworkObject
+#if !ENABLE_MIRROR
+    [NetworkSettings(sendInterval = 0.033f)]
+#endif
+    [AddComponentMenu("NetworkIdentity")]
+    public class NetworkObjectData : NetworkBehaviour, INetworkObject
 	{
 		// -----------------------------------------
 		// SYNCVAR VARIABLES
@@ -101,7 +107,11 @@ namespace YourNetworkingTools
 		 */
 		public virtual void Start()
 		{
-			this.gameObject.name = PlayerConnectionController.GetNameIdentificator(this);
+#if ENABLE_MIRROR
+            syncInterval = 0.033f;
+#endif
+
+            this.gameObject.name = PlayerConnectionController.GetNameIdentificator(this);
 			LocalAssignedName = m_assignedName;
 			transform.SetParent(SharedCollection.Instance.transform, m_preserveTransform);
 			NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_COMMUNICATIONSCONTROLLER_CREATION_CONFIRMATION_NETWORK_OBJECT, this.gameObject);
@@ -169,4 +179,4 @@ namespace YourNetworkingTools
 		}
 	}
 #endif
-}
+        }

@@ -3,7 +3,11 @@
 
 using System.Collections;
 using UnityEngine;
+#if ENABLE_MIRROR
+using Mirror;
+#else
 using UnityEngine.Networking;
+#endif
 using UnityEngine.SceneManagement;
 
 namespace YourNetworkingTools
@@ -16,15 +20,14 @@ namespace YourNetworkingTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class NetworkManagerUNET : 
-#if !DISABLE_UNET_COMMS
+	public class NetworkManagerUNET :
+#if !DISABLE_UNET_COMMS && !ENABLE_MIRROR
         NetworkManager
-
 #else
         MonoBehaviour
 #endif
     {
-#if !DISABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS && !ENABLE_MIRROR
         // -------------------------------------------
         /* 
 		 * Process the disconnection

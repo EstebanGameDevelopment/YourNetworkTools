@@ -3,7 +3,11 @@
 
 using System.Collections;
 using UnityEngine;
+#if ENABLE_MIRROR
+using Mirror;
+#else
 using UnityEngine.Networking;
+#endif
 using UnityEngine.SceneManagement;
 using YourCommonTools;
 
@@ -21,8 +25,10 @@ namespace YourNetworkingTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class NetworkDiscoveryUNET : 
-#if !DISABLE_UNET_COMMS
+	public class NetworkDiscoveryUNET :
+#if ENABLE_MIRROR
+        NetworkManager
+#elif !DISABLE_UNET_COMMS
         NetworkDiscovery
 #else
         MonoBehaviour
@@ -41,10 +47,25 @@ namespace YourNetworkingTools
         /* 
 		 * Start looking for a server to work as a client
 		 */
+#if ENABLE_MIRROR
+        public override void Start()
+#else
         private void Start()
+#endif
 		{
 			Debug.Log("NetworkDiscoveryUNET::START!!!!");
 
+#if ENABLE_MIRROR
+            base.Start();
+            if (NetworkEventController.Instance.MenuController_LoadNumberOfPlayers() != MultiplayerConfiguration.VALUE_FOR_JOINING)
+            {
+                RunAsServer();
+            }
+            else
+            {
+                RunClient(MultiplayerConfiguration.LoadIPAddressServer());
+            }
+#else
             if (MultiplayerConfiguration.LoadNumberOfPlayers() == 1)
             {
                 broadcastData = Utilities.RandomCodeGeneration(UnityEngine.Random.Range(0, 10).ToString());
@@ -56,6 +77,7 @@ namespace YourNetworkingTools
                 BasicSystemEventController.Instance.DelayBasicSystemEvent(CommunicationsController.EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER, 0.3f);
                 return;
             }
+
 
             // Initializes NetworkDiscovery.
             Initialize();
@@ -75,14 +97,15 @@ namespace YourNetworkingTools
 			float InvokeWaitTime = 3 * BroadcastInterval + Random.value * 3 * BroadcastInterval;
 			Invoke("MaybeInitAsServer", InvokeWaitTime * 0.001f);
 
-			NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnBasicEvent);
-		}
+#endif
+            NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnBasicEvent);
+        }
 
-		// -------------------------------------------
-		/* 
-		 * Check all the needed components to start the process
-		 */
-		private bool CheckComponents()
+        // -------------------------------------------
+        /* 
+         * Check all the needed components to start the process
+         */
+        private bool CheckComponents()
 		{
 #if !UNITY_EDITOR
 			if (GenericNetworkTransmitter.Instance == null)
@@ -121,8 +144,17 @@ namespace YourNetworkingTools
 				return;
 			}
 
-			StartCoroutine(InitAsServer());
-		}
+            RunAsServer();
+        }
+
+        // -------------------------------------------
+        /* 
+		 * RunAsServer
+		 */
+        public void RunAsServer()
+        {
+            StartCoroutine(InitAsServer());
+        }
 
 		// -------------------------------------------
 		/* 
@@ -135,27 +167,34 @@ namespace YourNetworkingTools
 			m_isServer = true;
             CommunicationsController.Instance.IsServer = true;
 
+#if ENABLE_MIRROR
+            StartHost();
+#else
             StopBroadcast();
-			yield return null;
+#endif
+            yield return null;
 
-			NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_COMMUNICATIONSCONTROLLER_REGISTER_ALL_NETWORK_PREFABS);
+            NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_COMMUNICATIONSCONTROLLER_REGISTER_ALL_NETWORK_PREFABS);
 
-			NetworkManager.singleton.StartHost();
-			yield return null;
+#if !ENABLE_MIRROR
+            NetworkManager.singleton.StartHost();
 
 			// Start broadcasting for other clients.
 			StartAsServer();
+#endif
+            yield return null;
 
             BasicSystemEventController.Instance.DispatchBasicSystemEvent(CommunicationsController.EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER);
 
             Debug.Log("NetworkDiscoveryWithAnchors::InitAsServer::STARTED AS A SERVER.");
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Receives the response of the broadcast of connection and connects as a client
 		 */
-		public override void OnReceivedBroadcast(string fromAddress, string data)
+#if !ENABLE_MIRROR
+        public override void OnReceivedBroadcast(string fromAddress, string data)
 		{
 			if (receivedBroadcast)
 			{
@@ -166,32 +205,49 @@ namespace YourNetworkingTools
 			receivedBroadcast = true;
 			StopBroadcast();
 
-			NetworkManager.singleton.networkAddress = fromAddress;
-			ServerIp = fromAddress.Substring(fromAddress.LastIndexOf(':') + 1);
+            RunClient(fromAddress);
+		}
+#endif
 
+        // -------------------------------------------
+        /* 
+		* RunClient
+		*/
+        private void RunClient(string _fromAddress)
+        {
+            NetworkManager.singleton.networkAddress = _fromAddress;
+            ServerIp = _fromAddress.Substring(_fromAddress.LastIndexOf(':') + 1);
+
+#if !ENABLE_MIRROR
 #if !UNITY_EDITOR
 			// Tell the network transmitter the IP to request anchor data from if needed.
 			GenericNetworkTransmitter.Instance.SetServerIP(ServerIp);
 #else
-			Debug.LogWarning("This script will need modification to work in the Unity Editor");
+            Debug.LogWarning("This script will need modification to work in the Unity Editor");
 #endif
-			NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_COMMUNICATIONSCONTROLLER_REGISTER_ALL_NETWORK_PREFABS);
+#endif
 
-			// And join the networked experience as a client.
-			NetworkManager.singleton.StartClient();
+            NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_COMMUNICATIONSCONTROLLER_REGISTER_ALL_NETWORK_PREFABS);
 
-			CommunicationsController.Instance.IsServer = false;
+#if !ENABLE_MIRROR
+            // And join the networked experience as a client.
+            NetworkManager.singleton.StartClient();
+#else
+            StartClient();
+#endif
+
+            CommunicationsController.Instance.IsServer = false;
             BasicSystemEventController.Instance.DispatchBasicSystemEvent(CommunicationsController.EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER);
 
             // REPORT STARTED AS CLIENT 
             Debug.Log("NetworkDiscoveryWithAnchors::OnReceivedBroadcast::STARTED AS A CLIENT.");
-		}
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		* Destroy resources
 		*/
-		private void Destroy()
+        private void Destroy()
 		{
 			if (m_isServer)
 			{
@@ -205,11 +261,24 @@ namespace YourNetworkingTools
 			Destroy(this);
 		}
 
-		// -------------------------------------------
-		/* 
+#if ENABLE_MIRROR
+        // -------------------------------------------
+        /* 
+		* OnServerAddPlayer
+		*/
+        public override void OnServerAddPlayer(NetworkConnection conn)
+        {
+            // add player at correct spawn position
+            GameObject player = Instantiate(playerPrefab);
+            NetworkServer.AddPlayerForConnection(conn, player);
+        }
+#endif
+
+        // -------------------------------------------
+        /* 
 		* Manager of global events
 		*/
-		private void OnBasicEvent(string _nameEvent, bool _isLocalEvent, int _networkOriginID, int _networkTargetID, params object[] _list)
+        private void OnBasicEvent(string _nameEvent, bool _isLocalEvent, int _networkOriginID, int _networkTargetID, params object[] _list)
 		{
 			if (_nameEvent == NetworkEventController.EVENT_SYSTEM_DESTROY_NETWORK_COMMUNICATIONS)
 			{

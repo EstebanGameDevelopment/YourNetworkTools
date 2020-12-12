@@ -109,14 +109,20 @@ namespace YourNetworkingTools
 		*/
         private void OnUIEvent(string _nameEvent, object[] _list)
         {
-            if (m_frozen) return;
-            if (m_timeoutToIgnore > 0) return;
+            if (m_frozen)
+            {
+                return;
+            }
+            if (m_timeoutToIgnore > 0)
+            {
+                return;
+            }
 
             if (_nameEvent == KeysEventInputController.ACTION_BUTTON_DOWN)
             {
                 if (Enabled)
                 {
-                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_GRABOBJECT_REQUEST_RAYCASTING);
+                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_GRABOBJECT_REQUEST_RAYCASTING, this.gameObject);
                 }
             }
             if (_nameEvent == KeysEventInputController.ACTION_BUTTON_UP)
@@ -128,7 +134,8 @@ namespace YourNetworkingTools
                         m_target = null;
                         ActivationPhysics(true);
                         m_timeoutToIgnore = 0.5f;
-                        NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GRABOBJECT_RELEASE_OBJECT, this.gameObject.name, YourNetworkTools.Instance.GetUniversalNetworkID().ToString());
+                        NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_GRABOBJECT_RELEASE_OBJECT, 0.01f, this.gameObject.name, YourNetworkTools.Instance.GetUniversalNetworkID().ToString());
+                        // NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GRABOBJECT_RELEASE_OBJECT, this.gameObject.name, YourNetworkTools.Instance.GetUniversalNetworkID().ToString());
                     }
                 }
             }
@@ -149,7 +156,8 @@ namespace YourNetworkingTools
                 {
                     m_target = (GameObject)_list[1];
                     ActivationPhysics(false);
-                    NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GRABOBJECT_TAKE_OBJECT, this.gameObject.name, YourNetworkTools.Instance.GetUniversalNetworkID().ToString());
+                    NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_GRABOBJECT_TAKE_OBJECT, 0.01f, this.gameObject.name, YourNetworkTools.Instance.GetUniversalNetworkID().ToString());
+                    // NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GRABOBJECT_TAKE_OBJECT, this.gameObject.name, YourNetworkTools.Instance.GetUniversalNetworkID().ToString());
                 }
             }
         }
@@ -228,35 +236,12 @@ namespace YourNetworkingTools
 
                 if (m_target != null)
                 {
-                    if (this.gameObject.GetComponent<NetworkedObject>() == null)
-                    {
-                        this.gameObject.transform.position = m_target.transform.position + m_target.transform.forward.normalized;
-                        if (InterpolateOrientation) this.gameObject.transform.forward = m_target.transform.forward;
-                    }
-                    else
+                    if (this.gameObject.GetComponent<NetworkedObject>() != null)
                     {
                         if (this.gameObject.GetComponent<NetworkedObject>().IsOwner())
                         {
                             this.gameObject.transform.position = m_target.transform.position + m_target.transform.forward.normalized;
                             if (InterpolateOrientation) this.gameObject.transform.forward = m_target.transform.forward;
-                        }
-                        else
-                        {
-                            m_timeoutTransform += Time.deltaTime;
-                            if (m_timeoutTransform > TIMEOUT_TO_UPDATE)
-                            {
-                                m_timeoutTransform = 0;
-                                Vector3 newPosition = m_target.transform.position + m_target.transform.forward.normalized;
-                                if (InterpolateOrientation)
-                                {
-                                    Vector3 newForward = m_target.transform.forward;
-                                    NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GRABOBJECT_UPDATE_OBJECT, this.gameObject.name, Utilities.Vector3ToString(newPosition), Utilities.Vector3ToString(newForward));
-                                }
-                                else
-                                {
-                                    NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GRABOBJECT_UPDATE_OBJECT, this.gameObject.name, Utilities.Vector3ToString(newPosition));
-                                }
-                            }
                         }
                     }
                 }

@@ -4,7 +4,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 using System.IO;
+#if ENABLE_MIRROR
+using Mirror;
+#else
 using UnityEngine.Networking;
+#endif
 using UnityEngine.VR;
 using YourCommonTools;
 
@@ -426,7 +430,7 @@ namespace YourNetworkingTools
 			if (!ExistRegisterPrefab(_newPrefab))
 			{
 				RegisterNewPrefab(new RegisteredPrefabData(_newPrefab, _classNetworkResources, _typeObjects, _prefabName));
-#if !DISABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS && !ENABLE_MIRROR
 				ClientScene.RegisterPrefab(_newPrefab);
 #endif
 			}
@@ -497,7 +501,17 @@ namespace YourNetworkingTools
             if (MultiplayerConfiguration.DEBUG_MODE)
 			{
 				GUILayout.BeginVertical();
-				if (m_networkID == -1)
+#if ENABLE_MIRROR
+                if (m_networkID == -1)
+				{
+					GUILayout.Label(new GUIContent("--[MIRROR]--SERVER IS SETTING UP. WAIT..."));
+				}
+				else
+				{
+					GUILayout.Label(new GUIContent("++[MIRROR]++MACHINE CONNECTION[" + m_networkID + "][" + (IsServer ? "SERVER" : "CLIENT") + "]"));
+				}
+#else
+                if (m_networkID == -1)
 				{
 					GUILayout.Label(new GUIContent("--[UNET]--SERVER IS SETTING UP. WAIT..."));
 				}
@@ -505,10 +519,11 @@ namespace YourNetworkingTools
 				{
 					GUILayout.Label(new GUIContent("++[UNET]++MACHINE CONNECTION[" + m_networkID + "][" + (IsServer ? "SERVER" : "CLIENT") + "]"));
 				}
-				GUILayout.EndVertical();
+#endif
+                GUILayout.EndVertical();
 			}
 #endif
-        }
+            }
 
 		// -------------------------------------------
 		/* 
@@ -578,7 +593,7 @@ namespace YourNetworkingTools
 								Debug.Log("NetworkServer.connections["+i+"]=" + NetworkServer.connections[i].address);
 							}
 							*/
-#if !DISABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS && !ENABLE_MIRROR
 							string ip4 = NetworkServer.connections[NetworkServer.connections.Count - 1].address;
 							client.NetworkAddress = ip4.Substring(ip4.LastIndexOf(':') + 1, ip4.Length - ip4.LastIndexOf(':') - 1);
 							Debug.Log("NETWORK ADDRESS RECEIVED::client.NetworkAddress=" + client.NetworkAddress);
