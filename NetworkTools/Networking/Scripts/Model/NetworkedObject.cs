@@ -23,6 +23,7 @@
         public const string EVENT_NETWORKED_RESPONSE_EXISTANCE = "EVENT_NETWORKED_RESPONSE_EXISTANCE";
         public const string EVENT_NETWORKED_UPDATE_NETID = "EVENT_NETWORKED_UPDATE_NETID";
         public const string EVENT_NETWORKED_OBJECT_RESET_TO_INITIAL = "EVENT_NETWORKED_OBJECT_RESET_TO_INITIAL";
+        public const string EVENT_NETWORKED_ACTIVATE_UPDATE_TRANFORM = "EVENT_NETWORKED_ACTIVATE_UPDATE_TRANFORM";
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
@@ -40,6 +41,14 @@
         private Vector3 m_initialScale;
         private Quaternion m_initialRotation;
         private float m_timeoutReset = -1;
+        private bool m_remoteUpdate = false;
+        private long m_releasedTimestamp = -1;
+
+        public long ReleasedTimestamp
+        {
+            get { return m_releasedTimestamp; }
+            set { m_releasedTimestamp = value; }
+        }
 
         // -------------------------------------------
         /* 
@@ -93,16 +102,37 @@
             }
             if (_reportToNetwork)
             {
-                NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_NETWORKED_UPDATE_NETID, 0.1f, Name, NetIDOwner.ToString());
+                NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_NETWORKED_UPDATE_NETID, 0.05f, Name, NetIDOwner.ToString());
             }            
         }
 
         // -------------------------------------------
         /* 
-		* Awake
+		* OwnNetworkObject
 		*/
+        public void ActivateNetworkUpdateTransform(bool _enabled, float _delay = 0.05f)
+        {
+            NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_NETWORKED_ACTIVATE_UPDATE_TRANFORM, _delay, Name, _enabled.ToString());
+        }
+
+        // -------------------------------------------
+        /* 
+        * Awake
+        */
         private void OnNetworkEvent(string _nameEvent, bool _isLocalEvent, int _networkOriginID, int _networkTargetID, object[] _list)
         {
+            if (_nameEvent == EVENT_NETWORKED_ACTIVATE_UPDATE_TRANFORM)
+            {
+                string recvName = (string)_list[0];
+                if (Name == recvName)
+                {
+                    m_remoteUpdate = bool.Parse((string)_list[1]);
+                    if (m_remoteUpdate)
+                    {
+                        NetworkEventController.Instance.ClearNetworkEvents(EVENT_NETWORKED_ACTIVATE_UPDATE_TRANFORM);
+                    }                    
+                }
+            }
             if (_nameEvent == EVENT_NETWORKED_OBJECT_RESET_TO_INITIAL)
             {
                 if (IsOwner())
@@ -154,12 +184,29 @@
                     // Debug.LogError("RECEIVED INFO[" + (string)_list[2] + "]::[" + (string)_list[3] + "][" + (string)_list[4] + "][" + (string)_list[5] + "]");
                     if (Name == recvName)
                     {
-                        Vector3 sposition = Utilities.StringToVector3((string)_list[3]);
-                        Quaternion srotation = Utilities.StringToQuaternion((string)_list[4]);
-                        InterpolatorController.Instance.InterpolatePosition(this.gameObject, sposition, YourNetworkTools.Instance.TimeToUpdateNetworkedObjects, false);
-                        InterpolatorController.Instance.InterpolateRotation(this.gameObject, srotation, YourNetworkTools.Instance.TimeToUpdateNetworkedObjects, false);
-                        this.transform.localScale = Utilities.StringToVector3((string)_list[5]);
-                        this.transform.gameObject.SetActive(bool.Parse((string)_list[6]));
+                        long timestamp = long.Parse((string)_list[7]);
+                        bool applyUpdate = false;
+                        if (m_releasedTimestamp == -1)
+                        {
+                            applyUpdate = true;
+                        }
+                        else
+                        {
+                            if (m_releasedTimestamp < timestamp)
+                            {
+                                applyUpdate = true;
+                            }
+                        }
+
+                        if (applyUpdate)
+                        {
+                            Vector3 sposition = Utilities.StringToVector3((string)_list[3]);
+                            Quaternion srotation = Utilities.StringToQuaternion((string)_list[4]);
+                            InterpolatorController.Instance.InterpolatePosition(this.gameObject, sposition, YourNetworkTools.Instance.TimeToUpdateNetworkedObjects, false);
+                            InterpolatorController.Instance.InterpolateRotation(this.gameObject, srotation, YourNetworkTools.Instance.TimeToUpdateNetworkedObjects, false);
+                            this.transform.localScale = Utilities.StringToVector3((string)_list[5]);
+                            this.transform.gameObject.SetActive(bool.Parse((string)_list[6]));
+                        }
                     }
                 }
                
@@ -203,15 +250,19 @@
                         }
                     }                    
 
-                    m_timeOut += Time.deltaTime;
-                    if (m_timeOut >= YourNetworkTools.Instance.TimeToUpdateNetworkedObjects)
+                    if (m_remoteUpdate)
                     {
-                        m_timeOut = 0;
-                        string sposition = Utilities.Vector3ToString(this.transform.position);
-                        string srotation = Utilities.QuaternionToString(this.transform.rotation);
-                        string sscale = Utilities.Vector3ToString(this.transform.localScale);
-                        // Debug.LogError("SENDING INFO[" + Name + "]::[" + sposition + "][" + sforward + "][" + sscale + "]");
-                        NetworkEventController.Instance.DispatchNetworkEvent(EVENT_NETWORKED_OBJECT_UPDATE, Name, VisualsName, Params, sposition, srotation, sscale, this.transform.gameObject.activeSelf.ToString());
+                        m_timeOut += Time.deltaTime;
+                        if (m_timeOut >= YourNetworkTools.Instance.TimeToUpdateNetworkedObjects)
+                        {
+                            m_timeOut = 0;
+                            string sposition = Utilities.Vector3ToString(this.transform.position);
+                            string srotation = Utilities.QuaternionToString(this.transform.rotation);
+                            string sscale = Utilities.Vector3ToString(this.transform.localScale);
+                            // Debug.LogError("SENDING INFO[" + Name + "]::[" + sposition + "][" + sforward + "][" + sscale + "]");
+                            NetworkEventController.Instance.DispatchNetworkEvent(EVENT_NETWORKED_OBJECT_UPDATE, Name, VisualsName, Params, sposition, srotation, sscale, this.transform.gameObject.activeSelf.ToString(), Utilities.GetTimestamp().ToString());
+                            Debug.LogError("SENDING INFO[" + Name + "]");
+                        }
                     }
                 }
                 else

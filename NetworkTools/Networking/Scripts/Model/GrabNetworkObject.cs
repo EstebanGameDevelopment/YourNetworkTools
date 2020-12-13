@@ -134,7 +134,7 @@ namespace YourNetworkingTools
                         m_target = null;
                         ActivationPhysics(true);
                         m_timeoutToIgnore = 0.5f;
-                        NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_GRABOBJECT_RELEASE_OBJECT, 0.01f, this.gameObject.name, YourNetworkTools.Instance.GetUniversalNetworkID().ToString());
+                        NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_GRABOBJECT_RELEASE_OBJECT, 0.01f, this.gameObject.name, YourNetworkTools.Instance.GetUniversalNetworkID().ToString(), Utilities.GetTimestamp().ToString());
                         // NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GRABOBJECT_RELEASE_OBJECT, this.gameObject.name, YourNetworkTools.Instance.GetUniversalNetworkID().ToString());
                     }
                 }
@@ -173,6 +173,7 @@ namespace YourNetworkingTools
                 if (this.gameObject.name == (string)_list[0])
                 {
                     int networkIDOwner = int.Parse((string)_list[1]);
+                    this.gameObject.GetComponent<NetworkedObject>().ReleasedTimestamp = -1;
                     if (YourNetworkTools.Instance.GetUniversalNetworkID() != networkIDOwner)
                     {
                         Enabled = false;
@@ -181,6 +182,7 @@ namespace YourNetworkingTools
                     if (this.gameObject.GetComponent<NetworkedObject>() != null)
                     {
                         this.gameObject.GetComponent<NetworkedObject>().OwnNetworkObject(networkIDOwner);
+                        this.gameObject.GetComponent<NetworkedObject>().ActivateNetworkUpdateTransform(true);
                     }
                 }
             }
@@ -191,6 +193,11 @@ namespace YourNetworkingTools
                     m_timeoutToIgnore = 0.5f;
                     Enabled = true;
                     ActivationPhysics(true);
+                    this.gameObject.GetComponent<NetworkedObject>().ReleasedTimestamp = long.Parse((string)_list[2]);
+                    if (this.gameObject.GetComponent<NetworkedObject>().NetIDOwner == YourNetworkTools.Instance.GetUniversalNetworkID())
+                    {
+                        this.gameObject.GetComponent<NetworkedObject>().ActivateNetworkUpdateTransform(false, 5);
+                    }                    
                 }
             }
             if (_nameEvent == EVENT_GRABOBJECT_UPDATE_OBJECT)
