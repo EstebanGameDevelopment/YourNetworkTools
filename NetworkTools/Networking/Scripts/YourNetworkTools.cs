@@ -178,7 +178,7 @@ namespace YourNetworkingTools
                             }
 #endif
 #if ENABLE_MIRROR
-                            GameObject.FindObjectOfType<NetworkDiscoveryUNET>().spawnPrefabs.Add(prefabToNetwork);
+                            GameObject.FindObjectOfType<MirrorDiscoveryController>().spawnPrefabs.Add(prefabToNetwork);
 #endif
                             if (prefabToNetwork.GetComponent<NetworkID>() != null)
                             {

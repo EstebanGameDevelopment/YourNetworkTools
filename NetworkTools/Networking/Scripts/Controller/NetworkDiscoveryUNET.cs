@@ -26,9 +26,7 @@ namespace YourNetworkingTools
 	 * @author Esteban Gallardo
 	 */
 	public class NetworkDiscoveryUNET :
-#if ENABLE_MIRROR
-        NetworkManager
-#elif !DISABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS && !ENABLE_MIRROR
         NetworkDiscovery
 #else
         MonoBehaviour
@@ -42,30 +40,15 @@ namespace YourNetworkingTools
 
 		private bool m_isServer = false;
 
-#if !DISABLE_UNET_COMMS
+#if !DISABLE_UNET_COMMS && !ENABLE_MIRROR
         // -------------------------------------------
         /* 
 		 * Start looking for a server to work as a client
 		 */
-#if ENABLE_MIRROR
-        public override void Start()
-#else
         private void Start()
-#endif
 		{
 			Debug.Log("NetworkDiscoveryUNET::START!!!!");
 
-#if ENABLE_MIRROR
-            base.Start();
-            if (NetworkEventController.Instance.MenuController_LoadNumberOfPlayers() != MultiplayerConfiguration.VALUE_FOR_JOINING)
-            {
-                RunAsServer();
-            }
-            else
-            {
-                RunClient(MultiplayerConfiguration.LoadIPAddressServer());
-            }
-#else
             if (MultiplayerConfiguration.LoadNumberOfPlayers() == 1)
             {
                 broadcastData = Utilities.RandomCodeGeneration(UnityEngine.Random.Range(0, 10).ToString());
@@ -97,7 +80,6 @@ namespace YourNetworkingTools
 			float InvokeWaitTime = 3 * BroadcastInterval + Random.value * 3 * BroadcastInterval;
 			Invoke("MaybeInitAsServer", InvokeWaitTime * 0.001f);
 
-#endif
             NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnBasicEvent);
         }
 
@@ -167,21 +149,15 @@ namespace YourNetworkingTools
 			m_isServer = true;
             CommunicationsController.Instance.IsServer = true;
 
-#if ENABLE_MIRROR
-            StartHost();
-#else
             StopBroadcast();
-#endif
             yield return null;
 
             NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_COMMUNICATIONSCONTROLLER_REGISTER_ALL_NETWORK_PREFABS);
 
-#if !ENABLE_MIRROR
             NetworkManager.singleton.StartHost();
 
 			// Start broadcasting for other clients.
 			StartAsServer();
-#endif
             yield return null;
 
             BasicSystemEventController.Instance.DispatchBasicSystemEvent(CommunicationsController.EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER);
@@ -193,7 +169,6 @@ namespace YourNetworkingTools
         /* 
 		 * Receives the response of the broadcast of connection and connects as a client
 		 */
-#if !ENABLE_MIRROR
         public override void OnReceivedBroadcast(string fromAddress, string data)
 		{
 			if (receivedBroadcast)
@@ -207,7 +182,6 @@ namespace YourNetworkingTools
 
             RunClient(fromAddress);
 		}
-#endif
 
         // -------------------------------------------
         /* 
@@ -218,23 +192,17 @@ namespace YourNetworkingTools
             NetworkManager.singleton.networkAddress = _fromAddress;
             ServerIp = _fromAddress.Substring(_fromAddress.LastIndexOf(':') + 1);
 
-#if !ENABLE_MIRROR
 #if !UNITY_EDITOR
 			// Tell the network transmitter the IP to request anchor data from if needed.
 			GenericNetworkTransmitter.Instance.SetServerIP(ServerIp);
 #else
             Debug.LogWarning("This script will need modification to work in the Unity Editor");
 #endif
-#endif
 
             NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_COMMUNICATIONSCONTROLLER_REGISTER_ALL_NETWORK_PREFABS);
 
-#if !ENABLE_MIRROR
             // And join the networked experience as a client.
             NetworkManager.singleton.StartClient();
-#else
-            StartClient();
-#endif
 
             CommunicationsController.Instance.IsServer = false;
             BasicSystemEventController.Instance.DispatchBasicSystemEvent(CommunicationsController.EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER);
@@ -260,19 +228,6 @@ namespace YourNetworkingTools
 			NetworkEventController.Instance.NetworkEvent -= OnBasicEvent;
 			Destroy(this);
 		}
-
-#if ENABLE_MIRROR
-        // -------------------------------------------
-        /* 
-		* OnServerAddPlayer
-		*/
-        public override void OnServerAddPlayer(NetworkConnection conn)
-        {
-            // add player at correct spawn position
-            GameObject player = Instantiate(playerPrefab);
-            NetworkServer.AddPlayerForConnection(conn, player);
-        }
-#endif
 
         // -------------------------------------------
         /* 

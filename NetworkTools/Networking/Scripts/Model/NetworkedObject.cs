@@ -259,9 +259,8 @@
                             string sposition = Utilities.Vector3ToString(this.transform.position);
                             string srotation = Utilities.QuaternionToString(this.transform.rotation);
                             string sscale = Utilities.Vector3ToString(this.transform.localScale);
-                            // Debug.LogError("SENDING INFO[" + Name + "]::[" + sposition + "][" + sforward + "][" + sscale + "]");
+                            // Debug.LogError("SENDING INFO[" + Name + "]::[" + sposition + "][" + srotation + "][" + sscale + "]");
                             NetworkEventController.Instance.DispatchNetworkEvent(EVENT_NETWORKED_OBJECT_UPDATE, Name, VisualsName, Params, sposition, srotation, sscale, this.transform.gameObject.activeSelf.ToString(), Utilities.GetTimestamp().ToString());
-                            Debug.LogError("SENDING INFO[" + Name + "]");
                         }
                     }
                 }

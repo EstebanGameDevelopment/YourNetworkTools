@@ -97,6 +97,8 @@ namespace YourNetworkingTools
         private string m_currencySelected = "";
         private string m_publicKeyAddressProvider = "";
 
+        private bool m_checkDefaultMirror = true;
+
         // ----------------------------------------------
         // GETTERS/SETTERS
         // ----------------------------------------------	
@@ -131,6 +133,12 @@ namespace YourNetworkingTools
         {
             get { return m_extraDataBlockchain; }
         }
+        public bool CheckDefaultMirror
+        {
+            get { return m_checkDefaultMirror; }
+            set { m_checkDefaultMirror = value; }
+        }
+
 #if ENABLE_YOURVRUI
         public int ScreensVREnabled
         {
