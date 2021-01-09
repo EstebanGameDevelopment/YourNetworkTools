@@ -367,6 +367,16 @@ namespace YourNetworkingTools
 
 		// -------------------------------------------
 		/* 
+		* IncreaseInstanceCounter
+		*/
+		public int IncreaseInstanceCounter()
+		{
+			m_uidCounter++;
+			return m_uidCounter;
+		}
+
+		// -------------------------------------------
+		/* 
 		* Create a NetworkObject
 		*/
 		public void CreateLocalNetworkObject(string _prefabName, object _initialData, bool _createInServer, float _x = 0, float _y = 0, float _z = 0)

@@ -37,5 +37,11 @@
 		{
 			return NetID + "," + UID;
 		}
+
+		public void SetID(int _NetID, int _UID)
+		{
+			NetID = _NetID;
+			UID = _UID;
+		}
 	}
 }

@@ -159,6 +159,16 @@ namespace YourNetworkingTools
 
 		// -------------------------------------------
 		/* 
+		 * SetSinglePlayerNetworkID
+		 */
+		public void SetSinglePlayerNetworkID(int _NetID, int _UID)
+        {
+			m_networkID = this.gameObject.GetComponent<NetworkID>();
+			m_networkID.SetID(_NetID, _UID);
+		}
+
+		// -------------------------------------------
+		/* 
 		 * OnNetworkEvent
 		 */
 		private void OnNetworkEvent(string _nameEvent, bool _isLocalEvent, int _networkOriginID, int _networkTargetID, params object[] _list)
