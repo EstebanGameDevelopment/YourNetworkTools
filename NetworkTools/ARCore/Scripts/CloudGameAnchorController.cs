@@ -136,11 +136,11 @@ namespace YourNetworkingTools
 		*/
 		public void DisableARCore(bool _activation)
 		{
-			GameCamera.enabled = true;
-			FirstPersonCamera.enabled = false;
-			FitToScanOverlay.SetActive(false);
-			TextMessage.gameObject.SetActive(false);
-			PointViewer.SetActive(false);
+			if (GameCamera != null) GameCamera.enabled = true;
+			if (FirstPersonCamera != null) FirstPersonCamera.enabled = false;
+			if (FitToScanOverlay != null) FitToScanOverlay.SetActive(false);
+			if (TextMessage != null) TextMessage.gameObject.SetActive(false);
+			if (PointViewer != null) PointViewer.SetActive(false);
 			if (m_goReferenceAnchor!=null) m_goReferenceAnchor.GetComponent<Renderer>().enabled = false;
 			this.gameObject.SetActive(_activation);
 		}
