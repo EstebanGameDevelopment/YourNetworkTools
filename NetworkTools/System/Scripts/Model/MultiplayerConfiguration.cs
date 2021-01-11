@@ -90,7 +90,19 @@ namespace YourNetworkingTools
             {
                 NumberOfPlayers = PlayerPrefs.GetInt(NUMBER_OF_PLAYERS_COOCKIE, -1);
             }
+#if IGNORE_SINGLEPLAYER
+            if (NumberOfPlayers == 1)
+            {
+                return 10;
+            }
+            else
+            {
+                return NumberOfPlayers;
+            }
+#else
             return NumberOfPlayers;
+#endif
+
         }
 
         // -------------------------------------------
