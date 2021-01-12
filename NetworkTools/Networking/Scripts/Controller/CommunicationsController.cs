@@ -9,7 +9,6 @@ using Mirror;
 #else
 using UnityEngine.Networking;
 #endif
-using UnityEngine.VR;
 using YourCommonTools;
 
 namespace YourNetworkingTools
