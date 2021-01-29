@@ -275,6 +275,7 @@ namespace YourNetworkingTools
                     PlayerPrefs.SetString(ScreenCreateRoomView.PLAYERPREFS_YNT_ROOMNAME, roomSelected.DisplayName);
                     NetworkEventController.Instance.MenuController_SaveRoomNumberInServer(roomSelected.Room);
                     NetworkEventController.Instance.MenuController_SaveRoomNameInServer(roomSelected.DisplayName);
+                    NetworkEventController.Instance.MenuController_SetNameRoomLobby(roomSelected.DisplayName);
                     MenuScreenController.Instance.ExtraData = roomSelected.ExtraData;
 
                     // JOIN ROOM IN LOBBY
