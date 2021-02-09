@@ -74,6 +74,9 @@ namespace YourNetworkingTools
         [Tooltip("Maximum number of rooms allowed in server")]
         public int MaxAllowedRooms = 15;
 
+        [Tooltip("Ask for user permission to download the asset bundle")]
+        public bool RequestPermissionAssetBundleDownload = false;
+
         [HideInInspector]
         public object ParamsScreenGameOptions = null;
 
