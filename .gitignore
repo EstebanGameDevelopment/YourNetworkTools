@@ -68,3 +68,6 @@ NetworkTools/SOCKET_SERVER/ServerYourNetworkTools.jar.meta
 _ROBOCOPY.bat
 _ROBOCOPY_2.bat
 _ROBOCOPY_2.bat.meta
+NetworkTools/Resources.meta
+NetworkTools/Editor/SOCKET_SERVER/src/Common/SlotDataConnection.java.meta
+NetworkTools/Editor/SOCKET_SERVER/src/Common/SlotDataConnectionCellRenderer.java.meta
