@@ -31,6 +31,8 @@ namespace YourNetworkingTools
 		public const int MESSAGE_TRANSFORM = 1;
 		public const int MESSAGE_DATA = 2;
 
+        public byte PHOTON_EVENT_CODE = 0;
+
         // ----------------------------------------------
         // EVENTS
         // ----------------------------------------------
@@ -88,7 +90,18 @@ namespace YourNetworkingTools
 
 		private List<PlayerConnectionData> m_playersConnections = new List<PlayerConnectionData>();
 
-		public bool SocketConnected
+        private RaiseEventOptions m_raiseEventOptions = new RaiseEventOptions
+        {
+            Receivers = ReceiverGroup.All,
+            CachingOption = EventCaching.DoNotCache
+        };
+
+        private SendOptions m_sendOptions = new SendOptions
+        {
+            Reliability = true
+        };
+
+        public bool SocketConnected
 		{
 			get { return m_socketConnected; }
 		}
@@ -132,6 +145,8 @@ namespace YourNetworkingTools
                 PhotonNetwork.ConnectUsingSettings();
             }
 
+            PhotonNetwork.NetworkingClient.EventReceived += OnEvent;
+
             NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);
             UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
             BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
@@ -150,13 +165,9 @@ namespace YourNetworkingTools
 
             PhotonNetwork.Disconnect();
 
-            if (m_uniqueNetworkID != -1)
-            {
-                try { PhotonMessageHUB.Instance.Destroy(); } catch (Exception err) { };
-            }
-
             NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_SYSTEM_DESTROY_NETWORK_COMMUNICATIONS);
-			NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
+            PhotonNetwork.NetworkingClient.EventReceived -= OnEvent;
+            NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
 			UIEventController.Instance.UIEvent -= OnUIEvent;
             BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
             Destroy(_instance.gameObject);
@@ -466,10 +477,6 @@ namespace YourNetworkingTools
             {
                 m_uniqueNetworkID = PhotonNetwork.LocalPlayer.ActorNumber;
                 if (DEBUG) Debug.LogError("PhotonController::OnJoinedRoom::UniqueNetworkID[" + UniqueNetworkID + "]::MasterClient[" + PhotonNetwork.IsMasterClient + "]");
-                if (PhotonNetwork.IsMasterClient)
-                {
-                    PhotonNetwork.Instantiate("PhotonMessageHUB", Vector3.zero, Quaternion.identity);
-                }
                 UIEventController.Instance.DispatchUIEvent(ClientTCPEventsController.EVENT_CLIENT_TCP_CONNECTED_ROOM, m_totalNumberOfPlayers);
             }
         }
@@ -617,6 +624,73 @@ namespace YourNetworkingTools
 
         // -------------------------------------------
         /* 
+		* RefreshPlayerConnections
+		*/
+        private void RefreshPlayerConnections()
+        {
+            m_playersConnections.Clear();
+            foreach (KeyValuePair<int, Player> item in PhotonNetwork.CurrentRoom.Players)
+            {
+                m_playersConnections.Add(new PlayerConnectionData(item.Value.ActorNumber, null));
+            }
+            // Debug.LogError("PhotonController::RefreshPlayerConnections::m_playersConnections.COUNT=" + m_playersConnections.Count);
+        }
+
+        // -------------------------------------------
+        /* 
+		* DispatchEvent
+		*/
+        public void DispatchEvent(string _nameEvent, int _originNetworkID, int _targetNetworkID, params object[] _list)
+        {
+            object[] data = new object[3 + _list.Length];
+            data[0] = _nameEvent;
+            data[1] = _originNetworkID;
+            data[2] = _targetNetworkID;
+            if (_list.Length > 0)
+            {
+                for (int i = 0; i < _list.Length; i++)
+                {
+                    data[3 + i] = _list[i];
+                }
+            }
+
+            PhotonNetwork.RaiseEvent(PHOTON_EVENT_CODE, data, m_raiseEventOptions, m_sendOptions);
+        }
+
+        // -------------------------------------------
+        /* 
+		* OnEvent
+		*/
+        private void OnEvent(EventData photonEvent)
+        {
+            if (photonEvent.Code == PHOTON_EVENT_CODE)
+            {
+                object[] data = (object[])photonEvent.CustomData;
+                string eventMessage = (string)data[0];
+                int originNetworkID = (int)data[1];
+                if (originNetworkID == PhotonController.Instance.UniqueNetworkID)
+                {
+                    return;
+                }
+
+                int targetNetworkID = (int)data[2];
+                string[] paramsEvent = null;
+                if (data.Length > 3)
+                {
+                    paramsEvent = new string[data.Length - 3];
+                    for (int i = 3; i < data.Length; i++)
+                    {
+                        paramsEvent[i - 3] = (string)data[i];
+                    }
+                }
+
+                NetworkEventController.Instance.DispatchCustomNetworkEvent(eventMessage, true, originNetworkID, targetNetworkID, paramsEvent);
+            }
+        }
+
+
+        // -------------------------------------------
+        /* 
 		 * Update
 		 */
         public void Update()
@@ -633,7 +707,7 @@ namespace YourNetworkingTools
                     {
                         paramsEvent = (string[])item.Objects[3];
                     }
-                    PhotonMessageHUB.Instance.PrepareMessage((string)item.Objects[0], uniqueNetworkID, (int)item.Objects[2], paramsEvent);
+                    DispatchEvent((string)item.Objects[0], uniqueNetworkID, (int)item.Objects[2], paramsEvent);
                 }
             }
         }
