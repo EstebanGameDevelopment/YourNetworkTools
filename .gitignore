@@ -71,3 +71,6 @@ _ROBOCOPY_2.bat.meta
 NetworkTools/Resources.meta
 NetworkTools/Editor/SOCKET_SERVER/src/Common/SlotDataConnection.java.meta
 NetworkTools/Editor/SOCKET_SERVER/src/Common/SlotDataConnectionCellRenderer.java.meta
+NetworkTools/Menus/Resources/Images/app-store.png.meta
+NetworkTools/Menus/Resources/Images/google-play.png.meta
+NetworkTools/Menus/Resources/Images/lock.png.meta
