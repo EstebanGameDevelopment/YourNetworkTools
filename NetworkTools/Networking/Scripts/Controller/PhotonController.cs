@@ -11,6 +11,10 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using System.Text;
 using YourCommonTools;
+#if ENABLE_PHOTON_VOICE
+using Photon.Voice.Unity;
+using Photon.Voice.Unity.UtilityScripts;
+#endif
 
 namespace YourNetworkingTools
 {
@@ -37,6 +41,11 @@ namespace YourNetworkingTools
         // EVENTS
         // ----------------------------------------------
         public const string EVENT_PHOTONCONTROLLER_GAME_STARTED = "EVENT_PHOTONCONTROLLER_GAME_STARTED";
+        public const string EVENT_PHOTONCONTROLLER_VOICE_CREATED = "EVENT_PHOTONCONTROLLER_VOICE_CREATED";
+        public const string EVENT_PHOTONCONTROLLER_SPEAKER_CREATED = "EVENT_PHOTONCONTROLLER_SPEAKER_CREATED";
+        public const string EVENT_PHOTONCONTROLLER_VOICE_NETWORK_ENABLED = "EVENT_PHOTONCONTROLLER_VOICE_NETWORK_ENABLED";
+        public const string EVENT_PHOTONCONTROLLER_VOICE_ENABLED = "EVENT_PHOTONCONTROLLER_VOICE_ENABLED";
+        public const string EVENT_PHOTONCONTROLLER_VOICE_CHANGE_REPORTED = "EVENT_PHOTONCONTROLLER_VOICE_CHANGE_REPORTED";
 
         // ----------------------------------------------
         // CONSTANTS
@@ -126,6 +135,12 @@ namespace YourNetworkingTools
             get { return m_serverIPAddress; }
             set { m_serverIPAddress = value; }
         }
+#if ENABLE_PHOTON_VOICE
+        public bool VoiceEnabled
+        {
+            get { return m_voiceEnabled; }
+        }
+#endif
 
         // -------------------------------------------
         /* 
@@ -309,6 +324,26 @@ namespace YourNetworkingTools
             return false;
         }
 
+#if ENABLE_PHOTON_VOICE
+        // -------------------------------------------
+        /* 
+		* VoiceActivation
+		*/
+        private void VoiceActivation(bool _activationVoice)
+        {
+            if (!_activationVoice && m_voiceEnabled)
+            {
+                m_speakerVoice.StopPlayback();
+                m_voiceEnabled = false;
+            }
+            if (_activationVoice && !m_voiceEnabled)
+            {
+                m_speakerVoice.RestartPlayback();
+                m_voiceEnabled = true;
+            }
+            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_PHOTONCONTROLLER_VOICE_CHANGE_REPORTED);
+        }
+#endif
 
         // -------------------------------------------
         /* 
@@ -343,7 +378,7 @@ namespace YourNetworkingTools
 				int networkIDPlayer = int.Parse((string)_list[0]);
 				ClientDisconnected(networkIDPlayer);
 			}
-			if (!_isLocalEvent)
+            if (!_isLocalEvent)
 			{
 				m_events.Add(new ItemMultiObjectEntry(_nameEvent, _networkOriginID, _networkTargetID, _list));
 			}
@@ -383,6 +418,13 @@ namespace YourNetworkingTools
                 {
                     BasicSystemEventController.Instance.DispatchBasicSystemEvent(CommunicationsController.EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER);
                 }                
+            }
+            if (_nameEvent == EVENT_PHOTONCONTROLLER_VOICE_ENABLED)
+            {
+#if ENABLE_PHOTON_VOICE
+                bool activationVoice = (bool)_list[0];
+                VoiceActivation(activationVoice);
+#endif
             }
         }
 
@@ -635,6 +677,72 @@ namespace YourNetworkingTools
             }
             // Debug.LogError("PhotonController::RefreshPlayerConnections::m_playersConnections.COUNT=" + m_playersConnections.Count);
         }
+
+#if ENABLE_PHOTON_VOICE
+        private VoiceConnection m_voiceConnection = null;
+        private Speaker m_speakerVoice = null;
+        private bool m_voiceEnabled = true;
+#endif
+
+#if ENABLE_PHOTON_VOICE
+        // -------------------------------------------
+        /* 
+		* StartVoiceStreaming
+		*/
+        public void StartVoiceStreaming(bool _emitVoice)
+        {
+            object voiceFoun = Resources.Load("Voice/Voice Connection and Recorder");
+            bool voiceHasBeenFound = false;
+            if (voiceFoun != null)
+            {
+                GameObject voicePrefab = voiceFoun as GameObject;
+                if (voicePrefab != null)
+                {
+                    voiceHasBeenFound = true;
+                    GameObject voiceGO = GameObject.Instantiate(voicePrefab);
+                    ConnectAndJoin joinVoice = voiceGO.transform.GetComponentInChildren<ConnectAndJoin>();
+                    m_voiceConnection = GameObject.FindObjectOfType<VoiceConnection>();
+                    m_voiceConnection.SpeakerLinked += this.OnSpeakerCreated;
+                    if ((joinVoice != null) && (m_voiceConnection != null))
+                    {
+                        joinVoice.RoomName = PhotonNetwork.CurrentRoom.Name;
+                        m_voiceConnection.PrimaryRecorder.TransmitEnabled = _emitVoice;
+                        joinVoice.ConnectNow();
+                        NetworkEventController.Instance.DispatchLocalEvent(EVENT_PHOTONCONTROLLER_VOICE_CREATED, m_voiceConnection.gameObject.transform);
+                    }
+                }
+            }
+            
+            if (!voiceHasBeenFound)
+            {
+                Debug.LogError("StartVoiceStreaming::PREFAB VOICE NOT FOUND!!!!!!!!!!!!!!!!");
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		* OnSpeakerCreated
+		*/
+        private void OnSpeakerCreated(Speaker _speaker)
+        {
+            m_speakerVoice = _speaker;
+            m_speakerVoice.OnRemoteVoiceRemoveAction += OnRemoteVoiceRemove;
+            NetworkEventController.Instance.DispatchLocalEvent(EVENT_PHOTONCONTROLLER_SPEAKER_CREATED, m_speakerVoice.transform);
+        }
+
+        // -------------------------------------------
+        /* 
+		* OnRemoteVoiceRemove
+		*/
+        private void OnRemoteVoiceRemove(Speaker _speaker)
+        {
+            if (_speaker != null)
+            {
+                _speaker.OnRemoteVoiceRemoveAction -= OnRemoteVoiceRemove;
+                Destroy(_speaker.gameObject);
+            }
+        }
+#endif
 
         // -------------------------------------------
         /* 
