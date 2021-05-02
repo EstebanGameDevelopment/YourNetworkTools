@@ -52,6 +52,7 @@ namespace YourNetworkingTools
         public const string LAYER_ENEMIES = "ENEMIES";
         public const string LAYER_NPCS    = "NPCS";
         public const string LAYER_ITEMS   = "ITEMS";
+        public const string LAYER_OBJECTS = "OBJECTS";
 
         public const char SEPARATOR_ANIMATION_ENTRY = '#';
         public const char SEPARATOR_PARAMS_ANIMATION = ';';
