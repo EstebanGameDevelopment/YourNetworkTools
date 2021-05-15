@@ -26,7 +26,14 @@ namespace YourNetworkingTools
 #if !DISABLE_UNET_COMMS && !ENABLE_MIRROR
     [NetworkSettings(sendInterval = 0.033f)]
 #endif
-    public class PlayerConnectionController : NetworkBehaviour
+    public class PlayerConnectionController :
+#if ENABLE_MIRROR
+		NetworkBehaviour
+#elif !DISABLE_UNET_COMMS
+		NetworkBehaviour
+#else
+		MonoBehaviour
+#endif
 	{
 #if !DISABLE_UNET_COMMS
         // -----------------------------------------
@@ -387,5 +394,5 @@ namespace YourNetworkingTools
 			}
 		}
 #endif
-            }
+	}
 }
