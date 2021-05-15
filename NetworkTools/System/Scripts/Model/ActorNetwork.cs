@@ -59,16 +59,28 @@ namespace YourNetworkingTools
 		*/
         public void Awake()
         {
-            if (!YourNetworkTools.Instance.IsLocalGame)
-            {
-                m_photonView = GetComponent<PhotonView>();
+			m_photonView = GetComponent<PhotonView>();
 
+			if (!YourNetworkTools.Instance.IsLocalGame)
+            {
                 if (m_photonView.InstantiationData != null)
                 {
                     NetworkID.NetID = (int)(m_photonView.InstantiationData[0]);
                     NetworkID.UID = (int)(m_photonView.InstantiationData[1]);
                 }
             }
+			else
+            {
+				if (m_photonView != null)
+                {
+					m_photonView.enabled = false;
+					PhotonTransformView photonTransform = this.GetComponent<PhotonTransformView>();
+					if (photonTransform != null)
+					{
+						photonTransform.enabled = false;
+					}
+				}
+			}
         }
 #endif
 

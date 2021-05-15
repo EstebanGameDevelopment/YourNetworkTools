@@ -281,7 +281,9 @@ namespace YourNetworkingTools
                 Debug.Log(eventConnected);
                 UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMAINCOMMANDCENTER_LIST_USERS, m_playersConnections);
                 UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMAINCOMMANDCENTER_REGISTER_LOG, eventConnected);
+#if UNITY_EDITOR
                 Debug.LogError("ClientNewConnection::m_playersConnections[" + m_playersConnections.Count + "] NEW CONNECTION ID["+ _idConnection + "]");
+#endif
                 return true;
             }
             else
