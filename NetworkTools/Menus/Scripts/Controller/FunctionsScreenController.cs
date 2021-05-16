@@ -341,12 +341,21 @@ namespace YourNetworkingTools
 #endif
             }
 
+            if (_nameEvent == ScreenBaseView.EVENT_SCREENBASE_OPENED)
+            {
+                DisplayLogoForScreen();
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * DisplayLogoForScreen
+		 */
+        protected virtual void DisplayLogoForScreen()
+        {
             if (LogoApp != null)
             {
-                if (_nameEvent == ScreenBaseView.EVENT_SCREENBASE_OPENED)
-                {
-                    UIEventController.Instance.DelayUIEvent(ScreenController.EVENT_SCREENCONTROLLER_REPLACE_LOGO, 0.001F, LogoApp);
-                }
+                UIEventController.Instance.DelayUIEvent(ScreenController.EVENT_SCREENCONTROLLER_REPLACE_LOGO, 0.001F, LogoApp);
             }
         }
 
