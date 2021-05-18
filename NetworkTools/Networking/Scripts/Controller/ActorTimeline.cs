@@ -351,7 +351,7 @@ namespace YourNetworkingTools
             if (IsMine())
             {
                 BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_GAMEPLAYER_SETUP_AVATAR, this.gameObject);
-                NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, NetworkID.GetID(), m_initialData);
+                NetworkEventController.Instance.PriorityDelayNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, 0.1f, NetworkID.GetID(), m_initialData);
             }
             InitializeCommon();
             if (initialData.Length > 5)
