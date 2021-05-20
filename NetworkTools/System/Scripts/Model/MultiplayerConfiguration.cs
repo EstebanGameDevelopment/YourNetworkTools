@@ -211,7 +211,8 @@ namespace YourNetworkingTools
 		 */
         public static string LoadNameRoomLobby()
         {
-            return PlayerPrefs.GetString(NAME_ROOM_LOOBY_COOCKIE, "");
+            string nameRoom = PlayerPrefs.GetString(NAME_ROOM_LOOBY_COOCKIE, "");
+            return nameRoom;
         }
 
         // -------------------------------------------

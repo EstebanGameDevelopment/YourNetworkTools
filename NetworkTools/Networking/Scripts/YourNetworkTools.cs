@@ -295,7 +295,7 @@ namespace YourNetworkingTools
 		{
 			for (int i = 0; i < GameObjects.Length; i++)
 			{
-				if (GameObjects[i].name == _prefabName)
+				if (_prefabName.IndexOf(GameObjects[i].name) != -1)
 				{
 					return GameObjects[i];
 				}
@@ -311,13 +311,14 @@ namespace YourNetworkingTools
 		{
 			for (int i = 0; i < GameObjects.Length; i++)
 			{
-				if (GameObjects[i].name == _prefabName)
+				if (_prefabName.IndexOf(GameObjects[i].name) != -1)
 				{
 					return i;
 				}
 			}
 			return -1;
 		}
+
 		// -------------------------------------------
 		/* 
 		 * Get the network object by id
@@ -377,13 +378,50 @@ namespace YourNetworkingTools
 
 		// -------------------------------------------
 		/* 
+		* CreatePathToPrefabInResources
+		*/
+		public string CreatePathToPrefabInResources(string _nameNetworkAsset, bool _addExtension = false, bool _forceSinglePlayer = false)
+        {
+			string finalNameNetworkAssets = "Network/";
+			if (_forceSinglePlayer)
+            {
+				finalNameNetworkAssets += "Socket/" + _nameNetworkAsset + (_addExtension ? "Socket" : "");
+			}
+			else
+            {
+				if (YourNetworkTools.Instance.IsLocalGame)
+				{
+					finalNameNetworkAssets += "Mirror/" + _nameNetworkAsset + (_addExtension ? "Mirror" : "");
+				}
+				else
+				{
+#if ENABLE_PHOTON
+                finalNameNetworkAssets += "Photon/" + _nameNetworkAsset + (_addExtension?"Photon":"");
+#else
+					finalNameNetworkAssets += "Socket/" + _nameNetworkAsset + (_addExtension ? "Socket" : "");
+#endif
+				}
+			}
+			var networkAsset = Resources.Load(finalNameNetworkAssets) as GameObject;
+			if (networkAsset != null)
+            {
+				return finalNameNetworkAssets;
+			}
+			else
+            {
+				return null;
+            }			
+		}
+
+		// -------------------------------------------
+		/* 
 		* Create a NetworkObject
 		*/
-		public void CreateLocalNetworkObject(string _prefabName, object _initialData, bool _createInServer, float _x = 0, float _y = 0, float _z = 0)
+		public void CreateLocalNetworkObject(string _basePrefabName, string _prefabName, object _initialData, bool _createInServer, float _x = 0, float _y = 0, float _z = 0)
 		{
 			if (IsLocalGame)
 			{
-				string assignedNetworkName = _prefabName + TOKEN_SEPARATOR_NAME + GetUniversalNetworkID() + TOKEN_SEPARATOR_NAME + m_uidCounter;
+				string assignedNetworkName = _basePrefabName + TOKEN_SEPARATOR_NAME + GetUniversalNetworkID() + TOKEN_SEPARATOR_NAME + m_uidCounter;
 				m_uidCounter++;
 #if !DISABLE_UNET_COMMS
 				NetworkWorldObject networkWorldObject = new NetworkWorldObject(assignedNetworkName, _prefabName, new Vector3(_x, _y, _z), Vector3.zero, Vector3.one, _initialData, true, true, _createInServer);
