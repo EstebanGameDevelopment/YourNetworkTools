@@ -5,6 +5,9 @@ using YourCommonTools;
 #if ENABLE_YOURVRUI
 using YourVRUI;
 #endif
+#if ENABLE_USER_SERVER
+using UserManagement;
+#endif
 
 namespace YourNetworkingTools
 {
@@ -192,6 +195,9 @@ namespace YourNetworkingTools
 
 			LanguageController.Instance.Initialize();
 			SoundsController.Instance.Initialize();
+#if ENABLE_USER_SERVER
+            UsersController.Instance.Initialize();
+#endif
 
             if (ServerIPAdress.Length > 0) MultiplayerConfiguration.SaveIPAddressServer(ServerIPAdress);
             if (ServerPortNumber != -1) MultiplayerConfiguration.SavePortServer(ServerPortNumber);
