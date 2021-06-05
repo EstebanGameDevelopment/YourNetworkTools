@@ -130,8 +130,11 @@ namespace YourNetworkingTools
 				}
 				m_networkID = this.gameObject.GetComponent<NetworkID>();
 #if !DISABLE_UNET_COMMS
-				m_networkID.NetID = this.gameObject.GetComponent<NetworkWorldObjectData>().NetID;
-				m_networkID.UID = this.gameObject.GetComponent<NetworkWorldObjectData>().UID;
+				if ((this.gameObject.GetComponent<NetworkWorldObjectData>()!= null) && (m_networkID != null))
+				{
+					m_networkID.NetID = this.gameObject.GetComponent<NetworkWorldObjectData>().NetID;
+					m_networkID.UID = this.gameObject.GetComponent<NetworkWorldObjectData>().UID;
+				}
 #endif
 			}
 		}
