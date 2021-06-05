@@ -22,10 +22,12 @@ namespace YourNetworkingTools
 	 */
     public class FunctionsScreenController : ScreenController
 	{
-		// ----------------------------------------------
-		// EVENTS
-		// ----------------------------------------------	
-		public const string EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE  = "EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE";
+        public enum PROFILE_PLAYER { PLAYER = 0, DIRECTOR = 1, SPECTATOR = 2 }
+
+        // ----------------------------------------------
+        // EVENTS
+        // ----------------------------------------------	
+        public const string EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE  = "EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE";
         public const string EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME      = "EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME";
         public const string EVENT_MENUEVENTCONTROLLER_JOIN_EXISTING_GAME    = "EVENT_MENUEVENTCONTROLLER_JOIN_EXISTING_GAME";
 
@@ -35,10 +37,19 @@ namespace YourNetworkingTools
         public const string BLOCKCHAIN_TAG_BEGIN = "<blockchain>";
         public const string BLOCKCHAIN_TAG_END = "</blockchain>";
 
-		// ----------------------------------------------
-		// PUBLIC MEMBERS
-		// ----------------------------------------------	
-		[Tooltip("Target scene where the real application is")]
+        private const string PREFS_NAME_ROOM = "APP_NAME_ROOM";
+        private const string PREFS_NUMBER_PLAYERS = "APP_NUMBER_PLAYERS";
+        private const string PREFS_PROFILE = "APP_PROFILE";
+        private const string PREFS_AVATAR = "APP_AVATAR";
+        private const string PREFS_LEVEL = "APP_LEVEL";
+        private const string PREFS_LOCAL_OR_NETWORK = "APP_LOCAL_OR_NETWORK";
+
+        public const char TOKEN_SEPARATOR_CONFIG = ',';
+
+        // ----------------------------------------------
+        // PUBLIC MEMBERS
+        // ----------------------------------------------	
+        [Tooltip("Target scene where the real application is")]
 		public string TargetGameScene;
 
 		[Tooltip("Application instruction images")]
@@ -80,6 +91,9 @@ namespace YourNetworkingTools
         [Tooltip("Ask for user permission to download the asset bundle")]
         public bool RequestPermissionAssetBundleDownload = false;
 
+        [Tooltip("It's going to use the settings organization")]
+        public bool EnableAppOrganization = false;
+
         [HideInInspector]
         public object ParamsScreenGameOptions = null;
 
@@ -89,21 +103,28 @@ namespace YourNetworkingTools
         public Sprite IconApp;
 		public Sprite LogoApp;
 
-		// ----------------------------------------------
-		// PRIVATE MEMBERS
-		// ----------------------------------------------	
-		private bool m_isFriendsRoom = false;
-		private int m_numberOfPlayers = -1;
-		private string m_friends;
-		private List<string> m_friendsIDs;
-		private string m_extraData = "";
+        // ----------------------------------------------
+        // PRIVATE MEMBERS
+        // ----------------------------------------------	
+        protected bool m_isFriendsRoom = false;
+        protected int m_numberOfPlayers = -1;
+        protected string m_friends;
+        protected List<string> m_friendsIDs;
+        protected string m_extraData = "";
 
-        private string m_extraDataBlockchain = "";
-        private decimal m_priceBlockchainService = 0;
-        private string m_currencySelected = "";
-        private string m_publicKeyAddressProvider = "";
+        protected string m_extraDataBlockchain = "";
+        protected decimal m_priceBlockchainService = 0;
+        protected string m_currencySelected = "";
+        protected string m_publicKeyAddressProvider = "";
 
-        private bool m_checkDefaultMirror = true;
+        protected bool m_checkDefaultMirror = true;
+
+        protected PROFILE_PLAYER m_profileSelected;
+        protected int m_appTotalNumberOfPlayers = 1;
+        protected int m_appIndexCharacterSelected = 0;
+        protected int m_appIndexLevelSelected = 0;
+        protected string m_appRoomName = "";
+        protected bool m_appIsLocal = true;
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -143,6 +164,30 @@ namespace YourNetworkingTools
         {
             get { return m_checkDefaultMirror; }
             set { m_checkDefaultMirror = value; }
+        }
+        public PROFILE_PLAYER ProfileSelected
+        {
+            get { return m_profileSelected; }
+        }
+        public int AppTotalNumberOfPlayers
+        {
+            get { return m_appTotalNumberOfPlayers; }
+        }
+        public int AppIndexCharacterSelected
+        {
+            get { return m_appIndexCharacterSelected; }
+        }
+        public int AppIndexLevelSelected
+        {
+            get { return m_appIndexLevelSelected; }
+        }
+        public string AppRoomName
+        {
+            get { return m_appRoomName; }
+        }
+        public bool AppIsLocal
+        {
+            get { return m_appIsLocal; }
         }
 
 #if ENABLE_YOURVRUI
@@ -203,6 +248,7 @@ namespace YourNetworkingTools
             if (ServerPortNumber != -1) MultiplayerConfiguration.SavePortServer(ServerPortNumber);
 
             UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
+            BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
 
 #if ENABLE_WORLDSENSE || ENABLE_OCULUS || ENABLE_HTCVIVE
             KeysEventInputController.Instance.EnableActionOnMouseDown = false;
@@ -226,6 +272,19 @@ namespace YourNetworkingTools
 
         // -------------------------------------------
         /* 
+		 * InitConfigurationSession
+		 */
+        protected void InitConfigurationSession()
+        {
+            m_profileSelected = (PROFILE_PLAYER)PlayerPrefs.GetInt(PREFS_PROFILE, 0);
+            m_appTotalNumberOfPlayers = PlayerPrefs.GetInt(PREFS_NUMBER_PLAYERS, 5);
+            m_appIndexCharacterSelected = PlayerPrefs.GetInt(PREFS_AVATAR, 0);
+            m_appRoomName = PlayerPrefs.GetString(PREFS_NAME_ROOM, "MyVRRoom");
+            m_appIsLocal = PlayerPrefs.GetInt(PREFS_LOCAL_OR_NETWORK, 1) == 0;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Destroy all references
 		 */
         void OnDestroy()
@@ -242,7 +301,8 @@ namespace YourNetworkingTools
 			base.Destroy();
 
 			UIEventController.Instance.UIEvent -= OnUIEvent;
-		}
+            BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
+        }
 
         // -------------------------------------------
         /* 
@@ -321,11 +381,172 @@ namespace YourNetworkingTools
 
         // -------------------------------------------
         /* 
+		* OnBasicSystemEvent
+		*/
+        protected virtual void OnBasicSystemEvent(string _nameEvent, object[] _list)
+        {
+#if ENABLE_USER_SERVER
+            if (_nameEvent == UsersController.EVENT_USER_LOGIN_FORMATTED)
+            {
+                Debug.LogError("EVENT_USER_LOGIN_FORMATTED::(bool)_list[0]=" + (bool)_list[0]);
+                if ((bool)_list[0])
+                {
+                    ParseCloudData();
+                }
+            }
+#endif
+        }
+
+        // -------------------------------------------
+        /* 
+		 * RefreshProperties
+		 */
+        private void ParseCloudData()
+        {
+#if ENABLE_USER_SERVER
+            if (UsersController.Instance.CurrentUser.Email.Length > 0)
+            {
+                string[] dataConfig = UsersController.Instance.CurrentUser.Profile.Data.Split(TOKEN_SEPARATOR_CONFIG);
+
+                if (dataConfig.Length == 6)
+                {
+                    bool isLocal = bool.Parse(dataConfig[0]);
+                    UIEventController.Instance.DispatchUIEvent(ScreenGameOrganizationView.EVENT_SCREENMAIN_LOCAL_OR_REMOTE_PARTY, isLocal, false);
+
+                    PROFILE_PLAYER profileSelected = (PROFILE_PLAYER)int.Parse(dataConfig[1]);
+                    UIEventController.Instance.DispatchUIEvent(ScreenDirectorModeView.EVENT_SCREENDIRECTORMODE_SELECTED_PROFILE, profileSelected, false);
+
+                    int amicIndexCharacterSelected = int.Parse(dataConfig[2]);
+                    UIEventController.Instance.DispatchUIEvent(ScreenCharacterSelectionView.EVENT_SCREENCHARACTERSELECTION_SELECTED_CHARACTER, amicIndexCharacterSelected, false);
+
+                    int amicIndexLevelSelected = int.Parse(dataConfig[3]);
+                    UIEventController.Instance.DispatchUIEvent(ScreenLevelSelectionView.EVENT_SCREENLEVELSELECTION_SELECTED_LEVEL, amicIndexLevelSelected, false);
+
+                    int amicTotalNumberOfPlayers = int.Parse(dataConfig[4]);
+                    UIEventController.Instance.DispatchUIEvent(ScreenMenuNumberPlayersView.EVENT_SCREENNUMBERPLAYERS_SET_NUMBER_PLAYERS, amicTotalNumberOfPlayers, false);
+
+                    string amicRoomName = dataConfig[5];
+                    UIEventController.Instance.DispatchUIEvent(ScreenCreateRoomView.EVENT_SCREENCREATEROOM_SETUP_NAME, amicRoomName, false);
+                }
+                else
+                {
+                    SaveDataInCloud();
+                }
+            }
+#endif
+        }
+
+        // -------------------------------------------
+        /* 
+		 * SaveDataInCloud
+		 */
+        public void SaveDataInCloud()
+        {
+#if ENABLE_USER_SERVER
+            if (UsersController.Instance.CurrentUser.Email.Length > 0)
+            {
+                string dataConfig = "";
+                dataConfig += AppIsLocal.ToString() + TOKEN_SEPARATOR_CONFIG;
+                dataConfig += ((int)ProfileSelected).ToString() + TOKEN_SEPARATOR_CONFIG;
+                dataConfig += AppIndexCharacterSelected.ToString() + TOKEN_SEPARATOR_CONFIG;
+                dataConfig += AppIndexLevelSelected.ToString() + TOKEN_SEPARATOR_CONFIG;
+                dataConfig += AppTotalNumberOfPlayers.ToString() + TOKEN_SEPARATOR_CONFIG;
+                dataConfig += AppRoomName.ToString();
+
+                UIEventController.Instance.DispatchUIEvent(UsersController.EVENT_USER_UPDATE_PROFILE_DATA_REQUEST, dataConfig);
+            }
+#endif
+        }
+
+        // -------------------------------------------
+        /* 
+		 * GetBlockchainExtraData
+		 */
+        protected virtual void OnUISettings(string _nameEvent, params object[] _list)
+        {
+            if (_nameEvent == ScreenDirectorModeView.EVENT_SCREENDIRECTORMODE_SELECTED_PROFILE)
+            {
+                m_profileSelected = (PROFILE_PLAYER)_list[0];
+                PlayerPrefs.SetInt(PREFS_PROFILE, (int)m_profileSelected);
+                bool shouldRefresh = true;
+                if (_list.Length > 1) shouldRefresh = (bool)_list[1];
+                if (shouldRefresh)
+                {
+                    UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
+                    SaveDataInCloud();
+                }
+            }
+            if (_nameEvent == ScreenMenuNumberPlayersView.EVENT_SCREENNUMBERPLAYERS_SET_NUMBER_PLAYERS)
+            {
+                m_appTotalNumberOfPlayers = (int)_list[0];
+                PlayerPrefs.SetInt(PREFS_NUMBER_PLAYERS, m_appTotalNumberOfPlayers);
+                bool shouldRefresh = true;
+                if (_list.Length > 1) shouldRefresh = (bool)_list[1];
+                if (shouldRefresh)
+                {
+                    UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
+                    SaveDataInCloud();
+                }
+            }
+            if (_nameEvent == ScreenCharacterSelectionView.EVENT_SCREENCHARACTERSELECTION_SELECTED_CHARACTER)
+            {
+                m_appIndexCharacterSelected = (int)_list[0];
+                PlayerPrefs.SetInt(PREFS_AVATAR, m_appIndexCharacterSelected);
+                bool shouldRefresh = true;
+                if (_list.Length > 1) shouldRefresh = (bool)_list[1];
+                if (shouldRefresh)
+                {
+                    UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
+                    SaveDataInCloud();
+                }
+            }
+            if (_nameEvent == ScreenLevelSelectionView.EVENT_SCREENLEVELSELECTION_SELECTED_LEVEL)
+            {
+                m_appIndexLevelSelected = (int)_list[0];
+                PlayerPrefs.SetInt(PREFS_LEVEL, m_appIndexLevelSelected);
+                bool shouldRefresh = true;
+                if (_list.Length > 1) shouldRefresh = (bool)_list[1];
+                if (shouldRefresh)
+                {
+                    UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
+                    SaveDataInCloud();
+                }
+            }
+            if (_nameEvent == ScreenCreateRoomView.EVENT_SCREENCREATEROOM_SETUP_NAME)
+            {
+                m_appRoomName = (string)_list[0];
+                PlayerPrefs.SetString(PREFS_NAME_ROOM, m_appRoomName);
+                bool shouldRefresh = true;
+                if (_list.Length > 1) shouldRefresh = (bool)_list[1];
+                if (shouldRefresh)
+                {
+                    UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
+                    SaveDataInCloud();
+                }
+            }
+            if (_nameEvent == ScreenGameOrganizationView.EVENT_SCREENMAIN_LOCAL_OR_REMOTE_PARTY)
+            {
+                m_appIsLocal = (bool)_list[0];
+                PlayerPrefs.SetInt(PREFS_LOCAL_OR_NETWORK, (m_appIsLocal ? 0 : 1));
+                bool shouldRefresh = true;
+                if (_list.Length > 1) shouldRefresh = (bool)_list[1];
+                if (shouldRefresh)
+                {
+                    UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
+                    SaveDataInCloud();
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Manager of global events
 		 */
         protected override void OnUIEvent(string _nameEvent, params object[] _list)
 		{
             if (!PreProcessScreenEvents(_nameEvent, _list)) return;
+
+            OnUISettings(_nameEvent, _list);
 
 #if ENABLE_YOURVRUI
             ProcessConnectionEvents(_nameEvent, _list);

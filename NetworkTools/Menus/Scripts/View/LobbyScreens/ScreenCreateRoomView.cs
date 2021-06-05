@@ -25,11 +25,12 @@ namespace YourNetworkingTools
         // EVENTS
         // ----------------------------------------------	
         public const string EVENT_SCREENCREATEROOM_CREATE_RANDOM_NAME = "EVENT_SCREENCREATEROOM_CREATE_RANDOM_NAME";
-
-        // ----------------------------------------------
-        // CONSTANTS
-        // ----------------------------------------------	
-        public const string PLAYERPREFS_YNT_ROOMNAME = "PLAYERPREFS_YNT_ROOMNAME";
+        public const string EVENT_SCREENCREATEROOM_SETUP_NAME = "EVENT_SCREENCREATEROOM_SETUP_NAME";
+		
+		// ----------------------------------------------
+		// CONSTANTS
+		// ----------------------------------------------	
+		public const string PLAYERPREFS_YNT_ROOMNAME = "PLAYERPREFS_YNT_ROOMNAME";
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
@@ -56,7 +57,14 @@ namespace YourNetworkingTools
 			m_container.Find("RoomName").GetComponent<InputField>().text = PlayerPrefs.GetString(PLAYERPREFS_YNT_ROOMNAME, "");
 
 			GameObject createGame = m_container.Find("Button_CreateRoom").gameObject;
-			createGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.lobby.create.with.name.room");
+			if (MenuScreenController.Instance.EnableAppOrganization)
+			{
+				createGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.lobby.amics.setup.room.name");
+			}
+			else
+			{
+				createGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.lobby.create.with.name.room");
+			}
 			createGame.GetComponent<Button>().onClick.AddListener(CreateRoom);
 
             m_btnBack = m_container.Find("Button_Back");
@@ -68,7 +76,6 @@ namespace YourNetworkingTools
                     bkBtn.onClick.AddListener(BackPressed);
                 }
             }
-
 
             UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);			
 		}
@@ -102,32 +109,41 @@ namespace YourNetworkingTools
 		 */
 		private void CreateRoom()
 		{
-			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
 			string roomName = m_container.Find("RoomName").GetComponent<InputField>().text;
 			if (roomName.Length < 5)
 			{
+				SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
 				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN,ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), LanguageController.Instance.GetText("screen.lobby.no.name.in.create.room"), null, "");
 			}
 			else
 			{
-				NetworkEventController.Instance.MenuController_SetNameRoomLobby(roomName);
-                PlayerPrefs.SetString(PLAYERPREFS_YNT_ROOMNAME, roomName);
-                if (MenuScreenController.Instance.ForceFixedPlayers != -1)
+				if (MenuScreenController.Instance.EnableAppOrganization)
 				{
-					MenuScreenController.Instance.LoadCustomGameScreenOrCreateGame(false, MenuScreenController.Instance.ForceFixedPlayers, "", null);
+					UIEventController.Instance.DispatchUIEvent(EVENT_SCREENCREATEROOM_SETUP_NAME, roomName);
+					GoBackPressed();
 				}
 				else
 				{
-                    if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
-                    {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenMenuNumberPlayersView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-                    }
-                    else
-                    {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenMenuNumberPlayersView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, m_nameOfScreen);
-                    }
+					SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
+					NetworkEventController.Instance.MenuController_SetNameRoomLobby(roomName);
+					PlayerPrefs.SetString(PLAYERPREFS_YNT_ROOMNAME, roomName);
+					if (MenuScreenController.Instance.ForceFixedPlayers != -1)
+					{
+						MenuScreenController.Instance.LoadCustomGameScreenOrCreateGame(false, MenuScreenController.Instance.ForceFixedPlayers, "", null);
+					}
+					else
+					{
+						if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
+						{
+							UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenMenuNumberPlayersView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+						}
+						else
+						{
+							UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenMenuNumberPlayersView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, m_nameOfScreen);
+						}
+					}
+					Destroy();
 				}
-                Destroy();
             }			
 		}
 
