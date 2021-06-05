@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+#if ENABLE_USER_SERVER
 using UserManagement;
+#endif
 using YourCommonTools;
 using YourNetworkingTools;
 
@@ -83,6 +85,7 @@ namespace YourNetworkingTools
 		 */
         private void RefreshData()
         {
+#if ENABLE_USER_SERVER
             if (UsersController.Instance.CurrentUser.Email.Length == 0)
             {
                 m_container.transform.Find("CurrentUser").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.main.no.current.user");
@@ -97,6 +100,7 @@ namespace YourNetworkingTools
                 m_editProfileGO.SetActive(true);
                 m_logoutProfileGO.SetActive(true);
             }
+#endif
         }
 
         // -------------------------------------------
@@ -116,7 +120,9 @@ namespace YourNetworkingTools
         private void OnEditProfileUser()
         {
             UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_WAIT, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("message.please.wait"), null, "");
+#if ENABLE_USER_SERVER
             UIEventController.Instance.DelayUIEvent(UsersController.EVENT_USER_CALL_CONSULT_SINGLE_RECORD, 0.2f, UsersController.Instance.CurrentUser.Id);
+#endif
         }
 
         // -------------------------------------------
@@ -125,7 +131,9 @@ namespace YourNetworkingTools
 		 */
         private void OnLoginUser()
         {
+#if ENABLE_USER_SERVER
             UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoginUserView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+#endif
         }
 
         // -------------------------------------------
@@ -167,7 +175,9 @@ namespace YourNetworkingTools
                 {
                     if ((bool)_list[1])
                     {
+#if ENABLE_USER_SERVER
                         BasicSystemEventController.Instance.DispatchBasicSystemEvent(UsersController.EVENT_USER_RESET_LOCAL_DATA);
+#endif
                         RefreshData();
                     }
                 }
@@ -180,6 +190,7 @@ namespace YourNetworkingTools
 		*/
         private void OnBasicSystemEvent(string _nameEvent, object[] _list)
         {
+#if ENABLE_USER_SERVER
             if (_nameEvent == UsersController.EVENT_USER_RESULT_FORMATTED_SINGLE_RECORD)
             {
                 UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_WAIT);
@@ -200,6 +211,7 @@ namespace YourNetworkingTools
                     UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, null, ScreenProfileView.SCREEN_NAME_DISPLAY, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, (UserModel)_list[0]);
                 }
             }
+#endif
         }
     }
 }
