@@ -62,7 +62,7 @@ namespace YourNetworkingTools
 			base.Initialize(_list);
 
 			m_root = this.gameObject;
-			m_container = m_root.transform.Find("Content");
+			m_container = m_root.transform.Find("Content/ScrollPage/Page");
 
 			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.title");
 
