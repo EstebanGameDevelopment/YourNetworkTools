@@ -102,9 +102,9 @@ namespace YourNetworkingTools
 			m_levelInGame.GetComponent<Button>().onClick.AddListener(OnSelectLevelGame);
 
 			// CLOUD
-			if (m_container.Find("Button_Cloud") != null)
+			if (m_root.transform.Find("Content/Button_Cloud") != null)
             {
-				m_loginCloud = m_container.Find("Button_Cloud").gameObject;
+				m_loginCloud = m_root.transform.Find("Content/Button_Cloud").gameObject;
 				m_loginCloud.GetComponent<Button>().onClick.AddListener(OnCloudLogin);
 			}
 #if !ENABLE_USER_SERVER
