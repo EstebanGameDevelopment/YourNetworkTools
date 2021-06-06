@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -30,7 +31,8 @@ namespace YourNetworkingTools
         public const string EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE  = "EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE";
         public const string EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME      = "EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME";
         public const string EVENT_MENUEVENTCONTROLLER_JOIN_EXISTING_GAME    = "EVENT_MENUEVENTCONTROLLER_JOIN_EXISTING_GAME";
-
+        public const string EVENT_MENUEVENTCONTROLLERLOAD_GAME_WITH_SETTINGS = "EVENT_MENUEVENTCONTROLLERLOAD_GAME_WITH_SETTINGS";
+        
         // ----------------------------------------------
         // PUBLIC CONSTANTS
         // ----------------------------------------------	
@@ -43,6 +45,7 @@ namespace YourNetworkingTools
         private const string PREFS_AVATAR = "APP_AVATAR";
         private const string PREFS_LEVEL = "APP_LEVEL";
         private const string PREFS_LOCAL_OR_NETWORK = "APP_LOCAL_OR_NETWORK";
+        private const string PREFS_ARCORE_ENABLED = "PREFS_ARCORE_ENABLED";
 
         public const char TOKEN_SEPARATOR_CONFIG = ',';
 
@@ -125,6 +128,9 @@ namespace YourNetworkingTools
         protected int m_appIndexLevelSelected = 0;
         protected string m_appRoomName = "";
         protected bool m_appIsLocal = true;
+        protected bool m_appEnableARCore = false;
+
+        private IBasicView m_screenRequesterToLoadGame = null;
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -189,6 +195,10 @@ namespace YourNetworkingTools
         {
             get { return m_appIsLocal; }
         }
+        public bool AppEnableARCore
+        {
+            get { return m_appEnableARCore; }
+        }
 
 #if ENABLE_YOURVRUI
         public int ScreensVREnabled
@@ -223,6 +233,8 @@ namespace YourNetworkingTools
         public override void Start()
 		{
 			base.Start();
+
+            InitConfigurationSession();
 
             if (Application.isEditor)
             {
@@ -279,8 +291,10 @@ namespace YourNetworkingTools
             m_profileSelected = (PROFILE_PLAYER)PlayerPrefs.GetInt(PREFS_PROFILE, 0);
             m_appTotalNumberOfPlayers = PlayerPrefs.GetInt(PREFS_NUMBER_PLAYERS, 5);
             m_appIndexCharacterSelected = PlayerPrefs.GetInt(PREFS_AVATAR, 0);
+            m_appIndexLevelSelected = PlayerPrefs.GetInt(PREFS_LEVEL, 0);
             m_appRoomName = PlayerPrefs.GetString(PREFS_NAME_ROOM, "MyVRRoom");
             m_appIsLocal = PlayerPrefs.GetInt(PREFS_LOCAL_OR_NETWORK, 1) == 0;
+            m_appEnableARCore = PlayerPrefs.GetInt(PREFS_ARCORE_ENABLED, 1) == 0;
         }
 
         // -------------------------------------------
@@ -408,7 +422,7 @@ namespace YourNetworkingTools
             {
                 string[] dataConfig = UsersController.Instance.CurrentUser.Profile.Data.Split(TOKEN_SEPARATOR_CONFIG);
 
-                if (dataConfig.Length == 6)
+                if (dataConfig.Length >= 6)
                 {
                     bool isLocal = bool.Parse(dataConfig[0]);
                     UIEventController.Instance.DispatchUIEvent(ScreenGameOrganizationView.EVENT_SCREENMAIN_LOCAL_OR_REMOTE_PARTY, isLocal, false);
@@ -427,6 +441,12 @@ namespace YourNetworkingTools
 
                     string amicRoomName = dataConfig[5];
                     UIEventController.Instance.DispatchUIEvent(ScreenCreateRoomView.EVENT_SCREENCREATEROOM_SETUP_NAME, amicRoomName, false);
+
+                    if (dataConfig.Length > 6)
+                    {
+                        bool isARCoreEnabled = bool.Parse(dataConfig[6]);
+                        UIEventController.Instance.DispatchUIEvent(ScreenEnableARCore.EVENT_SCREENARCORE_ENABLED_ARCORE, isARCoreEnabled, false);
+                    }
                 }
                 else
                 {
@@ -451,7 +471,8 @@ namespace YourNetworkingTools
                 dataConfig += AppIndexCharacterSelected.ToString() + TOKEN_SEPARATOR_CONFIG;
                 dataConfig += AppIndexLevelSelected.ToString() + TOKEN_SEPARATOR_CONFIG;
                 dataConfig += AppTotalNumberOfPlayers.ToString() + TOKEN_SEPARATOR_CONFIG;
-                dataConfig += AppRoomName.ToString();
+                dataConfig += AppRoomName.ToString() + TOKEN_SEPARATOR_CONFIG;
+                dataConfig += AppEnableARCore.ToString();
 
                 UIEventController.Instance.DispatchUIEvent(UsersController.EVENT_USER_UPDATE_PROFILE_DATA_REQUEST, dataConfig);
             }
@@ -460,7 +481,67 @@ namespace YourNetworkingTools
 
         // -------------------------------------------
         /* 
-		 * GetBlockchainExtraData
+		 * LoadGameScene
+		 */
+        public void LoadGameScene(IBasicView _screen = null)
+        {
+            try
+            {
+                if (_screen != null)
+                {
+                    if (_screen != null) _screen.Destroy();
+                    _screen.Destroy();
+                }
+                else
+                {
+                    if (m_screenRequesterToLoadGame != null) m_screenRequesterToLoadGame.Destroy();
+                    m_screenRequesterToLoadGame = null;
+                }
+            }
+            catch (Exception err) { }
+#if UNITY_STANDALONE
+            CardboardLoaderVR.Instance.SaveEnableCardboard(false);
+            MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
+#else
+#if ENABLE_GOOGLE_ARCORE
+            CardboardLoaderVR.Instance.SaveEnableCardboard(false);
+#else
+            if (YourVRUIScreenController.Instance == null)
+            {
+                CardboardLoaderVR.Instance.SaveEnableCardboard(false);
+            }
+            else
+            {
+                CardboardLoaderVR.Instance.SaveEnableCardboard(true);
+            }
+#endif
+            MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
+#endif
+        }
+
+        // -------------------------------------------
+        /* 
+		 * SetUpFinalLevel
+		 */
+        protected virtual void SetUpFinalLevel()
+        {
+            MultiplayerConfiguration.SaveLevel6DOF(m_appIndexLevelSelected);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * SetUpFinalCharacter
+		 */
+        protected virtual void SetUpFinalCharacter()
+        {
+            MultiplayerConfiguration.SaveCharacter6DOF(m_appIndexCharacterSelected);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * OnUISettings
 		 */
         protected virtual void OnUISettings(string _nameEvent, params object[] _list)
         {
@@ -468,6 +549,18 @@ namespace YourNetworkingTools
             {
                 m_profileSelected = (PROFILE_PLAYER)_list[0];
                 PlayerPrefs.SetInt(PREFS_PROFILE, (int)m_profileSelected);
+                bool shouldRefresh = true;
+                if (_list.Length > 1) shouldRefresh = (bool)_list[1];
+                if (shouldRefresh)
+                {
+                    UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
+                    SaveDataInCloud();
+                }
+            }
+            if (_nameEvent == ScreenEnableARCore.EVENT_SCREENARCORE_ENABLED_ARCORE)
+            {
+                m_appEnableARCore = (bool)_list[0];
+                PlayerPrefs.SetInt(PREFS_ARCORE_ENABLED, (m_appEnableARCore?1:0));
                 bool shouldRefresh = true;
                 if (_list.Length > 1) shouldRefresh = (bool)_list[1];
                 if (shouldRefresh)
@@ -534,6 +627,100 @@ namespace YourNetworkingTools
                 {
                     UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
                     SaveDataInCloud();
+                }
+            }
+            if (_nameEvent == EVENT_MENUEVENTCONTROLLERLOAD_GAME_WITH_SETTINGS)
+            {
+                m_screenRequesterToLoadGame = (IBasicView)_list[0];
+
+                switch (m_profileSelected)
+                {
+                    case FunctionsScreenController.PROFILE_PLAYER.PLAYER:
+                        MultiplayerConfiguration.SaveDirectorMode(MultiplayerConfiguration.DIRECTOR_MODE_DISABLED);
+                        CardboardLoaderVR.Instance.SaveEnableCardboard(true);
+                        break;
+
+                    case FunctionsScreenController.PROFILE_PLAYER.DIRECTOR:
+                        MultiplayerConfiguration.SaveDirectorMode(MultiplayerConfiguration.DIRECTOR_MODE_ENABLED);
+                        CardboardLoaderVR.Instance.SaveEnableCardboard(false);
+                        break;
+
+                    case FunctionsScreenController.PROFILE_PLAYER.SPECTATOR:
+                        MultiplayerConfiguration.SaveDirectorMode(MultiplayerConfiguration.DIRECTOR_MODE_ENABLED);
+                        MultiplayerConfiguration.SaveSpectatorMode(MultiplayerConfiguration.SPECTATOR_MODE_ENABLED);
+                        CardboardLoaderVR.Instance.SaveEnableCardboard(false);
+                        break;
+                }
+
+                SetUpFinalLevel();
+                SetUpFinalCharacter();
+
+                NumberOfPlayers = m_appTotalNumberOfPlayers;
+
+                if (m_appIsLocal)
+                {
+                    NetworkEventController.Instance.MenuController_SaveNumberOfPlayers(m_appTotalNumberOfPlayers);
+                    NetworkEventController.Instance.MenuController_SetLocalGame(true);
+                    NetworkEventController.Instance.MenuController_SetLobbyMode(false);
+                    m_screenRequesterToLoadGame.Destroy();
+                    LoadGameScene();
+                }
+                else
+                {
+                    NetworkEventController.Instance.MenuController_SetLocalGame(false);
+                    NetworkEventController.Instance.MenuController_SetLobbyMode(true);
+
+                    if (m_appRoomName.Length > 0)
+                    {
+                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_WAIT, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("screen.lobby.connecting.wait"), null, "");
+                        NetworkEventController.Instance.MenuController_InitialitzationSocket(-1, 0);
+                    }
+                }
+            }
+            if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_LIST_OF_GAME_ROOMS)
+            {
+                UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_WAIT);
+                if (m_appRoomName.Length > 0)
+                {
+                    bool roomFound = false;
+                    int indexRoomFound = -1;
+                    for (int i = 0; i < NetworkEventController.Instance.RoomsLobby.Count; i++)
+                    {
+                        ItemMultiTextEntry item = NetworkEventController.Instance.RoomsLobby[i];
+                        int roomNumber = int.Parse(item.Items[1]);
+                        string nameRoom = item.Items[2];
+                        if (nameRoom.Equals(m_appRoomName))
+                        {
+                            roomFound = true;
+                            indexRoomFound = roomNumber;
+                        }
+                    }
+
+                    NetworkEventController.Instance.MenuController_SetNameRoomLobby(m_appRoomName);
+
+                    if (roomFound)
+                    {
+#if UNITY_EDITOR
+                        Debug.LogError("ROOM NAME[" + m_appRoomName + "] ++YES++ FOUND IN LIST ROOMS LOBBY[" + NetworkEventController.Instance.RoomsLobby.Count + "]::NOW JOINNING...");
+#endif
+                        // JOIN
+                        NetworkEventController.Instance.MenuController_SaveNumberOfPlayers(MultiplayerConfiguration.VALUE_FOR_JOINING);
+                        PlayerPrefs.SetString(ScreenCreateRoomView.PLAYERPREFS_YNT_ROOMNAME, m_appRoomName);
+                        NetworkEventController.Instance.MenuController_SaveRoomNumberInServer(indexRoomFound);
+                        NetworkEventController.Instance.MenuController_SaveRoomNameInServer(m_appRoomName);
+                        NetworkEventController.Instance.MenuController_SetNameRoomLobby(m_appRoomName);
+                        MenuScreenController.Instance.ExtraData = "";
+                        LoadGameScene();
+                    }
+                    else
+                    {
+                        // CREATE
+#if UNITY_EDITOR
+                        Debug.LogError("ROOM NAME[" + m_appRoomName + "] --NOT-- FOUND IN LIST ROOMS LOBBY[" + NetworkEventController.Instance.RoomsLobby.Count + "] CREATING ROOM[" + m_appRoomName + "]");
+#endif
+                        NetworkEventController.Instance.MenuController_SaveNumberOfPlayers(m_appTotalNumberOfPlayers);
+                        LoadGameScene();
+                    }
                 }
             }
         }

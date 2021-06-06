@@ -142,6 +142,9 @@ namespace YourNetworkingTools
 			}
 			else
             {
+#if ENABLE_GOOGLE_ARCORE
+				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenEnableARCore.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+#else
 #if UNITY_STANDALONE
                 CardboardLoaderVR.Instance.SaveEnableCardboard(false);
                 MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
@@ -160,6 +163,7 @@ namespace YourNetworkingTools
 				MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
 				Destroy();
 				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
+#endif
 #endif
 			}
 		}

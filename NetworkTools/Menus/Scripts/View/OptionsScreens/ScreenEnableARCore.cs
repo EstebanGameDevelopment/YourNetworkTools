@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using UnityEngine.SceneManagement;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using YourCommonTools;
-using YourNetworkingTools;
-#if ENABLE_YOURVRUI
-using YourVRUI;
-#endif
 
 namespace YourNetworkingTools
 {
@@ -25,6 +16,11 @@ namespace YourNetworkingTools
 	public class ScreenEnableARCore : ScreenBaseView, IBasicView
 	{
 		public const string SCREEN_NAME = "SCREEN_ENABLE_ARCORE";
+
+        // ----------------------------------------------
+        // EVENTS
+        // ----------------------------------------------	
+        public const string EVENT_SCREENARCORE_ENABLED_ARCORE = "EVENT_SCREENARCORE_ENABLED_ARCORE";
 
 		// ----------------------------------------------
 		// PRIVATE MEMBERS
@@ -52,6 +48,8 @@ namespace YourNetworkingTools
 			GameObject playWithoutARCore = m_container.Find("Button_WithoutARCore").gameObject;
 			playWithoutARCore.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.play.without.arcore");
 			playWithoutARCore.GetComponent<Button>().onClick.AddListener(PlayWithoutARCore);
+
+			MultiplayerConfiguration.SaveEnableBackground(true);
 
 			UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);
 		}
@@ -87,58 +85,15 @@ namespace YourNetworkingTools
 		{
 			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
 			MultiplayerConfiguration.SaveGoogleARCore(MultiplayerConfiguration.GOOGLE_ARCORE_ENABLED);
-            if (MultiplayerConfiguration.LoadDirectorMode(-1) == MultiplayerConfiguration.DIRECTOR_MODE_ENABLED)
+            if (MenuScreenController.Instance.EnableAppOrganization)
             {
-                MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
-                Destroy();
-                if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
-                {
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
-                }
-                else
-                {
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
-                }
+                UIEventController.Instance.DispatchUIEvent(EVENT_SCREENARCORE_ENABLED_ARCORE, true);
+                GoBackPressed();
             }
             else
             {
-#if ENABLE_YOURVRUI
-                if (YourVRUIScreenController.Instance == null)
-                {
-                    if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
-                    {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenEnableVR.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-                    }
-                    else
-                    {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenEnableVR.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-                    }
-                }
-                else
-                {
-                    CardboardLoaderVR.Instance.SaveEnableCardboard(true);
-                    MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
-                    Destroy();
-                    if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
-                    {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
-                    }
-                    else
-                    {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
-                    }
-                }
-#else
-                if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
-                {
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenEnableVR.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-                }
-                else
-                {
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenEnableVR.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-                }
-#endif
-            }
+				MenuScreenController.Instance.LoadGameScene(this);
+			}
         }
 
 		// -------------------------------------------
@@ -149,59 +104,16 @@ namespace YourNetworkingTools
 		{
 			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
 			MultiplayerConfiguration.SaveGoogleARCore(MultiplayerConfiguration.GOOGLE_ARCORE_DISABLED);
-            if (MultiplayerConfiguration.LoadDirectorMode(-1) == MultiplayerConfiguration.DIRECTOR_MODE_ENABLED)
-            {
-                MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
-                Destroy();
-                if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
-                {
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
-                }
-                else
-                {
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
-                }
-            }
-            else
-            {
-#if ENABLE_YOURVRUI
-                if (YourVRUIScreenController.Instance == null)
-                {
-                    if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
-                    {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenEnableVR.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-                    }
-                    else
-                    {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenEnableVR.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-                    }
-                }
-                else
-                {
-                    CardboardLoaderVR.Instance.SaveEnableCardboard(true);
-                    MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
-                    Destroy();
-                    if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
-                    {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
-                    }
-                    else
-                    {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
-                    }
-                }
-#else
-                if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
-                {
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenEnableVR.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-                }
-                else
-                {
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenEnableVR.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
-                }
-#endif
-            }
-        }
+			if (MenuScreenController.Instance.EnableAppOrganization)
+			{
+				UIEventController.Instance.DispatchUIEvent(EVENT_SCREENARCORE_ENABLED_ARCORE, false);
+				GoBackPressed();
+			}
+			else
+			{
+				MenuScreenController.Instance.LoadGameScene(this);
+			}
+		}
 
         // -------------------------------------------
         /* 
