@@ -135,7 +135,7 @@ namespace YourNetworkingTools
 			CardboardLoaderVR.Instance.SaveEnableCardboard(false);
 			MultiplayerConfiguration.SaveDirectorMode(MultiplayerConfiguration.DIRECTOR_MODE_DISABLED);
 			MultiplayerConfiguration.SaveGoogleARCore(MultiplayerConfiguration.GOOGLE_ARCORE_DISABLED);
-			MenusScreenAmicController.InstanceApp.ScreenGameOptions = ScreenCharacterSelectionView.SCREEN_NAME;
+			MenuScreenController.Instance.ScreenGameOptions = ScreenCharacterSelectionView.SCREEN_NAME;
 			MenuScreenController.Instance.CreateRoomInServer(1, MultiplayerConfiguration.LoadExtraData());
 #else
 				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenMenuLocalGameView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
