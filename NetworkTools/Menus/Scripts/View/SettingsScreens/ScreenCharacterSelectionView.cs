@@ -158,30 +158,14 @@ namespace YourNetworkingTools
 			}
 			else
             {
+				
 #if ENABLE_SELECT_LEVEL
 				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLevelSelectionView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
 #elif ENABLE_GOOGLE_ARCORE
 				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenEnableARCore.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
 #else
-#if UNITY_STANDALONE
-                CardboardLoaderVR.Instance.SaveEnableCardboard(false);
-                MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
-                Destroy();
-                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
-#else
 				MultiplayerConfiguration.SaveGoogleARCore(MultiplayerConfiguration.GOOGLE_ARCORE_DISABLED);
-				if (YourVRUIScreenController.Instance == null)
-				{
-					CardboardLoaderVR.Instance.SaveEnableCardboard(false);
-				}
-				else
-				{
-					CardboardLoaderVR.Instance.SaveEnableCardboard(true);
-				}
-				MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
-				Destroy();
-				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
-#endif
+				MenuScreenController.Instance.LoadGameScene(this);
 #endif
 			}
 		}

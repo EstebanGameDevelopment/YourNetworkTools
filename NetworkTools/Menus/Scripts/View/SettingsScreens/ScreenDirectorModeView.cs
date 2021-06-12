@@ -124,9 +124,8 @@ namespace YourNetworkingTools
 					MultiplayerConfiguration.SaveCharacter6DOF(0);
 					MultiplayerConfiguration.SaveLevel6DOF(0);
 				}
-				MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
-				Destroy();
-				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
+
+				MenuScreenController.Instance.LoadGameScene(this);
 			}
 		}
 
@@ -149,9 +148,8 @@ namespace YourNetworkingTools
 					MultiplayerConfiguration.SaveSpectatorMode(MultiplayerConfiguration.SPECTATOR_MODE_ENABLED);
 					CardboardLoaderVR.Instance.SaveEnableCardboard(false);
 					MultiplayerConfiguration.SaveGoogleARCore(MultiplayerConfiguration.GOOGLE_ARCORE_DISABLED);
-					MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
-					Destroy();
-					UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
+
+					MenuScreenController.Instance.LoadGameScene(this);
 				}
 			}
 		}

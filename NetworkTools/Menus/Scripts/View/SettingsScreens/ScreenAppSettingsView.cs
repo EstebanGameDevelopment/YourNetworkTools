@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using YourCommonTools;
+using System;
 #if ENABLE_USER_SERVER
 using UserManagement;
 #endif
@@ -33,6 +34,7 @@ namespace YourNetworkingTools
 		public GameObject[] Levels;
 		public GameObject[] LocalOrRemote;
 		public GameObject[] Profiles;
+		public GameObject[] ARCore;
 
 		// ----------------------------------------------
 		// PRIVATE MEMBERS
@@ -47,6 +49,7 @@ namespace YourNetworkingTools
 		private Text m_textRoomName;
 		private Text m_textEmailAddress;
 		private Text m_textLevel;
+		private Text m_textARCore;
 
 		private GameObject m_roomNameINGame;
 		private GameObject m_avatarInGame;
@@ -62,7 +65,7 @@ namespace YourNetworkingTools
 			base.Initialize(_list);
 
 			m_root = this.gameObject;
-			m_container = m_root.transform.Find("Content/ScrollPage/Page");
+			m_container = m_root.transform.Find("Content/MaskScroll/ScrollPage/Page");
 
 			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.title");
 
@@ -101,6 +104,18 @@ namespace YourNetworkingTools
 			m_textLevel = m_levelInGame.transform.Find("Value").GetComponent<Text>();
 			m_levelInGame.GetComponent<Button>().onClick.AddListener(OnSelectLevelGame);
 
+			// LOCAL OR REMOTE
+			GameObject arCoreInGame = m_container.Find("Button_ARCore").gameObject;
+			if (arCoreInGame != null)
+            {
+#if ENABLE_GOOGLE_ARCORE
+				m_textARCore = arCoreInGame.transform.Find("Text").GetComponent<Text>();
+				arCoreInGame.GetComponent<Button>().onClick.AddListener(OnARCoreInGame);
+#else
+				arCoreInGame.SetActive(false);
+#endif
+			}
+
 			// CLOUD
 			if (m_root.transform.Find("Content/Button_Cloud") != null)
             {
@@ -112,7 +127,7 @@ namespace YourNetworkingTools
 #endif
 
 			UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);
-
+			
 			RefreshProperties();
 		}
 
@@ -189,6 +204,19 @@ namespace YourNetworkingTools
             {
 				m_textRoomName.text = MenuScreenController.Instance.AppRoomName;
 			}
+
+#if ENABLE_GOOGLE_ARCORE
+			ARCore[0].SetActive(!MenuScreenController.Instance.AppEnableARCore);
+			ARCore[1].SetActive(MenuScreenController.Instance.AppEnableARCore);
+			if (MenuScreenController.Instance.AppEnableARCore)
+            {
+				m_textARCore.text = LanguageController.Instance.GetText("word.arcore");
+			}
+			else
+            {
+				m_textARCore.text = LanguageController.Instance.GetText("word.gyroscope");
+			}
+#endif
 		}
 
 		// -------------------------------------------
@@ -250,6 +278,16 @@ namespace YourNetworkingTools
 		{
 			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
 			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenCreateRoomView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+		}
+
+		// -------------------------------------------
+		/* 
+		 * OnARCoreInGame
+		 */
+		private void OnARCoreInGame()
+		{
+			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
+			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenEnableARCore.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
 		}
 
 		// -------------------------------------------

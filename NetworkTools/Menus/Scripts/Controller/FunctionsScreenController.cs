@@ -316,6 +316,14 @@ namespace YourNetworkingTools
 
 			UIEventController.Instance.UIEvent -= OnUIEvent;
             BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
+
+            LanguageController.Instance?.Destroy();
+            SoundsController.Instance?.Destroy();
+
+#if ENABLE_USER_SERVER
+            UsersController.Instance?.Destroy();
+            CommsHTTPConstants.Instance?.Destroy();
+#endif
         }
 
         // -------------------------------------------

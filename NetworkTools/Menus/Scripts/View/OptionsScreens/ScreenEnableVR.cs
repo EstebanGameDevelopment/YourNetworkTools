@@ -160,15 +160,13 @@ namespace YourNetworkingTools
 		*/
         private void FinalLoadGameWithAssets()
         {
-            MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
-            Destroy();
             if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
             {
                 UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
             }
             else
             {
-                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
+                MenuScreenController.Instance.LoadGameScene(this);
             }
         }
 
