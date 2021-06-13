@@ -282,9 +282,9 @@ namespace YourNetworkingTools
         {
             if (base.Destroy()) return true;
 
-            NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
+            if (NetworkEventController.Instance != null) NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
 #if ENABLE_MULTIPLAYER_TIMELINE
-            TimelineEventController.Instance.TimelineEvent -= OnTimelineEvent;
+            if (TimelineEventController.Instance != null) TimelineEventController.Instance.TimelineEvent -= OnTimelineEvent;
 #endif
 
             if (m_ghostPlayer != null)

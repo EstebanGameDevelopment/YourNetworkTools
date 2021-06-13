@@ -203,7 +203,7 @@ namespace YourNetworkingTools
 		 */
 		void OnDestroy()
 		{
-			NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
+			if (NetworkEventController.Instance  != null) NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
 		}
 
 		// -------------------------------------------

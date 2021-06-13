@@ -164,11 +164,11 @@ namespace YourNetworkingTools
 #if DEBUG_MODE_DISPLAY_LOG
 			Debug.LogError("[ActorNetwork] ++SEND++ SIGNAL FOR AUTODESTRUCTION");
 #endif
-			NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
+			if (NetworkEventController.Instance != null) NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
 
             if (MultiplayerConfiguration.LoadNumberOfPlayers() != 1)
             {
-                NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST, NetworkID.NetID.ToString(), NetworkID.UID.ToString());
+                NetworkEventController.Instance?.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST, NetworkID.NetID.ToString(), NetworkID.UID.ToString());
             }
         }
 
