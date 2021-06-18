@@ -294,7 +294,7 @@ namespace YourNetworkingTools
             m_appIndexLevelSelected = PlayerPrefs.GetInt(PREFS_LEVEL, 0);
             m_appRoomName = PlayerPrefs.GetString(PREFS_NAME_ROOM, "MyVRRoom");
             m_appIsLocal = PlayerPrefs.GetInt(PREFS_LOCAL_OR_NETWORK, 1) == 0;
-            m_appEnableARCore = PlayerPrefs.GetInt(PREFS_ARCORE_ENABLED, 1) == 0;
+            m_appEnableARCore = PlayerPrefs.GetInt(PREFS_ARCORE_ENABLED, 0) == 1;
         }
 
         // -------------------------------------------

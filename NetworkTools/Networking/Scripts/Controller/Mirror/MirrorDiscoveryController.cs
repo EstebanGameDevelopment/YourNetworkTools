@@ -71,6 +71,18 @@ namespace YourNetworkingTools
             base.OnDestroy();
 
             BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
+
+            if (CommunicationsController.Instance.IsServer)
+            {
+                NetworkServer.Shutdown();
+            }
+            else
+            {
+                NetworkClient.Shutdown();
+            }
+
+            m_networkDiscovery.OnServerFound.RemoveListener(OnDiscoveredServer);
+            m_networkDiscovery = null;
         }
 
         // -------------------------------------------
