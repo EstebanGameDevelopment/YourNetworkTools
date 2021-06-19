@@ -300,8 +300,11 @@ namespace YourNetworkingTools
 		 */
 		public void DispatchNetworkEvent(string _nameEvent, params string[] _list)
 		{
-            // Debug.Log("[NETWORK]_nameEvent=" + _nameEvent);
-            if ((NetworkEvent != null) && CheckToApplyEvent(_nameEvent))  NetworkEvent(_nameEvent, false, YourNetworkTools.Instance.GetUniversalNetworkID(), -1, _list);
+			// Debug.Log("[NETWORK]_nameEvent=" + _nameEvent);
+			if ((NetworkEvent != null) && CheckToApplyEvent(_nameEvent))
+			{
+				if (YourNetworkTools.Instance != null) NetworkEvent(_nameEvent, false, YourNetworkTools.Instance.GetUniversalNetworkID(), -1, _list);
+			}
 		}
 
 		// -------------------------------------------
@@ -356,7 +359,7 @@ namespace YourNetworkingTools
 		{
             if ((NetworkEvent != null) && CheckToApplyEvent(_nameEvent))
             {
-                m_listEvents.Add(new AppEventData(_nameEvent, AppEventData.CONFIGURATION_INTERNAL_EVENT, false, YourNetworkTools.Instance.GetUniversalNetworkID(), _time, _list));
+                if (YourNetworkTools.Instance != null) m_listEvents.Add(new AppEventData(_nameEvent, AppEventData.CONFIGURATION_INTERNAL_EVENT, false, YourNetworkTools.Instance.GetUniversalNetworkID(), _time, _list));
             }
 		}
 
@@ -368,7 +371,7 @@ namespace YourNetworkingTools
         {
             if ((NetworkEvent != null) && CheckToApplyEvent(_nameEvent))
             {
-                m_listPriorityEvents.Add(new AppEventData(_nameEvent, AppEventData.CONFIGURATION_INTERNAL_EVENT, false, YourNetworkTools.Instance.GetUniversalNetworkID(), _time, _list));
+				if (YourNetworkTools.Instance != null) m_listPriorityEvents.Add(new AppEventData(_nameEvent, AppEventData.CONFIGURATION_INTERNAL_EVENT, false, YourNetworkTools.Instance.GetUniversalNetworkID(), _time, _list));
             }
         }
 

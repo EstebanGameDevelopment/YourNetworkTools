@@ -131,6 +131,9 @@ namespace YourNetworkingTools
         protected bool m_appEnableARCore = false;
 
         private IBasicView m_screenRequesterToLoadGame = null;
+        private bool m_loadGameWithSettings = false;
+
+        private string m_iapSaveSlot = "";
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -210,6 +213,12 @@ namespace YourNetworkingTools
             }
         }
 #endif
+        public string IapSaveSlot
+        {
+            get { return m_iapSaveSlot; }
+            set { m_iapSaveSlot = value; }
+        }
+        
 
         // -------------------------------------------
         /* 
@@ -664,6 +673,7 @@ namespace YourNetworkingTools
                 SetUpFinalCharacter();
 
                 NumberOfPlayers = m_appTotalNumberOfPlayers;
+                m_loadGameWithSettings = true;
 
                 if (m_appIsLocal)
                 {
@@ -687,47 +697,51 @@ namespace YourNetworkingTools
             }
             if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_LIST_OF_GAME_ROOMS)
             {
-                UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_WAIT);
-                if (m_appRoomName.Length > 0)
+                if (m_loadGameWithSettings)
                 {
-                    bool roomFound = false;
-                    int indexRoomFound = -1;
-                    for (int i = 0; i < NetworkEventController.Instance.RoomsLobby.Count; i++)
+                    m_loadGameWithSettings = false;
+                    UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_WAIT);
+                    if (m_appRoomName.Length > 0)
                     {
-                        ItemMultiTextEntry item = NetworkEventController.Instance.RoomsLobby[i];
-                        int roomNumber = int.Parse(item.Items[1]);
-                        string nameRoom = item.Items[2];
-                        if (nameRoom.Equals(m_appRoomName))
+                        bool roomFound = false;
+                        int indexRoomFound = -1;
+                        for (int i = 0; i < NetworkEventController.Instance.RoomsLobby.Count; i++)
                         {
-                            roomFound = true;
-                            indexRoomFound = roomNumber;
+                            ItemMultiTextEntry item = NetworkEventController.Instance.RoomsLobby[i];
+                            int roomNumber = int.Parse(item.Items[1]);
+                            string nameRoom = item.Items[2];
+                            if (nameRoom.Equals(m_appRoomName))
+                            {
+                                roomFound = true;
+                                indexRoomFound = roomNumber;
+                            }
                         }
-                    }
 
-                    NetworkEventController.Instance.MenuController_SetNameRoomLobby(m_appRoomName);
-
-                    if (roomFound)
-                    {
-#if UNITY_EDITOR
-                        Debug.LogError("ROOM NAME[" + m_appRoomName + "] ++YES++ FOUND IN LIST ROOMS LOBBY[" + NetworkEventController.Instance.RoomsLobby.Count + "]::NOW JOINNING...");
-#endif
-                        // JOIN
-                        NetworkEventController.Instance.MenuController_SaveNumberOfPlayers(MultiplayerConfiguration.VALUE_FOR_JOINING);
-                        PlayerPrefs.SetString(ScreenCreateRoomView.PLAYERPREFS_YNT_ROOMNAME, m_appRoomName);
-                        NetworkEventController.Instance.MenuController_SaveRoomNumberInServer(indexRoomFound);
-                        NetworkEventController.Instance.MenuController_SaveRoomNameInServer(m_appRoomName);
                         NetworkEventController.Instance.MenuController_SetNameRoomLobby(m_appRoomName);
-                        MenuScreenController.Instance.ExtraData = "";
-                        LoadGameScene();
-                    }
-                    else
-                    {
-                        // CREATE
+
+                        if (roomFound)
+                        {
 #if UNITY_EDITOR
-                        Debug.LogError("ROOM NAME[" + m_appRoomName + "] --NOT-- FOUND IN LIST ROOMS LOBBY[" + NetworkEventController.Instance.RoomsLobby.Count + "] CREATING ROOM[" + m_appRoomName + "]");
+                            Debug.LogError("ROOM NAME[" + m_appRoomName + "] ++YES++ FOUND IN LIST ROOMS LOBBY[" + NetworkEventController.Instance.RoomsLobby.Count + "]::NOW JOINNING...");
 #endif
-                        NetworkEventController.Instance.MenuController_SaveNumberOfPlayers(m_appTotalNumberOfPlayers);
-                        LoadGameScene();
+                            // JOIN
+                            NetworkEventController.Instance.MenuController_SaveNumberOfPlayers(MultiplayerConfiguration.VALUE_FOR_JOINING);
+                            PlayerPrefs.SetString(ScreenCreateRoomView.PLAYERPREFS_YNT_ROOMNAME, m_appRoomName);
+                            NetworkEventController.Instance.MenuController_SaveRoomNumberInServer(indexRoomFound);
+                            NetworkEventController.Instance.MenuController_SaveRoomNameInServer(m_appRoomName);
+                            NetworkEventController.Instance.MenuController_SetNameRoomLobby(m_appRoomName);
+                            MenuScreenController.Instance.ExtraData = "";
+                            LoadGameScene();
+                        }
+                        else
+                        {
+                            // CREATE
+#if UNITY_EDITOR
+                            Debug.LogError("ROOM NAME[" + m_appRoomName + "] --NOT-- FOUND IN LIST ROOMS LOBBY[" + NetworkEventController.Instance.RoomsLobby.Count + "] CREATING ROOM[" + m_appRoomName + "]");
+#endif
+                            NetworkEventController.Instance.MenuController_SaveNumberOfPlayers(m_appTotalNumberOfPlayers);
+                            LoadGameScene();
+                        }
                     }
                 }
             }

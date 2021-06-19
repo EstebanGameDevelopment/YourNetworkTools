@@ -51,10 +51,10 @@ namespace YourNetworkingTools
 		private Text m_textLevel;
 		private Text m_textARCore;
 
-		private GameObject m_roomNameINGame;
-		private GameObject m_avatarInGame;
-		private GameObject m_loginCloud;
-		private GameObject m_levelInGame;
+		protected GameObject m_roomNameINGame;
+		protected GameObject m_avatarInGame;
+		protected GameObject m_loginCloud;
+		protected GameObject m_levelInGame;
 
 		// -------------------------------------------
 		/* 
@@ -294,7 +294,7 @@ namespace YourNetworkingTools
 		/* 
         * OnCloudLogin
         */
-		private void OnCloudLogin()
+		protected virtual void OnCloudLogin()
 		{
 #if ENABLE_USER_SERVER
 			if (CommsHTTPConstants.Instance.ThereIsConnection)

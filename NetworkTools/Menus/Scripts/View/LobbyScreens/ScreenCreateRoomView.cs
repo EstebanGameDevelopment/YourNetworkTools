@@ -117,6 +117,7 @@ namespace YourNetworkingTools
 			}
 			else
 			{
+				PlayerPrefs.SetString(PLAYERPREFS_YNT_ROOMNAME, roomName);
 				if (MenuScreenController.Instance.EnableAppOrganization)
 				{
 					UIEventController.Instance.DispatchUIEvent(EVENT_SCREENCREATEROOM_SETUP_NAME, roomName);
@@ -126,7 +127,6 @@ namespace YourNetworkingTools
 				{
 					SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
 					NetworkEventController.Instance.MenuController_SetNameRoomLobby(roomName);
-					PlayerPrefs.SetString(PLAYERPREFS_YNT_ROOMNAME, roomName);
 					if (MenuScreenController.Instance.ForceFixedPlayers != -1)
 					{
 						MenuScreenController.Instance.LoadCustomGameScreenOrCreateGame(false, MenuScreenController.Instance.ForceFixedPlayers, "", null);
