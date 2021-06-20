@@ -32,12 +32,15 @@ namespace YourNetworkingTools
         public const string EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME      = "EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME";
         public const string EVENT_MENUEVENTCONTROLLER_JOIN_EXISTING_GAME    = "EVENT_MENUEVENTCONTROLLER_JOIN_EXISTING_GAME";
         public const string EVENT_MENUEVENTCONTROLLERLOAD_GAME_WITH_SETTINGS = "EVENT_MENUEVENTCONTROLLERLOAD_GAME_WITH_SETTINGS";
-        
+        public const string EVENT_MENUEVENTCONTROLLER_SETTINGS_HAS_BEEN_UPDATED= "EVENT_MENUEVENTCONTROLLER_SETTINGS_HAS_BEEN_UPDATED";
+
         // ----------------------------------------------
         // PUBLIC CONSTANTS
         // ----------------------------------------------	
         public const string BLOCKCHAIN_TAG_BEGIN = "<blockchain>";
         public const string BLOCKCHAIN_TAG_END = "</blockchain>";
+
+        private const string PREFS_ALL_SETTINGS = "APP_ALL_SETTINGS";
 
         private const string PREFS_NAME_ROOM = "APP_NAME_ROOM";
         private const string PREFS_NUMBER_PLAYERS = "APP_NUMBER_PLAYERS";
@@ -132,6 +135,7 @@ namespace YourNetworkingTools
 
         private IBasicView m_screenRequesterToLoadGame = null;
         private bool m_loadGameWithSettings = false;
+        private string m_dataConfig = "";
 
         private string m_iapSaveSlot = "";
 
@@ -218,7 +222,11 @@ namespace YourNetworkingTools
             get { return m_iapSaveSlot; }
             set { m_iapSaveSlot = value; }
         }
-        
+        public string DataConfig
+        {
+            get { return m_dataConfig; }
+            set { m_dataConfig = value; }
+        }
 
         // -------------------------------------------
         /* 
@@ -264,6 +272,9 @@ namespace YourNetworkingTools
 #if ENABLE_USER_SERVER
             UsersController.Instance.Initialize();
 #endif
+
+            m_dataConfig = PlayerPrefs.GetString(PREFS_ALL_SETTINGS, "");
+            ExtractParsedCloudData(m_dataConfig);
 
             if (ServerIPAdress.Length > 0) MultiplayerConfiguration.SaveIPAddressServer(ServerIPAdress);
             if (ServerPortNumber != -1) MultiplayerConfiguration.SavePortServer(ServerPortNumber);
@@ -430,45 +441,57 @@ namespace YourNetworkingTools
 
         // -------------------------------------------
         /* 
-		 * RefreshProperties
-		 */
+         * ExtractParsedCloudData
+         */
+        public void ExtractParsedCloudData(string _data)
+        {
+            m_dataConfig = _data;
+            PlayerPrefs.SetString(PREFS_ALL_SETTINGS, m_dataConfig);
+
+            string[] dataConfig = _data.Split(TOKEN_SEPARATOR_CONFIG);
+
+            if (dataConfig.Length >= 6)
+            {
+                bool isLocal = bool.Parse(dataConfig[0]);
+                UIEventController.Instance.DispatchUIEvent(ScreenGameOrganizationView.EVENT_SCREENMAIN_LOCAL_OR_REMOTE_PARTY, isLocal, false);
+
+                PROFILE_PLAYER profileSelected = (PROFILE_PLAYER)int.Parse(dataConfig[1]);
+                UIEventController.Instance.DispatchUIEvent(ScreenDirectorModeView.EVENT_SCREENDIRECTORMODE_SELECTED_PROFILE, profileSelected, false);
+
+                int amicIndexCharacterSelected = int.Parse(dataConfig[2]);
+                UIEventController.Instance.DispatchUIEvent(ScreenCharacterSelectionView.EVENT_SCREENCHARACTERSELECTION_SELECTED_CHARACTER, amicIndexCharacterSelected, false);
+
+                int amicIndexLevelSelected = int.Parse(dataConfig[3]);
+                UIEventController.Instance.DispatchUIEvent(ScreenLevelSelectionView.EVENT_SCREENLEVELSELECTION_SELECTED_LEVEL, amicIndexLevelSelected, false);
+
+                int amicTotalNumberOfPlayers = int.Parse(dataConfig[4]);
+                UIEventController.Instance.DispatchUIEvent(ScreenMenuNumberPlayersView.EVENT_SCREENNUMBERPLAYERS_SET_NUMBER_PLAYERS, amicTotalNumberOfPlayers, false);
+
+                string amicRoomName = dataConfig[5];
+                UIEventController.Instance.DispatchUIEvent(ScreenCreateRoomView.EVENT_SCREENCREATEROOM_SETUP_NAME, amicRoomName, false);
+
+                if (dataConfig.Length > 6)
+                {
+                    bool isARCoreEnabled = bool.Parse(dataConfig[6]);
+                    UIEventController.Instance.DispatchUIEvent(ScreenEnableARCore.EVENT_SCREENARCORE_ENABLED_ARCORE, isARCoreEnabled, false);
+                }
+            }
+            else
+            {
+                SaveDataInCloud();
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+        * RefreshProperties
+        */
         private void ParseCloudData()
         {
 #if ENABLE_USER_SERVER
             if (UsersController.Instance.CurrentUser.Email.Length > 0)
             {
-                string[] dataConfig = UsersController.Instance.CurrentUser.Profile.Data.Split(TOKEN_SEPARATOR_CONFIG);
-
-                if (dataConfig.Length >= 6)
-                {
-                    bool isLocal = bool.Parse(dataConfig[0]);
-                    UIEventController.Instance.DispatchUIEvent(ScreenGameOrganizationView.EVENT_SCREENMAIN_LOCAL_OR_REMOTE_PARTY, isLocal, false);
-
-                    PROFILE_PLAYER profileSelected = (PROFILE_PLAYER)int.Parse(dataConfig[1]);
-                    UIEventController.Instance.DispatchUIEvent(ScreenDirectorModeView.EVENT_SCREENDIRECTORMODE_SELECTED_PROFILE, profileSelected, false);
-
-                    int amicIndexCharacterSelected = int.Parse(dataConfig[2]);
-                    UIEventController.Instance.DispatchUIEvent(ScreenCharacterSelectionView.EVENT_SCREENCHARACTERSELECTION_SELECTED_CHARACTER, amicIndexCharacterSelected, false);
-
-                    int amicIndexLevelSelected = int.Parse(dataConfig[3]);
-                    UIEventController.Instance.DispatchUIEvent(ScreenLevelSelectionView.EVENT_SCREENLEVELSELECTION_SELECTED_LEVEL, amicIndexLevelSelected, false);
-
-                    int amicTotalNumberOfPlayers = int.Parse(dataConfig[4]);
-                    UIEventController.Instance.DispatchUIEvent(ScreenMenuNumberPlayersView.EVENT_SCREENNUMBERPLAYERS_SET_NUMBER_PLAYERS, amicTotalNumberOfPlayers, false);
-
-                    string amicRoomName = dataConfig[5];
-                    UIEventController.Instance.DispatchUIEvent(ScreenCreateRoomView.EVENT_SCREENCREATEROOM_SETUP_NAME, amicRoomName, false);
-
-                    if (dataConfig.Length > 6)
-                    {
-                        bool isARCoreEnabled = bool.Parse(dataConfig[6]);
-                        UIEventController.Instance.DispatchUIEvent(ScreenEnableARCore.EVENT_SCREENARCORE_ENABLED_ARCORE, isARCoreEnabled, false);
-                    }
-                }
-                else
-                {
-                    SaveDataInCloud();
-                }
+                ExtractParsedCloudData(UsersController.Instance.CurrentUser.Profile.Data);
             }
 #endif
         }
@@ -479,20 +502,25 @@ namespace YourNetworkingTools
 		 */
         public void SaveDataInCloud()
         {
+            m_dataConfig = "";
+            m_dataConfig += AppIsLocal.ToString() + TOKEN_SEPARATOR_CONFIG;
+            m_dataConfig += ((int)ProfileSelected).ToString() + TOKEN_SEPARATOR_CONFIG;
+            m_dataConfig += AppIndexCharacterSelected.ToString() + TOKEN_SEPARATOR_CONFIG;
+            m_dataConfig += AppIndexLevelSelected.ToString() + TOKEN_SEPARATOR_CONFIG;
+            m_dataConfig += AppTotalNumberOfPlayers.ToString() + TOKEN_SEPARATOR_CONFIG;
+            m_dataConfig += AppRoomName.ToString() + TOKEN_SEPARATOR_CONFIG;
+            m_dataConfig += AppEnableARCore.ToString();
+
+            PlayerPrefs.SetString(PREFS_ALL_SETTINGS, m_dataConfig);
+
 #if ENABLE_USER_SERVER
             if (UsersController.Instance.CurrentUser.Email.Length > 0)
             {
-                string dataConfig = "";
-                dataConfig += AppIsLocal.ToString() + TOKEN_SEPARATOR_CONFIG;
-                dataConfig += ((int)ProfileSelected).ToString() + TOKEN_SEPARATOR_CONFIG;
-                dataConfig += AppIndexCharacterSelected.ToString() + TOKEN_SEPARATOR_CONFIG;
-                dataConfig += AppIndexLevelSelected.ToString() + TOKEN_SEPARATOR_CONFIG;
-                dataConfig += AppTotalNumberOfPlayers.ToString() + TOKEN_SEPARATOR_CONFIG;
-                dataConfig += AppRoomName.ToString() + TOKEN_SEPARATOR_CONFIG;
-                dataConfig += AppEnableARCore.ToString();
-
-                UIEventController.Instance.DispatchUIEvent(UsersController.EVENT_USER_UPDATE_PROFILE_DATA_REQUEST, dataConfig);
+                UIEventController.Instance.DispatchUIEvent(UsersController.EVENT_USER_UPDATE_PROFILE_DATA_REQUEST, m_dataConfig);
             }
+#else
+            UIEventController.Instance.DispatchUIEvent(EVENT_MENUEVENTCONTROLLER_SETTINGS_HAS_BEEN_UPDATED);
+
 #endif
         }
 
