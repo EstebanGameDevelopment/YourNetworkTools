@@ -98,15 +98,24 @@ namespace YourNetworkingTools
 			}
 			else
 			{
-				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenCharacterSelectionView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+				NextscreenForPlayAsCustomer();
 			}
         }
 
-        // -------------------------------------------
-        /* 
+		// -------------------------------------------
+		/* 
+		* NextscreenForPlayAsCustomer
+		*/
+		protected virtual void NextscreenForPlayAsCustomer()
+        {
+			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenCharacterSelectionView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false, null);
+		}
+
+		// -------------------------------------------
+		/* 
 		* PlayAsDirector
 		*/
-        private void PlayAsDirector()
+		private void PlayAsDirector()
 		{
 			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
             MultiplayerConfiguration.SaveDirectorMode(MultiplayerConfiguration.DIRECTOR_MODE_ENABLED);
