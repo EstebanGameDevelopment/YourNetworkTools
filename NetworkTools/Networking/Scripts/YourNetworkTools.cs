@@ -25,6 +25,7 @@ namespace YourNetworkingTools
         public const string EVENT_YOURNETWORKTOOLS_NETID_NEW = "EVENT_YOURNETWORKTOOLS_NETID_NEW";
         public const string EVENT_YOURNETWORKTOOLS_CREATED_GAMEOBJECT = "EVENT_YOURNETWORKTOOLS_CREATED_GAMEOBJECT";
         public const string EVENT_YOURNETWORKTOOLS_DESTROYED_GAMEOBJECT = "EVENT_YOURNETWORKTOOLS_DESTROYED_GAMEOBJECT";
+		public const string EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA = "EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA";
 
 		public const string COOCKIE_IS_LOCAL_GAME = "COOCKIE_IS_LOCAL_GAME";
 		public const char TOKEN_SEPARATOR_NAME = '_';
@@ -525,11 +526,9 @@ namespace YourNetworkingTools
 				string initialData = "";
 				if (m_initialData.TryGetValue(_keyID, out initialData))
 				{
-					_objectToInit.GetComponent<IGameNetworkActor>().Initialize(initialData);
-					if (m_initialData.Remove(_keyID))
-					{
-						return true;
-					}
+					// _objectToInit.GetComponent<IGameNetworkActor>().Initialize(initialData);
+					NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA, 0.01f, _keyID, initialData);
+					return true;
 				}
 			}
 			return false;
@@ -607,6 +606,24 @@ namespace YourNetworkingTools
 		*/
 		private void OnNetworkEvent(string _nameEvent, bool _isLocalEvent, int _networkOriginID, int _networkTargetID, params object[] _list)
 		{
+			if (_nameEvent == EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA)
+            {
+				string targetNetworkID = (string)_list[0];
+				string initialDataNetwork = (string)_list[1];
+				ActorNetwork[] networkActors = GameObject.FindObjectsOfType<ActorNetwork>();
+				// Debug.LogError("EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA::TARGET[" + targetNetworkID + "]::data[" + initialDataNetwork + "]");
+				for (int i = 0; i < networkActors.Length; i++)
+                {
+					IGameNetworkActor networkActor = networkActors[i].GetComponentInParent<IGameNetworkActor>();
+					if (networkActor != null)
+                    {
+						if (networkActor.NetworkID.CheckID(targetNetworkID))
+                        {
+							networkActor.Initialize(initialDataNetwork);
+						}
+                    }
+				}
+			}
 			if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_ESTABLISH_NETWORK_ID)
 			{
 #if ENABLE_BALANCE_LOADER
@@ -661,19 +678,25 @@ namespace YourNetworkingTools
 			}
 			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_REMOTE_CREATION_CONFIRMATION)
 			{
-				ActorNetwork actorNetwork = ((GameObject)_list[0]).GetComponent<ActorNetwork>();
-				CheckInitializationObjects();
+				if (IsServer)
+				{
+					// ActorNetwork actorNetwork = ((GameObject)_list[0]).GetComponent<ActorNetwork>();
+					CheckInitializationObjects();
+				}
 			}
 			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA)
 			{
-                if (!m_initialData.ContainsKey((string)_list[0]))
+				if (IsServer)
                 {
-                    string keyNetworkGO = (string)_list[0];
-                    string dataNetworkGO = (string)_list[1];
-                    m_initialData.Add(keyNetworkGO, dataNetworkGO);
-                    CheckInitializationObjects();
-                }
-            }
+					if (!m_initialData.ContainsKey((string)_list[0]))
+					{
+						string keyNetworkGO = (string)_list[0];
+						string dataNetworkGO = (string)_list[1];
+						m_initialData.Add(keyNetworkGO, dataNetworkGO);
+						CheckInitializationObjects();
+					}
+				}
+			}
 			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST)
 			{
 				DestroyNetworkObject(int.Parse((string)_list[0]), int.Parse((string)_list[1]));
