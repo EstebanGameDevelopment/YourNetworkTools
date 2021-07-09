@@ -59,28 +59,16 @@ namespace YourNetworkingTools
 		*/
         public void Awake()
         {
-			m_photonView = GetComponent<PhotonView>();
-
-			if (!YourNetworkTools.Instance.IsLocalGame)
+            if (!YourNetworkTools.Instance.IsLocalGame)
             {
+                m_photonView = GetComponent<PhotonView>();
+
                 if (m_photonView.InstantiationData != null)
                 {
                     NetworkID.NetID = (int)(m_photonView.InstantiationData[0]);
                     NetworkID.UID = (int)(m_photonView.InstantiationData[1]);
                 }
             }
-			else
-            {
-				if (m_photonView != null)
-                {
-					m_photonView.enabled = false;
-					PhotonTransformView photonTransform = this.GetComponent<PhotonTransformView>();
-					if (photonTransform != null)
-					{
-						photonTransform.enabled = false;
-					}
-				}
-			}
         }
 #endif
 
@@ -105,7 +93,7 @@ namespace YourNetworkingTools
 			}
 			else
 			{
-                NetworkEventController.Instance.PriorityDelayNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_REMOTE_CREATION_CONFIRMATION, 0.01f);
+                NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_REMOTE_CREATION_CONFIRMATION, this.gameObject);
 			}
             NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);
 #if ENABLE_PHOTON
@@ -130,11 +118,8 @@ namespace YourNetworkingTools
 				}
 				m_networkID = this.gameObject.GetComponent<NetworkID>();
 #if !DISABLE_UNET_COMMS
-				if ((this.gameObject.GetComponent<NetworkWorldObjectData>()!= null) && (m_networkID != null))
-				{
-					m_networkID.NetID = this.gameObject.GetComponent<NetworkWorldObjectData>().NetID;
-					m_networkID.UID = this.gameObject.GetComponent<NetworkWorldObjectData>().UID;
-				}
+				m_networkID.NetID = this.gameObject.GetComponent<NetworkWorldObjectData>().NetID;
+				m_networkID.UID = this.gameObject.GetComponent<NetworkWorldObjectData>().UID;
 #endif
 			}
 		}
@@ -164,11 +149,11 @@ namespace YourNetworkingTools
 #if DEBUG_MODE_DISPLAY_LOG
 			Debug.LogError("[ActorNetwork] ++SEND++ SIGNAL FOR AUTODESTRUCTION");
 #endif
-			if (NetworkEventController.Instance != null) NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
+			NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
 
             if (MultiplayerConfiguration.LoadNumberOfPlayers() != 1)
             {
-                NetworkEventController.Instance?.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST, NetworkID.NetID.ToString(), NetworkID.UID.ToString());
+                NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST, NetworkID.NetID.ToString(), NetworkID.UID.ToString());
             }
         }
 

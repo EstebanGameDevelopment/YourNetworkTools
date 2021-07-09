@@ -25,7 +25,6 @@ namespace YourNetworkingTools
         public const string EVENT_YOURNETWORKTOOLS_NETID_NEW = "EVENT_YOURNETWORKTOOLS_NETID_NEW";
         public const string EVENT_YOURNETWORKTOOLS_CREATED_GAMEOBJECT = "EVENT_YOURNETWORKTOOLS_CREATED_GAMEOBJECT";
         public const string EVENT_YOURNETWORKTOOLS_DESTROYED_GAMEOBJECT = "EVENT_YOURNETWORKTOOLS_DESTROYED_GAMEOBJECT";
-		public const string EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA = "EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA";
 
 		public const string COOCKIE_IS_LOCAL_GAME = "COOCKIE_IS_LOCAL_GAME";
 		public const char TOKEN_SEPARATOR_NAME = '_';
@@ -296,7 +295,7 @@ namespace YourNetworkingTools
 		{
 			for (int i = 0; i < GameObjects.Length; i++)
 			{
-				if (_prefabName.IndexOf(GameObjects[i].name) != -1)
+				if (GameObjects[i].name == _prefabName)
 				{
 					return GameObjects[i];
 				}
@@ -312,14 +311,13 @@ namespace YourNetworkingTools
 		{
 			for (int i = 0; i < GameObjects.Length; i++)
 			{
-				if (_prefabName.IndexOf(GameObjects[i].name) != -1)
+				if (GameObjects[i].name == _prefabName)
 				{
 					return i;
 				}
 			}
 			return -1;
 		}
-
 		// -------------------------------------------
 		/* 
 		 * Get the network object by id
@@ -379,50 +377,13 @@ namespace YourNetworkingTools
 
 		// -------------------------------------------
 		/* 
-		* CreatePathToPrefabInResources
-		*/
-		public string CreatePathToPrefabInResources(string _nameNetworkAsset, bool _addExtension = false, bool _forceSinglePlayer = false)
-        {
-			string finalNameNetworkAssets = "Network/";
-			if (_forceSinglePlayer)
-            {
-				finalNameNetworkAssets += "Socket/" + _nameNetworkAsset + (_addExtension ? "Socket" : "");
-			}
-			else
-            {
-				if (YourNetworkTools.Instance.IsLocalGame)
-				{
-					finalNameNetworkAssets += "Mirror/" + _nameNetworkAsset + (_addExtension ? "Mirror" : "");
-				}
-				else
-				{
-#if ENABLE_PHOTON
-                finalNameNetworkAssets += "Photon/" + _nameNetworkAsset + (_addExtension?"Photon":"");
-#else
-					finalNameNetworkAssets += "Socket/" + _nameNetworkAsset + (_addExtension ? "Socket" : "");
-#endif
-				}
-			}
-			var networkAsset = Resources.Load(finalNameNetworkAssets) as GameObject;
-			if (networkAsset != null)
-            {
-				return finalNameNetworkAssets;
-			}
-			else
-            {
-				return null;
-            }			
-		}
-
-		// -------------------------------------------
-		/* 
 		* Create a NetworkObject
 		*/
-		public void CreateLocalNetworkObject(string _basePrefabName, string _prefabName, object _initialData, bool _createInServer, float _x = 0, float _y = 0, float _z = 0)
+		public void CreateLocalNetworkObject(string _prefabName, object _initialData, bool _createInServer, float _x = 0, float _y = 0, float _z = 0)
 		{
 			if (IsLocalGame)
 			{
-				string assignedNetworkName = _basePrefabName + TOKEN_SEPARATOR_NAME + GetUniversalNetworkID() + TOKEN_SEPARATOR_NAME + m_uidCounter;
+				string assignedNetworkName = _prefabName + TOKEN_SEPARATOR_NAME + GetUniversalNetworkID() + TOKEN_SEPARATOR_NAME + m_uidCounter;
 				m_uidCounter++;
 #if !DISABLE_UNET_COMMS
 				NetworkWorldObject networkWorldObject = new NetworkWorldObject(assignedNetworkName, _prefabName, new Vector3(_x, _y, _z), Vector3.zero, Vector3.one, _initialData, true, true, _createInServer);
@@ -526,9 +487,11 @@ namespace YourNetworkingTools
 				string initialData = "";
 				if (m_initialData.TryGetValue(_keyID, out initialData))
 				{
-					// _objectToInit.GetComponent<IGameNetworkActor>().Initialize(initialData);
-					NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA, 0.01f, _keyID, initialData);
-					return true;
+					_objectToInit.GetComponent<IGameNetworkActor>().Initialize(initialData);
+					if (m_initialData.Remove(_keyID))
+					{
+						return true;
+					}
 				}
 			}
 			return false;
@@ -606,24 +569,6 @@ namespace YourNetworkingTools
 		*/
 		private void OnNetworkEvent(string _nameEvent, bool _isLocalEvent, int _networkOriginID, int _networkTargetID, params object[] _list)
 		{
-			if (_nameEvent == EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA)
-            {
-				string targetNetworkID = (string)_list[0];
-				string initialDataNetwork = (string)_list[1];
-				ActorNetwork[] networkActors = GameObject.FindObjectsOfType<ActorNetwork>();
-				// Debug.LogError("EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA::TARGET[" + targetNetworkID + "]::data[" + initialDataNetwork + "]");
-				for (int i = 0; i < networkActors.Length; i++)
-                {
-					IGameNetworkActor networkActor = networkActors[i].GetComponentInParent<IGameNetworkActor>();
-					if (networkActor != null)
-                    {
-						if (networkActor.NetworkID.CheckID(targetNetworkID))
-                        {
-							networkActor.Initialize(initialDataNetwork);
-						}
-                    }
-				}
-			}
 			if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_ESTABLISH_NETWORK_ID)
 			{
 #if ENABLE_BALANCE_LOADER
@@ -678,25 +623,19 @@ namespace YourNetworkingTools
 			}
 			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_REMOTE_CREATION_CONFIRMATION)
 			{
-				if (IsServer)
-				{
-					// ActorNetwork actorNetwork = ((GameObject)_list[0]).GetComponent<ActorNetwork>();
-					CheckInitializationObjects();
-				}
+				ActorNetwork actorNetwork = ((GameObject)_list[0]).GetComponent<ActorNetwork>();
+				CheckInitializationObjects();
 			}
 			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA)
 			{
-				if (IsServer)
+                if (!m_initialData.ContainsKey((string)_list[0]))
                 {
-					if (!m_initialData.ContainsKey((string)_list[0]))
-					{
-						string keyNetworkGO = (string)_list[0];
-						string dataNetworkGO = (string)_list[1];
-						m_initialData.Add(keyNetworkGO, dataNetworkGO);
-						CheckInitializationObjects();
-					}
-				}
-			}
+                    string keyNetworkGO = (string)_list[0];
+                    string dataNetworkGO = (string)_list[1];
+                    m_initialData.Add(keyNetworkGO, dataNetworkGO);
+                    CheckInitializationObjects();
+                }
+            }
 			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST)
 			{
 				DestroyNetworkObject(int.Parse((string)_list[0]), int.Parse((string)_list[1]));

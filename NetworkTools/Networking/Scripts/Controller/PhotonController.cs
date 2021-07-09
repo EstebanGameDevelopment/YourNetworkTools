@@ -11,10 +11,6 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using System.Text;
 using YourCommonTools;
-#if ENABLE_PHOTON_VOICE
-using Photon.Voice.Unity;
-using Photon.Voice.Unity.UtilityScripts;
-#endif
 
 namespace YourNetworkingTools
 {
@@ -35,17 +31,10 @@ namespace YourNetworkingTools
 		public const int MESSAGE_TRANSFORM = 1;
 		public const int MESSAGE_DATA = 2;
 
-        public byte PHOTON_EVENT_CODE = 0;
-
         // ----------------------------------------------
         // EVENTS
         // ----------------------------------------------
         public const string EVENT_PHOTONCONTROLLER_GAME_STARTED = "EVENT_PHOTONCONTROLLER_GAME_STARTED";
-        public const string EVENT_PHOTONCONTROLLER_VOICE_CREATED = "EVENT_PHOTONCONTROLLER_VOICE_CREATED";
-        public const string EVENT_PHOTONCONTROLLER_SPEAKER_CREATED = "EVENT_PHOTONCONTROLLER_SPEAKER_CREATED";
-        public const string EVENT_PHOTONCONTROLLER_VOICE_NETWORK_ENABLED = "EVENT_PHOTONCONTROLLER_VOICE_NETWORK_ENABLED";
-        public const string EVENT_PHOTONCONTROLLER_VOICE_ENABLED = "EVENT_PHOTONCONTROLLER_VOICE_ENABLED";
-        public const string EVENT_PHOTONCONTROLLER_VOICE_CHANGE_REPORTED = "EVENT_PHOTONCONTROLLER_VOICE_CHANGE_REPORTED";
 
         // ----------------------------------------------
         // CONSTANTS
@@ -99,18 +88,7 @@ namespace YourNetworkingTools
 
 		private List<PlayerConnectionData> m_playersConnections = new List<PlayerConnectionData>();
 
-        private RaiseEventOptions m_raiseEventOptions = new RaiseEventOptions
-        {
-            Receivers = ReceiverGroup.All,
-            CachingOption = EventCaching.DoNotCache
-        };
-
-        private SendOptions m_sendOptions = new SendOptions
-        {
-            Reliability = true
-        };
-
-        public bool SocketConnected
+		public bool SocketConnected
 		{
 			get { return m_socketConnected; }
 		}
@@ -135,12 +113,6 @@ namespace YourNetworkingTools
             get { return m_serverIPAddress; }
             set { m_serverIPAddress = value; }
         }
-#if ENABLE_PHOTON_VOICE
-        public bool VoiceEnabled
-        {
-            get { return m_voiceEnabled; }
-        }
-#endif
 
         // -------------------------------------------
         /* 
@@ -160,8 +132,6 @@ namespace YourNetworkingTools
                 PhotonNetwork.ConnectUsingSettings();
             }
 
-            PhotonNetwork.NetworkingClient.EventReceived += OnEvent;
-
             NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);
             UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
             BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
@@ -180,9 +150,13 @@ namespace YourNetworkingTools
 
             PhotonNetwork.Disconnect();
 
+            if (m_uniqueNetworkID != -1)
+            {
+                try { PhotonMessageHUB.Instance.Destroy(); } catch (Exception err) { };
+            }
+
             NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_SYSTEM_DESTROY_NETWORK_COMMUNICATIONS);
-            PhotonNetwork.NetworkingClient.EventReceived -= OnEvent;
-            NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
+			NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
 			UIEventController.Instance.UIEvent -= OnUIEvent;
             BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
             Destroy(_instance.gameObject);
@@ -281,9 +255,7 @@ namespace YourNetworkingTools
                 Debug.Log(eventConnected);
                 UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMAINCOMMANDCENTER_LIST_USERS, m_playersConnections);
                 UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMAINCOMMANDCENTER_REGISTER_LOG, eventConnected);
-#if UNITY_EDITOR
                 Debug.LogError("ClientNewConnection::m_playersConnections[" + m_playersConnections.Count + "] NEW CONNECTION ID["+ _idConnection + "]");
-#endif
                 return true;
             }
             else
@@ -326,26 +298,6 @@ namespace YourNetworkingTools
             return false;
         }
 
-#if ENABLE_PHOTON_VOICE
-        // -------------------------------------------
-        /* 
-		* VoiceActivation
-		*/
-        private void VoiceActivation(bool _activationVoice)
-        {
-            if (!_activationVoice && m_voiceEnabled)
-            {
-                m_speakerVoice.StopPlayback();
-                m_voiceEnabled = false;
-            }
-            if (_activationVoice && !m_voiceEnabled)
-            {
-                m_speakerVoice.RestartPlayback();
-                m_voiceEnabled = true;
-            }
-            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_PHOTONCONTROLLER_VOICE_CHANGE_REPORTED);
-        }
-#endif
 
         // -------------------------------------------
         /* 
@@ -380,7 +332,7 @@ namespace YourNetworkingTools
 				int networkIDPlayer = int.Parse((string)_list[0]);
 				ClientDisconnected(networkIDPlayer);
 			}
-            if (!_isLocalEvent)
+			if (!_isLocalEvent)
 			{
 				m_events.Add(new ItemMultiObjectEntry(_nameEvent, _networkOriginID, _networkTargetID, _list));
 			}
@@ -420,13 +372,6 @@ namespace YourNetworkingTools
                 {
                     BasicSystemEventController.Instance.DispatchBasicSystemEvent(CommunicationsController.EVENT_COMMSCONTROLLER_SET_UP_IS_SERVER);
                 }                
-            }
-            if (_nameEvent == EVENT_PHOTONCONTROLLER_VOICE_ENABLED)
-            {
-#if ENABLE_PHOTON_VOICE
-                bool activationVoice = (bool)_list[0];
-                VoiceActivation(activationVoice);
-#endif
             }
         }
 
@@ -521,6 +466,10 @@ namespace YourNetworkingTools
             {
                 m_uniqueNetworkID = PhotonNetwork.LocalPlayer.ActorNumber;
                 if (DEBUG) Debug.LogError("PhotonController::OnJoinedRoom::UniqueNetworkID[" + UniqueNetworkID + "]::MasterClient[" + PhotonNetwork.IsMasterClient + "]");
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    PhotonNetwork.Instantiate("PhotonMessageHUB", Vector3.zero, Quaternion.identity);
+                }
                 UIEventController.Instance.DispatchUIEvent(ClientTCPEventsController.EVENT_CLIENT_TCP_CONNECTED_ROOM, m_totalNumberOfPlayers);
             }
         }
@@ -668,139 +617,6 @@ namespace YourNetworkingTools
 
         // -------------------------------------------
         /* 
-		* RefreshPlayerConnections
-		*/
-        private void RefreshPlayerConnections()
-        {
-            m_playersConnections.Clear();
-            foreach (KeyValuePair<int, Player> item in PhotonNetwork.CurrentRoom.Players)
-            {
-                m_playersConnections.Add(new PlayerConnectionData(item.Value.ActorNumber, null));
-            }
-            // Debug.LogError("PhotonController::RefreshPlayerConnections::m_playersConnections.COUNT=" + m_playersConnections.Count);
-        }
-
-#if ENABLE_PHOTON_VOICE
-        private VoiceConnection m_voiceConnection = null;
-        private Speaker m_speakerVoice = null;
-        private bool m_voiceEnabled = true;
-#endif
-
-#if ENABLE_PHOTON_VOICE
-        // -------------------------------------------
-        /* 
-		* StartVoiceStreaming
-		*/
-        public void StartVoiceStreaming(bool _emitVoice)
-        {
-            object voiceFoun = Resources.Load("Voice/Voice Connection and Recorder");
-            bool voiceHasBeenFound = false;
-            if (voiceFoun != null)
-            {
-                GameObject voicePrefab = voiceFoun as GameObject;
-                if (voicePrefab != null)
-                {
-                    voiceHasBeenFound = true;
-                    GameObject voiceGO = GameObject.Instantiate(voicePrefab);
-                    ConnectAndJoin joinVoice = voiceGO.transform.GetComponentInChildren<ConnectAndJoin>();
-                    m_voiceConnection = GameObject.FindObjectOfType<VoiceConnection>();
-                    m_voiceConnection.SpeakerLinked += this.OnSpeakerCreated;
-                    if ((joinVoice != null) && (m_voiceConnection != null))
-                    {
-                        joinVoice.RoomName = PhotonNetwork.CurrentRoom.Name;
-                        m_voiceConnection.PrimaryRecorder.TransmitEnabled = _emitVoice;
-                        joinVoice.ConnectNow();
-                        NetworkEventController.Instance.DispatchLocalEvent(EVENT_PHOTONCONTROLLER_VOICE_CREATED, m_voiceConnection.gameObject.transform);
-                    }
-                }
-            }
-            
-            if (!voiceHasBeenFound)
-            {
-                Debug.LogError("StartVoiceStreaming::PREFAB VOICE NOT FOUND!!!!!!!!!!!!!!!!");
-            }
-        }
-
-        // -------------------------------------------
-        /* 
-		* OnSpeakerCreated
-		*/
-        private void OnSpeakerCreated(Speaker _speaker)
-        {
-            m_speakerVoice = _speaker;
-            m_speakerVoice.OnRemoteVoiceRemoveAction += OnRemoteVoiceRemove;
-            NetworkEventController.Instance.DispatchLocalEvent(EVENT_PHOTONCONTROLLER_SPEAKER_CREATED, m_speakerVoice.transform);
-        }
-
-        // -------------------------------------------
-        /* 
-		* OnRemoteVoiceRemove
-		*/
-        private void OnRemoteVoiceRemove(Speaker _speaker)
-        {
-            if (_speaker != null)
-            {
-                _speaker.OnRemoteVoiceRemoveAction -= OnRemoteVoiceRemove;
-                Destroy(_speaker.gameObject);
-            }
-        }
-#endif
-
-        // -------------------------------------------
-        /* 
-		* DispatchEvent
-		*/
-        public void DispatchEvent(string _nameEvent, int _originNetworkID, int _targetNetworkID, params object[] _list)
-        {
-            object[] data = new object[3 + _list.Length];
-            data[0] = _nameEvent;
-            data[1] = _originNetworkID;
-            data[2] = _targetNetworkID;
-            if (_list.Length > 0)
-            {
-                for (int i = 0; i < _list.Length; i++)
-                {
-                    data[3 + i] = _list[i];
-                }
-            }
-
-            PhotonNetwork.RaiseEvent(PHOTON_EVENT_CODE, data, m_raiseEventOptions, m_sendOptions);
-        }
-
-        // -------------------------------------------
-        /* 
-		* OnEvent
-		*/
-        private void OnEvent(EventData photonEvent)
-        {
-            if (photonEvent.Code == PHOTON_EVENT_CODE)
-            {
-                object[] data = (object[])photonEvent.CustomData;
-                string eventMessage = (string)data[0];
-                int originNetworkID = (int)data[1];
-                if (originNetworkID == PhotonController.Instance.UniqueNetworkID)
-                {
-                    return;
-                }
-
-                int targetNetworkID = (int)data[2];
-                string[] paramsEvent = null;
-                if (data.Length > 3)
-                {
-                    paramsEvent = new string[data.Length - 3];
-                    for (int i = 3; i < data.Length; i++)
-                    {
-                        paramsEvent[i - 3] = (string)data[i];
-                    }
-                }
-
-                NetworkEventController.Instance.DispatchCustomNetworkEvent(eventMessage, true, originNetworkID, targetNetworkID, paramsEvent);
-            }
-        }
-
-
-        // -------------------------------------------
-        /* 
 		 * Update
 		 */
         public void Update()
@@ -817,7 +633,7 @@ namespace YourNetworkingTools
                     {
                         paramsEvent = (string[])item.Objects[3];
                     }
-                    DispatchEvent((string)item.Objects[0], uniqueNetworkID, (int)item.Objects[2], paramsEvent);
+                    PhotonMessageHUB.Instance.PrepareMessage((string)item.Objects[0], uniqueNetworkID, (int)item.Objects[2], paramsEvent);
                 }
             }
         }

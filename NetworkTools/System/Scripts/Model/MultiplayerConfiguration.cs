@@ -56,9 +56,6 @@ namespace YourNetworkingTools
         public const string TIMEOUT_SEND_COOCKIE = "TIMEOUT_SEND_COOCKIE";
         public const string TIMEOUT_RECEIVE_COOCKIE = "TIMEOUT_RECEIVE_COOCKIE";
 
-        public const string CHARACTER_SELECTED_COOCKIE = "CHARACTER_SELECTED_COOCKIE";
-        public const string LEVEL_SELECTED_COOCKIE = "LEVEL_SELECTED_COOCKIE";
-
         public const string HUMAN_NAME = "HUMAN_";
         public const string DIRECTOR_NAME = "HUMAN_DIRECTOR_";        
 
@@ -214,8 +211,7 @@ namespace YourNetworkingTools
 		 */
         public static string LoadNameRoomLobby()
         {
-            string nameRoom = PlayerPrefs.GetString(NAME_ROOM_LOOBY_COOCKIE, "");
-            return nameRoom;
+            return PlayerPrefs.GetString(NAME_ROOM_LOOBY_COOCKIE, "");
         }
 
         // -------------------------------------------
@@ -474,42 +470,6 @@ namespace YourNetworkingTools
             return PlayerPrefs.GetInt(AR_ENABLE_BACKGROUND, -1) == 1;
         }
 
-
-        // -------------------------------------------
-        /* 
-		 * Save character model to use
-		 */
-        public static void SaveCharacter6DOF(int _character)
-        {
-            PlayerPrefs.SetInt(CHARACTER_SELECTED_COOCKIE, _character);
-        }
-
-        // -------------------------------------------
-        /* 
-		 * Load character model to use
-		 */
-        public static int LoadCharacter6DOF()
-        {
-            return PlayerPrefs.GetInt(CHARACTER_SELECTED_COOCKIE, -1);
-        }
-
-        // -------------------------------------------
-        /* 
-		 * Save house model to use
-		 */
-        public static void SaveLevel6DOF(int _house)
-        {
-            PlayerPrefs.SetInt(LEVEL_SELECTED_COOCKIE, _house);
-        }
-
-        // -------------------------------------------
-        /* 
-		 * Load house model to use
-		 */
-        public static int LoadLevel6DOF()
-        {
-            return PlayerPrefs.GetInt(LEVEL_SELECTED_COOCKIE, -1);
-        }
 
     }
 }

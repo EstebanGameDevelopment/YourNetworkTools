@@ -84,8 +84,9 @@ namespace YourNetworkingTools
 		{
 			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
             MultiplayerConfiguration.SaveEnableBackground(true);
-
-			MenuScreenController.Instance.LoadGameScene(this);
+            MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
+			Destroy();
+			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
 		}
 
 		// -------------------------------------------
@@ -96,8 +97,9 @@ namespace YourNetworkingTools
 		{
 			SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
             MultiplayerConfiguration.SaveEnableBackground(false);
-
-			MenuScreenController.Instance.LoadGameScene(this);
+            MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
+			Destroy();
+			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN,ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
 		}
 
 		// -------------------------------------------

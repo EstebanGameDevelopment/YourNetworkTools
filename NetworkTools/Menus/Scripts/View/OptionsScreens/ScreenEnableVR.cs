@@ -23,15 +23,10 @@ namespace YourNetworkingTools
 	{
 		public const string SCREEN_NAME = "SCREEN_ENABLE_VR";
 
-        // ----------------------------------------------
-        // EVENTS
-        // ----------------------------------------------	
-        public const string SUB_EVENT_ENABLEVR_CONFIRMATION_DOWNLOAD_ASSETBUNDLE = "SUB_EVENT_ENABLEVR_CONFIRMATION_DOWNLOAD_ASSETBUNDLE";
-        
-        // ----------------------------------------------
-        // PRIVATE MEMBERS
-        // ----------------------------------------------	
-        private GameObject m_root;
+		// ----------------------------------------------
+		// PRIVATE MEMBERS
+		// ----------------------------------------------	
+		private GameObject m_root;
 		protected Transform m_container;
 
 		// -------------------------------------------
@@ -92,7 +87,16 @@ namespace YourNetworkingTools
 #if ENABLE_GOOGLE_ARCORE
             if (!MenuScreenController.Instance.AskToEnableBackgroundARCore || (MultiplayerConfiguration.LoadGoogleARCore(-1) != MultiplayerConfiguration.GOOGLE_ARCORE_ENABLED))
             {
-                FinalLoadGameWithAssets();
+                MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
+                Destroy();
+                if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
+                {
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
+                }
+                else
+                {
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
+                }
             }
             else
             {
@@ -106,13 +110,15 @@ namespace YourNetworkingTools
                 }
             }
 #else
-            if (MenuScreenController.Instance.RequestPermissionAssetBundleDownload)
+            MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
+            Destroy();
+            if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
             {
-                RequestDownloadAssetBundle();
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
             }
             else
             {
-                FinalLoadGameWithAssets();
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
             }
 #endif
         }
@@ -128,7 +134,16 @@ namespace YourNetworkingTools
 #if ENABLE_GOOGLE_ARCORE
             if (!MenuScreenController.Instance.AskToEnableBackgroundARCore || (MultiplayerConfiguration.LoadGoogleARCore(-1) != MultiplayerConfiguration.GOOGLE_ARCORE_ENABLED))
             {
-                FinalLoadGameWithAssets();
+                MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
+                Destroy();
+                if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
+                {
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
+                }
+                else
+                {
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
+                }
             }
             else
             {
@@ -142,62 +157,17 @@ namespace YourNetworkingTools
                 }
             }
 #else
-            if (MenuScreenController.Instance.RequestPermissionAssetBundleDownload)
-            {
-                RequestDownloadAssetBundle();
-            }
-            else
-            {
-                FinalLoadGameWithAssets();
-            }
-#endif
-        }
-
-
-        // -------------------------------------------
-        /* 
-		* FinalLoadGameWithAssets
-		*/
-        private void FinalLoadGameWithAssets()
-        {
+            MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
+            Destroy();
             if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
             {
                 UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
             }
             else
             {
-                MenuScreenController.Instance.LoadGameScene(this);
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
             }
-        }
-
-        // -------------------------------------------
-        /* 
-		* RequestDownloadAssetBundle
-		*/
-        private void RequestDownloadAssetBundle()
-        {
-            if (!MenuScreenController.Instance.RequestPermissionAssetBundleDownload)
-            {
-                FinalLoadGameWithAssets();
-            }
-            else
-            {
-                if (AssetbundleController.Instance.CheckAssetsCached())
-                {
-                    FinalLoadGameWithAssets();
-                }
-                else
-                {
-                    if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
-                    {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_INFORMATION_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenInformationView.SCREEN_CONFIRMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.warning"), LanguageController.Instance.GetText("message.need.download.assetbundle"), null, SUB_EVENT_ENABLEVR_CONFIRMATION_DOWNLOAD_ASSETBUNDLE);
-                    }
-                    else
-                    {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_CONFIRMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.warning"), LanguageController.Instance.GetText("message.need.download.assetbundle"), null, SUB_EVENT_ENABLEVR_CONFIRMATION_DOWNLOAD_ASSETBUNDLE);
-                    }
-                }
-            }
+#endif
         }
 
         // -------------------------------------------
@@ -207,29 +177,6 @@ namespace YourNetworkingTools
         protected override void OnMenuEvent(string _nameEvent, params object[] _list)
 		{
 			base.OnMenuEvent(_nameEvent, _list);
-
-            if (_nameEvent == MenuScreenController.EVENT_CONFIRMATION_POPUP)
-            {
-                string subEvent = (string)_list[2];
-                if (subEvent == SUB_EVENT_ENABLEVR_CONFIRMATION_DOWNLOAD_ASSETBUNDLE)
-                {
-                    if ((bool)_list[1])
-                    {
-                        FinalLoadGameWithAssets();
-                    }
-                    else
-                    {
-                        if (MenuScreenController.Instance.AlphaAnimationNameStack != -1)
-                        {
-                            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_INFORMATION_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, MenuScreenController.Instance.AlphaAnimationNameStack }, ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("message.need.no.download.permitted"), null, "");
-                        }
-                        else
-                        {
-                            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("message.need.no.download.permitted"), null, "");
-                        }
-                    }
-                }
-            }
-        }
-    }
+		}
+	}
 }

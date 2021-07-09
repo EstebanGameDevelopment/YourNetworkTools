@@ -52,7 +52,6 @@ namespace YourNetworkingTools
         public const string LAYER_ENEMIES = "ENEMIES";
         public const string LAYER_NPCS    = "NPCS";
         public const string LAYER_ITEMS   = "ITEMS";
-        public const string LAYER_OBJECTS = "OBJECTS";
 
         public const char SEPARATOR_ANIMATION_ENTRY = '#';
         public const char SEPARATOR_PARAMS_ANIMATION = ';';
@@ -282,9 +281,9 @@ namespace YourNetworkingTools
         {
             if (base.Destroy()) return true;
 
-            if (NetworkEventController.Instance != null) NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
+            NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
 #if ENABLE_MULTIPLAYER_TIMELINE
-            if (TimelineEventController.Instance != null) TimelineEventController.Instance.TimelineEvent -= OnTimelineEvent;
+            TimelineEventController.Instance.TimelineEvent -= OnTimelineEvent;
 #endif
 
             if (m_ghostPlayer != null)
@@ -351,7 +350,7 @@ namespace YourNetworkingTools
             if (IsMine())
             {
                 BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_GAMEPLAYER_SETUP_AVATAR, this.gameObject);
-                NetworkEventController.Instance.PriorityDelayNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, 0.1f, NetworkID.GetID(), m_initialData);
+                NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, NetworkID.GetID(), m_initialData);
             }
             InitializeCommon();
             if (initialData.Length > 5)
@@ -585,7 +584,7 @@ namespace YourNetworkingTools
                 {
                     if (newPlayer != this.gameObject)
                     {
-                        if (NetworkID != null) NetworkEventController.Instance.PriorityDelayNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, 0.1f, NetworkID.GetID(), m_initialData);
+                        if (NetworkID != null) NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, NetworkID.GetID(), m_initialData);
                     }
                 }
             }
@@ -593,7 +592,7 @@ namespace YourNetworkingTools
             {
                 if (!DirectorMode)
                 {
-                    if (NetworkID != null) NetworkEventController.Instance.PriorityDelayNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, 0.1f, NetworkID.GetID(), m_initialData);
+                    if (NetworkID != null) NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, NetworkID.GetID(), m_initialData);
                 }
             }
             if (_nameEvent == EVENT_GAMECHARACTER_NEW_ANIMATION)

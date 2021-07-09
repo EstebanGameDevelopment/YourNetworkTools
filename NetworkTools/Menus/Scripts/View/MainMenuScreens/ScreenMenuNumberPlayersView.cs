@@ -22,11 +22,6 @@ namespace YourNetworkingTools
         public const string SCREEN_NAME = "SCREEN_PLAYER_NUMBER";
 
         // ----------------------------------------------
-        // EVENTS
-        // ----------------------------------------------	
-        public const string EVENT_SCREENNUMBERPLAYERS_SET_NUMBER_PLAYERS = "EVENT_SCREENNUMBERPLAYERS_SET_NUMBER_PLAYERS";
-
-        // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
         private GameObject m_root;
@@ -109,7 +104,7 @@ namespace YourNetworkingTools
 
             UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);
 
-            if (MenuScreenController.Instance.AppIsLocal)
+            if (YourNetworkTools.GetIsLocalGame())
             {
                 m_container.Find("PlayerValue").GetComponent<InputField>().text = "1";
             }
@@ -195,27 +190,13 @@ namespace YourNetworkingTools
             if (loadNextScreen)
             {
                 SoundsController.Instance.PlaySingleSound(SoundsConfiguration.SOUND_SELECTION_FX);
-                if (MenuScreenController.Instance.EnableAppOrganization)
+                UIEventController.Instance.DispatchUIEvent(MenuScreenController.EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME, FinalNumberOfPlayers);
+                if (FinalNumberOfPlayers == 1)
                 {
-                    UIEventController.Instance.DispatchUIEvent(EVENT_SCREENNUMBERPLAYERS_SET_NUMBER_PLAYERS, FinalNumberOfPlayers);
-                    GoBackPressed();
+                    MultiplayerConfiguration.SaveDirectorMode(MultiplayerConfiguration.DIRECTOR_MODE_DISABLED);
                 }
-                else
-                {
-                    UIEventController.Instance.DispatchUIEvent(MenuScreenController.EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME, FinalNumberOfPlayers);
-                    if (FinalNumberOfPlayers == 1)
-                    {
-                        MultiplayerConfiguration.SaveDirectorMode(MultiplayerConfiguration.DIRECTOR_MODE_DISABLED);
-                        MenuScreenController.Instance.ScreenGameOptions = ScreenCharacterSelectionView.SCREEN_NAME;
-                    }
-                    else
-                    {
-                        MenuScreenController.Instance.ScreenGameOptions = ScreenDirectorModeView.SCREEN_NAME;
-                    }
-                    MenuScreenController.Instance.LoadCustomGameScreenOrCreateGame(false, FinalNumberOfPlayers, "", null);
-                }
+                MenuScreenController.Instance.LoadCustomGameScreenOrCreateGame(false, FinalNumberOfPlayers, "", null);
             }
-
         }
 
         // -------------------------------------------

@@ -203,7 +203,7 @@ namespace YourNetworkingTools
 		 */
 		void OnDestroy()
 		{
-			if (NetworkEventController.Instance  != null) NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
+			NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
 		}
 
 		// -------------------------------------------
@@ -422,6 +422,9 @@ namespace YourNetworkingTools
 		 */
 		private bool IsAnchorSetUp()
 		{
+#if UNITY_EDITOR
+			return m_hasBeenInitialized;
+#else
             if (EnableAnchorImage)
             {
 			    return m_hasBeenInitialized || (m_lastPlacedAnchor != null) || (m_lastResolvedAnchor != null);
@@ -430,6 +433,7 @@ namespace YourNetworkingTools
             {
                 return m_hasBeenInitialized;
             }
+#endif
         }
 
         // -------------------------------------------
@@ -438,8 +442,12 @@ namespace YourNetworkingTools
 		 */
         private void UpdatePositionGameWorld()
 		{
+#if !UNITY_EDITOR
 			m_goReferencePose.transform.position = Frame.Pose.position;
 			m_positionARCorePlayer = m_goReferencePose.transform.localPosition;
+#else
+			m_positionARCorePlayer = Vector3.zero;
+#endif
             bool runTrackingStartedCheck = false;
             if (!EnableAnchorImage)
             {
@@ -461,11 +469,13 @@ namespace YourNetworkingTools
 				if (ENABLE_ARCORE_START_GAME_WORLD)
 				{					
 					FirstPersonCamera.enabled = false;					
+#if !UNITY_EDITOR
 					if (FirstPersonCamera.GetComponent<ARCoreBackgroundRenderer>() != null)
 					{
 						FirstPersonCamera.GetComponent<ARCoreBackgroundRenderer>().enabled = false;
 					}	
 					PointViewer.SetActive(false);
+#endif
 					if (m_goReferenceAnchor != null) m_goReferenceAnchor.GetComponent<Renderer>().enabled = false;
 					GameCamera.enabled = true;
 					BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_CLOUDGAMEANCHOR_SETUP_ANCHOR, true);
@@ -485,6 +495,9 @@ namespace YourNetworkingTools
 		{
 			if (IsAnchorSetUp())
 			{
+#if UNITY_EDITOR
+				UpdatePositionGameWorld();
+#else
 				UpdatePositionGameWorld();
 
 				Vector3 posRealWorld = m_positionARCorePlayer;
@@ -493,6 +506,7 @@ namespace YourNetworkingTools
 												posRealWorld.z * ScaleVRWorldXZ);
 
 				BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_CLOUDGAMEANCHOR_UPDATE_CAMERA, FirstPersonCamera.transform.forward, posVRWorld);
+#endif
 			}
 		}
 
@@ -562,7 +576,9 @@ namespace YourNetworkingTools
 						if ((m_networkCloudId != null) && (m_networkVectorBaseServer != null) && (m_networkAnchorBaseServer!=null))
 						{
 							Debug.Log("**************************START JOINING PROCESS**************************");
-							WaitForARCoreValid();
+#if !UNITY_EDITOR
+						WaitForARCoreValid();
+#endif
 						}
 					}
 				}
@@ -614,6 +630,17 @@ namespace YourNetworkingTools
 			// IGNORE IF THE ANCHOR HAS BEEN SET UP
 			if (m_enableSetUpAnchor)
 			{
+#if UNITY_EDITOR
+				m_enableSetUpAnchor = false;
+				m_hasBeenInitialized = true;
+				m_lastPlacedAnchor = new Anchor();
+				m_networkCloudId = new NetworkString();
+				m_networkCloudId.InitRemote(YourNetworkTools.Instance.GetUniversalNetworkID(), NAME_CLOUD_ANCHOR_ID, "IdAnchorFake");
+				m_networkVectorBaseServer = new NetworkVector3();
+				m_networkVectorBaseServer.InitRemote(YourNetworkTools.Instance.GetUniversalNetworkID(), NAME_CLOUD_VECTOR_BASE, new Vector3(1,2,3));
+				m_networkAnchorBaseServer = new NetworkVector3();
+				m_networkAnchorBaseServer.InitRemote(YourNetworkTools.Instance.GetUniversalNetworkID(), NAME_CLOUD_ANCHOR_POSITION, new Vector3(66,99,69));
+#else
 				if (m_lastPlacedAnchor != null)
 				{
 					return;
@@ -635,6 +662,7 @@ namespace YourNetworkingTools
                         AnchorByPlane();
                     }
                 }
+#endif
             }
         }
 #endif

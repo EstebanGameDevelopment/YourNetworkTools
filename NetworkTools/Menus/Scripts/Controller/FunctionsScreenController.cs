@@ -1,13 +1,9 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using YourCommonTools;
 #if ENABLE_YOURVRUI
 using YourVRUI;
-#endif
-#if ENABLE_USER_SERVER
-using UserManagement;
 #endif
 
 namespace YourNetworkingTools
@@ -23,16 +19,12 @@ namespace YourNetworkingTools
 	 */
     public class FunctionsScreenController : ScreenController
 	{
-        public enum PROFILE_PLAYER { PLAYER = 0, DIRECTOR = 1, SPECTATOR = 2 }
-
-        // ----------------------------------------------
-        // EVENTS
-        // ----------------------------------------------	
-        public const string EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE  = "EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE";
+		// ----------------------------------------------
+		// EVENTS
+		// ----------------------------------------------	
+		public const string EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE  = "EVENT_MENUEVENTCONTROLLER_SHOW_LOADING_MESSAGE";
         public const string EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME      = "EVENT_MENUEVENTCONTROLLER_CREATED_NEW_GAME";
         public const string EVENT_MENUEVENTCONTROLLER_JOIN_EXISTING_GAME    = "EVENT_MENUEVENTCONTROLLER_JOIN_EXISTING_GAME";
-        public const string EVENT_MENUEVENTCONTROLLERLOAD_GAME_WITH_SETTINGS = "EVENT_MENUEVENTCONTROLLERLOAD_GAME_WITH_SETTINGS";
-        public const string EVENT_MENUEVENTCONTROLLER_SETTINGS_HAS_BEEN_UPDATED= "EVENT_MENUEVENTCONTROLLER_SETTINGS_HAS_BEEN_UPDATED";
 
         // ----------------------------------------------
         // PUBLIC CONSTANTS
@@ -40,22 +32,10 @@ namespace YourNetworkingTools
         public const string BLOCKCHAIN_TAG_BEGIN = "<blockchain>";
         public const string BLOCKCHAIN_TAG_END = "</blockchain>";
 
-        private const string PREFS_ALL_SETTINGS = "APP_ALL_SETTINGS";
-
-        private const string PREFS_NAME_ROOM = "APP_NAME_ROOM";
-        private const string PREFS_NUMBER_PLAYERS = "APP_NUMBER_PLAYERS";
-        private const string PREFS_PROFILE = "APP_PROFILE";
-        private const string PREFS_AVATAR = "APP_AVATAR";
-        private const string PREFS_LEVEL = "APP_LEVEL";
-        private const string PREFS_LOCAL_OR_NETWORK = "APP_LOCAL_OR_NETWORK";
-        private const string PREFS_ARCORE_ENABLED = "PREFS_ARCORE_ENABLED";
-
-        public const char TOKEN_SEPARATOR_CONFIG = ',';
-
-        // ----------------------------------------------
-        // PUBLIC MEMBERS
-        // ----------------------------------------------	
-        [Tooltip("Target scene where the real application is")]
+		// ----------------------------------------------
+		// PUBLIC MEMBERS
+		// ----------------------------------------------	
+		[Tooltip("Target scene where the real application is")]
 		public string TargetGameScene;
 
 		[Tooltip("Application instruction images")]
@@ -94,12 +74,6 @@ namespace YourNetworkingTools
         [Tooltip("Maximum number of rooms allowed in server")]
         public int MaxAllowedRooms = 15;
 
-        [Tooltip("Ask for user permission to download the asset bundle")]
-        public bool RequestPermissionAssetBundleDownload = false;
-
-        [Tooltip("It's going to use the settings organization")]
-        public bool EnableAppOrganization = false;
-
         [HideInInspector]
         public object ParamsScreenGameOptions = null;
 
@@ -109,35 +83,21 @@ namespace YourNetworkingTools
         public Sprite IconApp;
 		public Sprite LogoApp;
 
-        // ----------------------------------------------
-        // PRIVATE MEMBERS
-        // ----------------------------------------------	
-        protected bool m_isFriendsRoom = false;
-        protected int m_numberOfPlayers = -1;
-        protected string m_friends;
-        protected List<string> m_friendsIDs;
-        protected string m_extraData = "";
+		// ----------------------------------------------
+		// PRIVATE MEMBERS
+		// ----------------------------------------------	
+		private bool m_isFriendsRoom = false;
+		private int m_numberOfPlayers = -1;
+		private string m_friends;
+		private List<string> m_friendsIDs;
+		private string m_extraData = "";
 
-        protected string m_extraDataBlockchain = "";
-        protected decimal m_priceBlockchainService = 0;
-        protected string m_currencySelected = "";
-        protected string m_publicKeyAddressProvider = "";
+        private string m_extraDataBlockchain = "";
+        private decimal m_priceBlockchainService = 0;
+        private string m_currencySelected = "";
+        private string m_publicKeyAddressProvider = "";
 
-        protected bool m_checkDefaultMirror = true;
-
-        protected PROFILE_PLAYER m_profileSelected;
-        protected int m_appTotalNumberOfPlayers = 1;
-        protected int m_appIndexCharacterSelected = 0;
-        protected int m_appIndexLevelSelected = 0;
-        protected string m_appRoomName = "";
-        protected bool m_appIsLocal = true;
-        protected bool m_appEnableARCore = false;
-
-        private IBasicView m_screenRequesterToLoadGame = null;
-        private bool m_loadGameWithSettings = false;
-        private string m_dataConfig = "";
-
-        private string m_iapSaveSlot = "";
+        private bool m_checkDefaultMirror = true;
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -178,34 +138,6 @@ namespace YourNetworkingTools
             get { return m_checkDefaultMirror; }
             set { m_checkDefaultMirror = value; }
         }
-        public PROFILE_PLAYER ProfileSelected
-        {
-            get { return m_profileSelected; }
-        }
-        public int AppTotalNumberOfPlayers
-        {
-            get { return m_appTotalNumberOfPlayers; }
-        }
-        public int AppIndexCharacterSelected
-        {
-            get { return m_appIndexCharacterSelected; }
-        }
-        public int AppIndexLevelSelected
-        {
-            get { return m_appIndexLevelSelected; }
-        }
-        public string AppRoomName
-        {
-            get { return m_appRoomName; }
-        }
-        public bool AppIsLocal
-        {
-            get { return m_appIsLocal; }
-        }
-        public bool AppEnableARCore
-        {
-            get { return m_appEnableARCore; }
-        }
 
 #if ENABLE_YOURVRUI
         public int ScreensVREnabled
@@ -217,16 +149,6 @@ namespace YourNetworkingTools
             }
         }
 #endif
-        public string IapSaveSlot
-        {
-            get { return m_iapSaveSlot; }
-            set { m_iapSaveSlot = value; }
-        }
-        public string DataConfig
-        {
-            get { return m_dataConfig; }
-            set { m_dataConfig = value; }
-        }
 
         // -------------------------------------------
         /* 
@@ -251,8 +173,6 @@ namespace YourNetworkingTools
 		{
 			base.Start();
 
-            InitConfigurationSession();
-
             if (Application.isEditor)
             {
                 Application.runInBackground = true;
@@ -269,18 +189,11 @@ namespace YourNetworkingTools
 
 			LanguageController.Instance.Initialize();
 			SoundsController.Instance.Initialize();
-#if ENABLE_USER_SERVER
-            UsersController.Instance.Initialize();
-#endif
-
-            m_dataConfig = PlayerPrefs.GetString(PREFS_ALL_SETTINGS, "");
-            ExtractParsedCloudData(m_dataConfig);
 
             if (ServerIPAdress.Length > 0) MultiplayerConfiguration.SaveIPAddressServer(ServerIPAdress);
             if (ServerPortNumber != -1) MultiplayerConfiguration.SavePortServer(ServerPortNumber);
 
             UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
-            BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
 
 #if ENABLE_WORLDSENSE || ENABLE_OCULUS || ENABLE_HTCVIVE
             KeysEventInputController.Instance.EnableActionOnMouseDown = false;
@@ -304,21 +217,6 @@ namespace YourNetworkingTools
 
         // -------------------------------------------
         /* 
-		 * InitConfigurationSession
-		 */
-        protected void InitConfigurationSession()
-        {
-            m_profileSelected = (PROFILE_PLAYER)PlayerPrefs.GetInt(PREFS_PROFILE, 0);
-            m_appTotalNumberOfPlayers = PlayerPrefs.GetInt(PREFS_NUMBER_PLAYERS, 5);
-            m_appIndexCharacterSelected = PlayerPrefs.GetInt(PREFS_AVATAR, 0);
-            m_appIndexLevelSelected = PlayerPrefs.GetInt(PREFS_LEVEL, 0);
-            m_appRoomName = PlayerPrefs.GetString(PREFS_NAME_ROOM, "MyVRRoom");
-            m_appIsLocal = PlayerPrefs.GetInt(PREFS_LOCAL_OR_NETWORK, 1) == 0;
-            m_appEnableARCore = PlayerPrefs.GetInt(PREFS_ARCORE_ENABLED, 0) == 1;
-        }
-
-        // -------------------------------------------
-        /* 
 		 * Destroy all references
 		 */
         void OnDestroy()
@@ -335,16 +233,7 @@ namespace YourNetworkingTools
 			base.Destroy();
 
 			UIEventController.Instance.UIEvent -= OnUIEvent;
-            BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
-
-            LanguageController.Instance?.Destroy();
-            SoundsController.Instance?.Destroy();
-
-#if ENABLE_USER_SERVER
-            UsersController.Instance?.Destroy();
-            CommsHTTPConstants.Instance?.Destroy();
-#endif
-        }
+		}
 
         // -------------------------------------------
         /* 
@@ -423,367 +312,11 @@ namespace YourNetworkingTools
 
         // -------------------------------------------
         /* 
-		* OnBasicSystemEvent
-		*/
-        protected virtual void OnBasicSystemEvent(string _nameEvent, object[] _list)
-        {
-#if ENABLE_USER_SERVER
-            if (_nameEvent == UsersController.EVENT_USER_LOGIN_FORMATTED)
-            {
-                Debug.LogError("EVENT_USER_LOGIN_FORMATTED::(bool)_list[0]=" + (bool)_list[0]);
-                if ((bool)_list[0])
-                {
-                    ParseCloudData();
-                }
-            }
-#endif
-        }
-
-        // -------------------------------------------
-        /* 
-         * ExtractParsedCloudData
-         */
-        public void ExtractParsedCloudData(string _data)
-        {
-            m_dataConfig = _data;
-            PlayerPrefs.SetString(PREFS_ALL_SETTINGS, m_dataConfig);
-
-            string[] dataConfig = _data.Split(TOKEN_SEPARATOR_CONFIG);
-
-            if (dataConfig.Length >= 6)
-            {
-                bool isLocal = bool.Parse(dataConfig[0]);
-                UIEventController.Instance.DispatchUIEvent(ScreenGameOrganizationView.EVENT_SCREENMAIN_LOCAL_OR_REMOTE_PARTY, isLocal, false);
-
-                PROFILE_PLAYER profileSelected = (PROFILE_PLAYER)int.Parse(dataConfig[1]);
-                UIEventController.Instance.DispatchUIEvent(ScreenDirectorModeView.EVENT_SCREENDIRECTORMODE_SELECTED_PROFILE, profileSelected, false);
-
-                int amicIndexCharacterSelected = int.Parse(dataConfig[2]);
-                UIEventController.Instance.DispatchUIEvent(ScreenCharacterSelectionView.EVENT_SCREENCHARACTERSELECTION_SELECTED_CHARACTER, amicIndexCharacterSelected, false);
-
-                int amicIndexLevelSelected = int.Parse(dataConfig[3]);
-                UIEventController.Instance.DispatchUIEvent(ScreenLevelSelectionView.EVENT_SCREENLEVELSELECTION_SELECTED_LEVEL, amicIndexLevelSelected, false);
-
-                int amicTotalNumberOfPlayers = int.Parse(dataConfig[4]);
-                UIEventController.Instance.DispatchUIEvent(ScreenMenuNumberPlayersView.EVENT_SCREENNUMBERPLAYERS_SET_NUMBER_PLAYERS, amicTotalNumberOfPlayers, false);
-
-                string amicRoomName = dataConfig[5];
-                UIEventController.Instance.DispatchUIEvent(ScreenCreateRoomView.EVENT_SCREENCREATEROOM_SETUP_NAME, amicRoomName, false);
-
-                if (dataConfig.Length > 6)
-                {
-                    bool isARCoreEnabled = bool.Parse(dataConfig[6]);
-                    UIEventController.Instance.DispatchUIEvent(ScreenEnableARCore.EVENT_SCREENARCORE_ENABLED_ARCORE, isARCoreEnabled, false);
-                }
-            }
-            else
-            {
-                SaveDataInCloud();
-            }
-        }
-
-        // -------------------------------------------
-        /* 
-        * RefreshProperties
-        */
-        private void ParseCloudData()
-        {
-#if ENABLE_USER_SERVER
-            if (UsersController.Instance.CurrentUser.Email.Length > 0)
-            {
-                ExtractParsedCloudData(UsersController.Instance.CurrentUser.Profile.Data);
-            }
-#endif
-        }
-
-        // -------------------------------------------
-        /* 
-		 * SaveDataInCloud
-		 */
-        public void SaveDataInCloud()
-        {
-            m_dataConfig = "";
-            m_dataConfig += AppIsLocal.ToString() + TOKEN_SEPARATOR_CONFIG;
-            m_dataConfig += ((int)ProfileSelected).ToString() + TOKEN_SEPARATOR_CONFIG;
-            m_dataConfig += AppIndexCharacterSelected.ToString() + TOKEN_SEPARATOR_CONFIG;
-            m_dataConfig += AppIndexLevelSelected.ToString() + TOKEN_SEPARATOR_CONFIG;
-            m_dataConfig += AppTotalNumberOfPlayers.ToString() + TOKEN_SEPARATOR_CONFIG;
-            m_dataConfig += AppRoomName.ToString() + TOKEN_SEPARATOR_CONFIG;
-            m_dataConfig += AppEnableARCore.ToString();
-
-            PlayerPrefs.SetString(PREFS_ALL_SETTINGS, m_dataConfig);
-
-#if ENABLE_USER_SERVER
-            if (UsersController.Instance.CurrentUser.Email.Length > 0)
-            {
-                UIEventController.Instance.DispatchUIEvent(UsersController.EVENT_USER_UPDATE_PROFILE_DATA_REQUEST, m_dataConfig);
-            }
-#else
-            UIEventController.Instance.DispatchUIEvent(EVENT_MENUEVENTCONTROLLER_SETTINGS_HAS_BEEN_UPDATED);
-
-#endif
-        }
-
-        // -------------------------------------------
-        /* 
-		 * LoadGameScene
-		 */
-        public void LoadGameScene(IBasicView _screen = null)
-        {
-            try
-            {
-                if (_screen != null)
-                {
-                    if (_screen != null) _screen.Destroy();
-                    _screen.Destroy();
-                }
-                else
-                {
-                    if (m_screenRequesterToLoadGame != null) m_screenRequesterToLoadGame.Destroy();
-                    m_screenRequesterToLoadGame = null;
-                }
-            }
-            catch (Exception err) { }
-#if UNITY_STANDALONE
-            CardboardLoaderVR.Instance.SaveEnableCardboard(false);
-            MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
-            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
-#else
-#if ENABLE_GOOGLE_ARCORE
-            CardboardLoaderVR.Instance.SaveEnableCardboard(false);
-#else
-            if (YourVRUIScreenController.Instance == null)
-            {
-                CardboardLoaderVR.Instance.SaveEnableCardboard(false);
-            }
-            else
-            {
-                CardboardLoaderVR.Instance.SaveEnableCardboard(true);
-            }
-#endif
-            MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
-            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
-#endif
-        }
-
-        // -------------------------------------------
-        /* 
-		 * SetUpFinalLevel
-		 */
-        protected virtual void SetUpFinalLevel()
-        {
-            MultiplayerConfiguration.SaveLevel6DOF(m_appIndexLevelSelected);
-        }
-
-        // -------------------------------------------
-        /* 
-		 * SetUpFinalCharacter
-		 */
-        protected virtual void SetUpFinalCharacter()
-        {
-            MultiplayerConfiguration.SaveCharacter6DOF(m_appIndexCharacterSelected);
-        }
-
-        // -------------------------------------------
-        /* 
-		 * OnUISettings
-		 */
-        protected virtual void OnUISettings(string _nameEvent, params object[] _list)
-        {
-            if (_nameEvent == ScreenDirectorModeView.EVENT_SCREENDIRECTORMODE_SELECTED_PROFILE)
-            {
-                m_profileSelected = (PROFILE_PLAYER)_list[0];
-                PlayerPrefs.SetInt(PREFS_PROFILE, (int)m_profileSelected);
-                bool shouldRefresh = true;
-                if (_list.Length > 1) shouldRefresh = (bool)_list[1];
-                if (shouldRefresh)
-                {
-                    UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
-                    SaveDataInCloud();
-                }
-            }
-            if (_nameEvent == ScreenEnableARCore.EVENT_SCREENARCORE_ENABLED_ARCORE)
-            {
-                m_appEnableARCore = (bool)_list[0];
-                PlayerPrefs.SetInt(PREFS_ARCORE_ENABLED, (m_appEnableARCore?1:0));
-                bool shouldRefresh = true;
-                if (_list.Length > 1) shouldRefresh = (bool)_list[1];
-                if (shouldRefresh)
-                {
-                    UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
-                    SaveDataInCloud();
-                }
-            }
-            if (_nameEvent == ScreenMenuNumberPlayersView.EVENT_SCREENNUMBERPLAYERS_SET_NUMBER_PLAYERS)
-            {
-                m_appTotalNumberOfPlayers = (int)_list[0];
-                PlayerPrefs.SetInt(PREFS_NUMBER_PLAYERS, m_appTotalNumberOfPlayers);
-                bool shouldRefresh = true;
-                if (_list.Length > 1) shouldRefresh = (bool)_list[1];
-                if (shouldRefresh)
-                {
-                    UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
-                    SaveDataInCloud();
-                }
-            }
-            if (_nameEvent == ScreenCharacterSelectionView.EVENT_SCREENCHARACTERSELECTION_SELECTED_CHARACTER)
-            {
-                m_appIndexCharacterSelected = (int)_list[0];
-                PlayerPrefs.SetInt(PREFS_AVATAR, m_appIndexCharacterSelected);
-                bool shouldRefresh = true;
-                if (_list.Length > 1) shouldRefresh = (bool)_list[1];
-                if (shouldRefresh)
-                {
-                    UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
-                    SaveDataInCloud();
-                }
-            }
-            if (_nameEvent == ScreenLevelSelectionView.EVENT_SCREENLEVELSELECTION_SELECTED_LEVEL)
-            {
-                m_appIndexLevelSelected = (int)_list[0];
-                PlayerPrefs.SetInt(PREFS_LEVEL, m_appIndexLevelSelected);
-                bool shouldRefresh = true;
-                if (_list.Length > 1) shouldRefresh = (bool)_list[1];
-                if (shouldRefresh)
-                {
-                    UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
-                    SaveDataInCloud();
-                }
-            }
-            if (_nameEvent == ScreenCreateRoomView.EVENT_SCREENCREATEROOM_SETUP_NAME)
-            {
-                m_appRoomName = (string)_list[0];
-                PlayerPrefs.SetString(PREFS_NAME_ROOM, m_appRoomName);
-                bool shouldRefresh = true;
-                if (_list.Length > 1) shouldRefresh = (bool)_list[1];
-                if (shouldRefresh)
-                {
-                    UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
-                    SaveDataInCloud();
-                }
-            }
-            if (_nameEvent == ScreenGameOrganizationView.EVENT_SCREENMAIN_LOCAL_OR_REMOTE_PARTY)
-            {
-                m_appIsLocal = (bool)_list[0];
-                PlayerPrefs.SetInt(PREFS_LOCAL_OR_NETWORK, (m_appIsLocal ? 0 : 1));
-                bool shouldRefresh = true;
-                if (_list.Length > 1) shouldRefresh = (bool)_list[1];
-                if (shouldRefresh)
-                {
-                    UIEventController.Instance.DispatchUIEvent(ScreenAppSettingsView.EVENT_SCREENAPPSETTINGS_REFRESH);
-                    SaveDataInCloud();
-                }
-            }
-            if (_nameEvent == EVENT_MENUEVENTCONTROLLERLOAD_GAME_WITH_SETTINGS)
-            {
-                m_screenRequesterToLoadGame = (IBasicView)_list[0];
-
-                switch (m_profileSelected)
-                {
-                    case FunctionsScreenController.PROFILE_PLAYER.PLAYER:
-                        MultiplayerConfiguration.SaveDirectorMode(MultiplayerConfiguration.DIRECTOR_MODE_DISABLED);
-                        CardboardLoaderVR.Instance.SaveEnableCardboard(true);
-                        break;
-
-                    case FunctionsScreenController.PROFILE_PLAYER.DIRECTOR:
-                        MultiplayerConfiguration.SaveDirectorMode(MultiplayerConfiguration.DIRECTOR_MODE_ENABLED);
-                        CardboardLoaderVR.Instance.SaveEnableCardboard(false);
-                        break;
-
-                    case FunctionsScreenController.PROFILE_PLAYER.SPECTATOR:
-                        MultiplayerConfiguration.SaveDirectorMode(MultiplayerConfiguration.DIRECTOR_MODE_ENABLED);
-                        MultiplayerConfiguration.SaveSpectatorMode(MultiplayerConfiguration.SPECTATOR_MODE_ENABLED);
-                        CardboardLoaderVR.Instance.SaveEnableCardboard(false);
-                        break;
-                }
-
-                SetUpFinalLevel();
-                SetUpFinalCharacter();
-
-                NumberOfPlayers = m_appTotalNumberOfPlayers;
-                m_loadGameWithSettings = true;
-
-                if (m_appIsLocal)
-                {
-                    NetworkEventController.Instance.MenuController_SaveNumberOfPlayers(m_appTotalNumberOfPlayers);
-                    NetworkEventController.Instance.MenuController_SetLocalGame(true);
-                    NetworkEventController.Instance.MenuController_SetLobbyMode(false);
-                    m_screenRequesterToLoadGame.Destroy();
-                    LoadGameScene();
-                }
-                else
-                {
-                    NetworkEventController.Instance.MenuController_SetLocalGame(false);
-                    NetworkEventController.Instance.MenuController_SetLobbyMode(true);
-
-                    if (m_appRoomName.Length > 0)
-                    {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_WAIT, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("screen.lobby.connecting.wait"), null, "");
-                        NetworkEventController.Instance.MenuController_InitialitzationSocket(-1, 0);
-                    }
-                }
-            }
-            if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_LIST_OF_GAME_ROOMS)
-            {
-                if (m_loadGameWithSettings)
-                {
-                    m_loadGameWithSettings = false;
-                    UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_WAIT);
-                    if (m_appRoomName.Length > 0)
-                    {
-                        bool roomFound = false;
-                        int indexRoomFound = -1;
-                        for (int i = 0; i < NetworkEventController.Instance.RoomsLobby.Count; i++)
-                        {
-                            ItemMultiTextEntry item = NetworkEventController.Instance.RoomsLobby[i];
-                            int roomNumber = int.Parse(item.Items[1]);
-                            string nameRoom = item.Items[2];
-                            if (nameRoom.Equals(m_appRoomName))
-                            {
-                                roomFound = true;
-                                indexRoomFound = roomNumber;
-                            }
-                        }
-
-                        NetworkEventController.Instance.MenuController_SetNameRoomLobby(m_appRoomName);
-
-                        if (roomFound)
-                        {
-#if UNITY_EDITOR
-                            Debug.LogError("ROOM NAME[" + m_appRoomName + "] ++YES++ FOUND IN LIST ROOMS LOBBY[" + NetworkEventController.Instance.RoomsLobby.Count + "]::NOW JOINNING...");
-#endif
-                            // JOIN
-                            NetworkEventController.Instance.MenuController_SaveNumberOfPlayers(MultiplayerConfiguration.VALUE_FOR_JOINING);
-                            PlayerPrefs.SetString(ScreenCreateRoomView.PLAYERPREFS_YNT_ROOMNAME, m_appRoomName);
-                            NetworkEventController.Instance.MenuController_SaveRoomNumberInServer(indexRoomFound);
-                            NetworkEventController.Instance.MenuController_SaveRoomNameInServer(m_appRoomName);
-                            NetworkEventController.Instance.MenuController_SetNameRoomLobby(m_appRoomName);
-                            MenuScreenController.Instance.ExtraData = "";
-                            LoadGameScene();
-                        }
-                        else
-                        {
-                            // CREATE
-#if UNITY_EDITOR
-                            Debug.LogError("ROOM NAME[" + m_appRoomName + "] --NOT-- FOUND IN LIST ROOMS LOBBY[" + NetworkEventController.Instance.RoomsLobby.Count + "] CREATING ROOM[" + m_appRoomName + "]");
-#endif
-                            NetworkEventController.Instance.MenuController_SaveNumberOfPlayers(m_appTotalNumberOfPlayers);
-                            LoadGameScene();
-                        }
-                    }
-                }
-            }
-        }
-
-        // -------------------------------------------
-        /* 
 		 * Manager of global events
 		 */
         protected override void OnUIEvent(string _nameEvent, params object[] _list)
 		{
             if (!PreProcessScreenEvents(_nameEvent, _list)) return;
-
-            OnUISettings(_nameEvent, _list);
 
 #if ENABLE_YOURVRUI
             ProcessConnectionEvents(_nameEvent, _list);
@@ -805,21 +338,12 @@ namespace YourNetworkingTools
 #endif
             }
 
-            if (_nameEvent == ScreenBaseView.EVENT_SCREENBASE_OPENED)
-            {
-                DisplayLogoForScreen();
-            }
-        }
-
-        // -------------------------------------------
-        /* 
-		 * DisplayLogoForScreen
-		 */
-        protected virtual void DisplayLogoForScreen()
-        {
             if (LogoApp != null)
             {
-                UIEventController.Instance.DelayUIEvent(ScreenController.EVENT_SCREENCONTROLLER_REPLACE_LOGO, 0.001F, LogoApp);
+                if (_nameEvent == ScreenBaseView.EVENT_SCREENBASE_OPENED)
+                {
+                    UIEventController.Instance.DelayUIEvent(ScreenController.EVENT_SCREENCONTROLLER_REPLACE_LOGO, 0.001F, LogoApp);
+                }
             }
         }
 

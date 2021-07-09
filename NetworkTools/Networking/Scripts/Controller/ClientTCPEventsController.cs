@@ -861,18 +861,19 @@ namespace YourNetworkingTools
 		*/
         void OnGUI()
 		{
-#if UNITY_EDITOR
-			GUILayout.BeginVertical();
-			if (m_uniqueNetworkID == -1)
+			if (MultiplayerConfiguration.DEBUG_MODE)
 			{
-				GUILayout.Label(new GUIContent("--[SOCKET]--SERVER IS SETTING UP. WAIT..."));
+				GUILayout.BeginVertical();
+				if (m_uniqueNetworkID == -1)
+				{
+					GUILayout.Label(new GUIContent("--[SOCKET]--SERVER IS SETTING UP. WAIT..."));
+				}
+				else
+				{
+					GUILayout.Label(new GUIContent("++[SOCKET]++MACHINE CONNECTION[" + m_uniqueNetworkID + "][" + (IsServer() ? "SERVER" : "CLIENT") + "]"));
+				}
+				GUILayout.EndVertical();
 			}
-			else
-			{
-				GUILayout.Label(new GUIContent("++[SOCKET]++MACHINE CONNECTION[" + m_uniqueNetworkID + "][" + (IsServer() ? "SERVER" : "CLIENT") + "]::ROOM["+m_room+"]"));
-			}
-			GUILayout.EndVertical();
-#endif
 		}
 
 		// -------------------------------------------

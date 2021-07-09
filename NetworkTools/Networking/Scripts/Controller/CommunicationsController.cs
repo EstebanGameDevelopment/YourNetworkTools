@@ -479,7 +479,7 @@ namespace YourNetworkingTools
 
 				for (int i = 0; i < prefabs.Length; i++)
 				{
-					if (_prefabName.IndexOf(prefabs[i].name) != -1)
+					if (prefabs[i].name == _prefabName)
 					{
 						prefab = prefabs[i];
 					}
