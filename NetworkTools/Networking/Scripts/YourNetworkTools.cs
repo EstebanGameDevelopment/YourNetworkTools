@@ -663,10 +663,18 @@ namespace YourNetworkingTools
 			{
 				// Debug.LogError("EVENT_CLIENT_TCP_CONNECTED_ROOM::UniversalUniqueID[" + GetUniversalNetworkID() + "]");
 			}
-			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_REMOTE_CREATION_CONFIRMATION)
+			if (_nameEvent == NetworkEventController.EVENT_SYSTEM_INITIALITZATION_REMOTE_COMPLETED)
 			{
 				if (IsServer)
-                {
+				{
+					// Debug.LogError("++++++++++++++++++++SENDING INFORMATION ABOUT ALL EXISTING NETWORK OBJECTS+++++++++++++++++++++++++++++");
+					CheckInitializationObjects();
+				}
+			}
+			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_LOCAL_CREATION_CONFIRMATION)
+			{
+				if (IsServer)
+				{
 					string keyNetworkGO = (string)_list[0];
 					CheckInitializationObjects(keyNetworkGO);
 				}
@@ -683,7 +691,7 @@ namespace YourNetworkingTools
 						CheckInitializationObjects(keyNetworkGO);
 					}
 				}
-            }
+			}
 			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST)
 			{
 				DestroyNetworkObject(int.Parse((string)_list[0]), int.Parse((string)_list[1]));

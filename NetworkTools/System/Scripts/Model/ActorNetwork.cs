@@ -89,7 +89,7 @@ namespace YourNetworkingTools
             NetworkEventController.Instance.DispatchLocalEvent(YourNetworkTools.EVENT_YOURNETWORKTOOLS_CREATED_GAMEOBJECT, this.gameObject);
             if (IsMine())
 			{
-                NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_LOCAL_CREATION_CONFIRMATION, this.gameObject);
+				NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_LOCAL_CREATION_CONFIRMATION, NetworkID.GetID());
 			}
 			else
 			{
