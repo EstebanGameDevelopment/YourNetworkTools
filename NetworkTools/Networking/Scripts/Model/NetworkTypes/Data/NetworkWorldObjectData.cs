@@ -20,10 +20,6 @@ namespace YourNetworkingTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
-#if !DISABLE_UNET_COMMS
-	[RequireComponent(typeof(NetworkIdentity))]
-#endif
-
 #if DISABLE_UNET_COMMS
     public class NetworkWorldObjectData : MonoBehaviour
     { 

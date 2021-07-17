@@ -164,33 +164,38 @@ namespace YourNetworkingTools
                     WorldObjectController worldObjectController = GameObject.FindObjectOfType<WorldObjectController>();
                     if (worldObjectController != null)
                     {
-                        worldObjectController.AppWorldObjects = new GameObject[GameObjects.Length];
+						int totalNumberLocalObjects = 0;
+						for (int i = 0; i < GameObjects.Length; i++)
+						{
+							if (GameObjects[i].GetComponent<NetworkWorldObjectData>() != null)
+                            {
+								totalNumberLocalObjects++;
+							}
+						}
+
+						int counterAppWorldObjects = 0;
+						worldObjectController.AppWorldObjects = new GameObject[totalNumberLocalObjects];
                         for (int i = 0; i < GameObjects.Length; i++)
                         {
                             GameObject prefabToNetwork = GameObjects[i];
-#if !DISABLE_UNET_COMMS
-                            if (prefabToNetwork.GetComponent<NetworkWorldObjectData>() == null)
+							if (prefabToNetwork.GetComponent<NetworkWorldObjectData>() != null)
                             {
-                                prefabToNetwork.AddComponent<NetworkWorldObjectData>();
-                            }
-                            else
-                            {
-                                prefabToNetwork.GetComponent<NetworkWorldObjectData>().enabled = true;
-                            }
-#endif
+								prefabToNetwork.GetComponent<NetworkWorldObjectData>().enabled = true;
 #if ENABLE_MIRROR
-                            GameObject.FindObjectOfType<MirrorDiscoveryController>().spawnPrefabs.Add(prefabToNetwork);
+								GameObject.FindObjectOfType<MirrorDiscoveryController>().spawnPrefabs.Add(prefabToNetwork);
 #endif
-                            if (prefabToNetwork.GetComponent<NetworkID>() != null)
-                            {
-                                prefabToNetwork.GetComponent<NetworkID>().enabled = false;
-                            }
-                            if (prefabToNetwork.GetComponent<ActorNetwork>() == null)
-                            {
-                                prefabToNetwork.AddComponent<ActorNetwork>();
-                            }
-                            worldObjectController.AppWorldObjects[i] = prefabToNetwork;
-                        }
+								if (prefabToNetwork.GetComponent<NetworkID>() != null)
+								{
+									prefabToNetwork.GetComponent<NetworkID>().enabled = false;
+								}
+								if (prefabToNetwork.GetComponent<ActorNetwork>() == null)
+								{
+									prefabToNetwork.AddComponent<ActorNetwork>();
+								}
+								worldObjectController.AppWorldObjects[counterAppWorldObjects] = prefabToNetwork;
+								counterAppWorldObjects++;
+							}
+						}
                     }
                 }
                 else
