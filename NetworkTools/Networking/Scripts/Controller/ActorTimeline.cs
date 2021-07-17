@@ -584,7 +584,7 @@ namespace YourNetworkingTools
                 {
                     if (newPlayer != this.gameObject)
                     {
-                        if (NetworkID != null) NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, NetworkID.GetID(), m_initialData);
+                        if (NetworkID != null) NetworkEventController.Instance.PriorityDelayNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, 0.1f, NetworkID.GetID(), m_initialData);
                     }
                 }
             }
@@ -592,7 +592,7 @@ namespace YourNetworkingTools
             {
                 if (!DirectorMode)
                 {
-                    if (NetworkID != null) NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, NetworkID.GetID(), m_initialData);
+                    if (NetworkID != null) NetworkEventController.Instance.PriorityDelayNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, 0.1f, NetworkID.GetID(), m_initialData);
                 }
             }
             if (_nameEvent == EVENT_GAMECHARACTER_NEW_ANIMATION)

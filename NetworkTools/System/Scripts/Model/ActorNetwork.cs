@@ -93,7 +93,7 @@ namespace YourNetworkingTools
 			}
 			else
 			{
-                NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_REMOTE_CREATION_CONFIRMATION, this.gameObject);
+				NetworkEventController.Instance.PriorityDelayNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_REMOTE_CREATION_CONFIRMATION, 0.01f, NetworkID.GetID());
 			}
             NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);
 #if ENABLE_PHOTON
