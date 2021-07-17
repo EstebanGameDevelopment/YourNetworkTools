@@ -486,7 +486,7 @@ namespace YourNetworkingTools
 		/* 
 		* Will check if there are objects to be initialized with the data received
 		*/
-		private void CheckInitializationObjects()
+		private void CheckInitializationObjects(string _netID = null)
 		{
 			if (IsLocalGame)
 			{
@@ -497,7 +497,17 @@ namespace YourNetworkingTools
 					{
 						if (m_unetNetworkObjects[i].GetNetworkObjectData() != null)
 						{
-							CheckExistingInitialDataForObject(m_unetNetworkObjects[i].GetNetworkObjectData().GetID(), m_unetNetworkObjects[i].GetNetworkObjectData().gameObject);
+							if (_netID == null)
+							{
+								CheckExistingInitialDataForObject(m_unetNetworkObjects[i].GetNetworkObjectData().GetID(), m_unetNetworkObjects[i].GetNetworkObjectData().gameObject);
+							}
+							else
+							{
+								if (m_unetNetworkObjects[i].GetNetworkObjectData().GetID() == _netID)
+								{
+									CheckExistingInitialDataForObject(m_unetNetworkObjects[i].GetNetworkObjectData().GetID(), m_unetNetworkObjects[i].GetNetworkObjectData().gameObject);
+								}
+							}
 						}
 					}
 				}
@@ -509,7 +519,17 @@ namespace YourNetworkingTools
 				{
 					if (m_tcpNetworkObjects[i] != null)
 					{
-						CheckExistingInitialDataForObject(m_tcpNetworkObjects[i].GetComponent<NetworkID>().GetID(), m_tcpNetworkObjects[i]);
+						if (_netID == null)
+						{
+							CheckExistingInitialDataForObject(m_tcpNetworkObjects[i].GetComponent<NetworkID>().GetID(), m_tcpNetworkObjects[i]);
+						}
+						else
+						{
+							if (m_tcpNetworkObjects[i].GetComponent<NetworkID>().GetID() == _netID)
+							{
+								CheckExistingInitialDataForObject(m_tcpNetworkObjects[i].GetComponent<NetworkID>().GetID(), m_tcpNetworkObjects[i]);
+							}
+						}
 					}
 				}
 			}
@@ -527,6 +547,7 @@ namespace YourNetworkingTools
 				if (m_initialData.TryGetValue(_keyID, out initialData))
 				{
 					// _objectToInit.GetComponent<IGameNetworkActor>().Initialize(initialData);
+					// Debug.LogError("+++++++++++++++++SENDING INITIAL DATA TO ["+ _keyID + "]");
 					NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA, 0.01f, _keyID, initialData);
 					return true;
 				}
@@ -611,7 +632,7 @@ namespace YourNetworkingTools
 				string targetNetworkID = (string)_list[0];
 				string initialDataNetwork = (string)_list[1];
 				ActorNetwork[] networkActors = GameObject.FindObjectsOfType<ActorNetwork>();
-				// Debug.LogError("EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA::TARGET[" + targetNetworkID + "]::data[" + initialDataNetwork + "]");
+				// Debug.LogError("EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA::TARGET[" + targetNetworkID + "]::data[" + initialDataNetwork + "]::TOTAL NETWORK ACTORS["+ networkActors.Length + "]");
 				for (int i = 0; i < networkActors.Length; i++)
                 {
 					IGameNetworkActor networkActor = networkActors[i].GetComponentInParent<IGameNetworkActor>();
@@ -676,12 +697,20 @@ namespace YourNetworkingTools
 			{
 				// Debug.LogError("EVENT_CLIENT_TCP_CONNECTED_ROOM::UniversalUniqueID[" + GetUniversalNetworkID() + "]");
 			}
-			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_REMOTE_CREATION_CONFIRMATION)
+			if (_nameEvent == NetworkEventController.EVENT_SYSTEM_INITIALITZATION_REMOTE_COMPLETED)
+            {
+				if (IsServer)
+				{
+					// Debug.LogError("++++++++++++++++++++SENDING INFORMATION ABOUT ALL EXISTING NETWORK OBJECTS+++++++++++++++++++++++++++++");
+					CheckInitializationObjects();
+				}
+			}
+			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_LOCAL_CREATION_CONFIRMATION)
 			{
 				if (IsServer)
 				{
-					// ActorNetwork actorNetwork = ((GameObject)_list[0]).GetComponent<ActorNetwork>();
-					CheckInitializationObjects();
+					string keyNetworkGO = (string)_list[0];
+					CheckInitializationObjects(keyNetworkGO);
 				}
 			}
 			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA)
@@ -693,7 +722,7 @@ namespace YourNetworkingTools
 						string keyNetworkGO = (string)_list[0];
 						string dataNetworkGO = (string)_list[1];
 						m_initialData.Add(keyNetworkGO, dataNetworkGO);
-						CheckInitializationObjects();
+						CheckInitializationObjects(keyNetworkGO);
 					}
 				}
 			}
