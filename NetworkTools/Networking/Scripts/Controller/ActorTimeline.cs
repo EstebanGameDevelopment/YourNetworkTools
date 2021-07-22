@@ -884,5 +884,29 @@ namespace YourNetworkingTools
             }
 #endif
         }
+
+        private bool m_isModelFree = false;
+        protected Vector3 m_shiftLocalPosition = Vector3.zero;
+
+        // -------------------------------------------
+        /* 
+		 * LateUpdate
+		 */
+        protected virtual void LateUpdate()
+        {
+            if (!IsMine())
+            {
+                if (m_model != null)
+                {
+                    if (!m_isModelFree)
+                    {
+                        m_isModelFree = true;
+                        m_model.transform.parent = this.transform.parent;
+                    }
+                    m_model.transform.position = this.transform.position - m_shiftLocalPosition;
+                    m_model.transform.forward = new Vector3(this.transform.forward.x, 0, this.transform.forward.z);
+                }
+            }
+        }
     }
 }
