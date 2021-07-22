@@ -886,6 +886,7 @@ namespace YourNetworkingTools
 
         protected bool m_isActorAPlayer = true;
         protected Vector3 m_shiftLocalPosition = Vector3.zero;
+        protected Vector3 m_customForwardPlayer = Vector3.zero;
         protected GameObject m_modelActor = null;
 
         // -------------------------------------------
@@ -902,10 +903,12 @@ namespace YourNetworkingTools
                     {
                         m_modelActor = new GameObject();
                         m_modelActor.transform.parent = this.transform.parent;
+                        m_modelActor.transform.position = Vector3.zero;
+                        m_model.transform.parent = null;
                         m_model.transform.position = Vector3.zero;
-                        if (m_isActorAPlayer) m_model.transform.forward = new Vector3(0, m_model.transform.forward.y, 0);
-                        m_model.transform.localPosition -= m_shiftLocalPosition;
+                        if (m_isActorAPlayer) m_model.transform.forward = m_customForwardPlayer;
                         m_model.transform.parent = m_modelActor.transform;
+                        m_model.transform.localPosition -= m_shiftLocalPosition;
                         m_modelActor.transform.position = this.transform.position;
                     }
                     m_modelActor.transform.position = this.transform.position;
@@ -913,5 +916,6 @@ namespace YourNetworkingTools
                 }
             }
         }
+
     }
 }
