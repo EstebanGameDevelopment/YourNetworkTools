@@ -883,5 +883,25 @@ namespace YourNetworkingTools
             }
 #endif
         }
+
+        // -------------------------------------------
+        /* 
+		 * LateUpdate
+		 */
+        protected virtual void LateUpdate()
+        {
+            if (!IsMine())
+            {
+                if (m_model != null)
+                {
+                    Vector3 backUp = new Vector3(0, m_model.transform.localPosition.y, 0);
+                    m_model.transform.localPosition = Vector3.zero;
+                    m_model.transform.rotation = Quaternion.identity;
+                    m_model.transform.forward = new Vector3(this.transform.forward.x, 0, this.transform.forward.z);
+                    m_model.transform.localPosition = backUp;
+                }
+            }
+        }
+
     }
 }
