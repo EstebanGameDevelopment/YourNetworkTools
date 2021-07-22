@@ -885,8 +885,8 @@ namespace YourNetworkingTools
 #endif
         }
 
-        private bool m_isModelFree = false;
         protected Vector3 m_shiftLocalPosition = Vector3.zero;
+        protected GameObject m_modelActor = null;
 
         // -------------------------------------------
         /* 
@@ -898,13 +898,17 @@ namespace YourNetworkingTools
             {
                 if (m_model != null)
                 {
-                    if (!m_isModelFree)
+                    if (m_modelActor == null)
                     {
-                        m_isModelFree = true;
-                        m_model.transform.parent = this.transform.parent;
+                        m_modelActor = new GameObject();
+                        m_modelActor.transform.parent = this.transform.parent;
+                        m_model.transform.position = Vector3.zero;
+                        m_model.transform.localPosition -= m_shiftLocalPosition;
+                        m_model.transform.parent = m_modelActor.transform;
+                        m_modelActor.transform.position = this.transform.position;
                     }
-                    m_model.transform.position = this.transform.position - m_shiftLocalPosition;
-                    m_model.transform.forward = new Vector3(this.transform.forward.x, 0, this.transform.forward.z);
+                    m_modelActor.transform.position = this.transform.position;
+                    m_modelActor.transform.forward = new Vector3(this.transform.forward.x, 0, this.transform.forward.z);
                 }
             }
         }
