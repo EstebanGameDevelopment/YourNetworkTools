@@ -884,6 +884,10 @@ namespace YourNetworkingTools
 #endif
         }
 
+        protected bool m_isActorAPlayer = true;
+        protected Vector3 m_shiftLocalPosition = Vector3.zero;
+        protected GameObject m_modelActor = null;
+
         // -------------------------------------------
         /* 
 		 * LateUpdate
@@ -894,14 +898,20 @@ namespace YourNetworkingTools
             {
                 if (m_model != null)
                 {
-                    Vector3 backUp = new Vector3(0, m_model.transform.localPosition.y, 0);
-                    m_model.transform.localPosition = Vector3.zero;
-                    m_model.transform.rotation = Quaternion.identity;
-                    m_model.transform.forward = new Vector3(this.transform.forward.x, 0, this.transform.forward.z);
-                    m_model.transform.localPosition = backUp;
+                    if (m_modelActor == null)
+                    {
+                        m_modelActor = new GameObject();
+                        m_modelActor.transform.parent = this.transform.parent;
+                        m_model.transform.position = Vector3.zero;
+                        if (m_isActorAPlayer) m_model.transform.forward = new Vector3(0, m_model.transform.forward.y, 0);
+                        m_model.transform.localPosition -= m_shiftLocalPosition;
+                        m_model.transform.parent = m_modelActor.transform;
+                        m_modelActor.transform.position = this.transform.position;
+                    }
+                    m_modelActor.transform.position = this.transform.position;
+                    m_modelActor.transform.forward = new Vector3(this.transform.forward.x, 0, this.transform.forward.z);
                 }
             }
         }
-
     }
 }
