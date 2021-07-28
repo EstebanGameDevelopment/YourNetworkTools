@@ -592,10 +592,10 @@ namespace YourNetworkingTools
             if (m_targetScene.Length == 0)
             {
                 m_targetScene = _targetScene;
-#if ENABLE_OCULUS || ENABLE_WORLDSENSE || ENABLE_HTCVIVE
+#if ENABLE_OCULUS || ENABLE_WORLDSENSE || ENABLE_HTCVIVE || ENABLE_PICONEO
             MultiplayerConfiguration.SaveDirectorMode(MultiplayerConfiguration.DIRECTOR_MODE_DISABLED);
 #endif
-                StartCoroutine(LoadScene());
+				StartCoroutine(LoadScene());
             }
         }
 
