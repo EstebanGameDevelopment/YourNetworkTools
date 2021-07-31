@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using YourCommonTools;
 
 namespace YourNetworkingTools
 {
@@ -29,10 +30,10 @@ namespace YourNetworkingTools
         private PhotonView m_photonView;
 #endif
 
-        // ----------------------------------------------
-        // GETTERS/SETTERS
-        // ----------------------------------------------	
-        public NetworkID NetworkID
+		// ----------------------------------------------
+		// GETTERS/SETTERS
+		// ----------------------------------------------	
+		public NetworkID NetworkID
 		{
 			get
 			{
@@ -72,22 +73,22 @@ namespace YourNetworkingTools
         }
 #endif
 
-        // -------------------------------------------
-        /* 
+		// -------------------------------------------
+		/* 
 		 * Report the event in the system when a new player has been created.
 		 * 
 		 * The player could have been created by a remote client so we should throw an event
 		 * so that the controller will be listening to it.
 		 */
-        void Start()
+		void Start()
 		{
 			if (m_eventNameObjectCreated == "")
 			{
 				Debug.LogError("ReportCreationObject::YOU SHOULD DEFINE IN THE CONSTRUCTOR THE EVENT TO REPORT THE CREATION OF THE GAME OBJECT IN THE SYSTEM");
 			}
 			NetworkEventController.Instance.DispatchLocalEvent(m_eventNameObjectCreated, this.gameObject);
-            NetworkEventController.Instance.DispatchLocalEvent(YourNetworkTools.EVENT_YOURNETWORKTOOLS_CREATED_GAMEOBJECT, this.gameObject);
-            if (IsMine())
+			NetworkEventController.Instance.DispatchLocalEvent(YourNetworkTools.EVENT_YOURNETWORKTOOLS_CREATED_GAMEOBJECT, this.gameObject);
+			if (IsMine())
 			{
 				NetworkEventController.Instance.DispatchLocalEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_LOCAL_CREATION_CONFIRMATION, NetworkID.GetID());
 			}
@@ -95,20 +96,20 @@ namespace YourNetworkingTools
 			{
 				NetworkEventController.Instance.PriorityDelayNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_REMOTE_CREATION_CONFIRMATION, 0.01f, NetworkID.GetID());
 			}
-            NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);
+			NetworkEventController.Instance.NetworkEvent += new NetworkEventHandler(OnNetworkEvent);
 #if ENABLE_PHOTON
             if (!YourNetworkTools.Instance.IsLocalGame)
             {
                 this.gameObject.transform.parent = YourNetworkTools.Instance.gameObject.transform;
             }
-#endif           
-        }
+#endif
+		}
 
-        // -------------------------------------------
-        /* 
+		// -------------------------------------------
+		/* 
 		* Initialize the identification of the network object
 		*/
-        public void Initialize()
+		public void Initialize()
 		{
 			if (m_networkID == null)
 			{
@@ -124,21 +125,21 @@ namespace YourNetworkingTools
 			}
 		}
 
-        // -------------------------------------------
-        /* 
+		// -------------------------------------------
+		/* 
 		 * Check it the actor belongs to the current player
 		 */
-        public bool IsMine()
-        {
-            if (MultiplayerConfiguration.LoadNumberOfPlayers() != 1)
-            {
-                return (YourNetworkTools.Instance.GetUniversalNetworkID() == NetworkID.NetID);
-            }
-            else
-            {
-                return true;
-            }
-        }
+		public bool IsMine()
+		{
+			if (MultiplayerConfiguration.LoadNumberOfPlayers() != 1)
+			{
+				return (YourNetworkTools.Instance.GetUniversalNetworkID() == NetworkID.NetID);
+			}
+			else
+			{
+				return true;
+			}
+		}
 
 		// -------------------------------------------
 		/* 
@@ -151,18 +152,18 @@ namespace YourNetworkingTools
 #endif
 			NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
 
-            if (MultiplayerConfiguration.LoadNumberOfPlayers() != 1)
-            {
-                NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST, NetworkID.NetID.ToString(), NetworkID.UID.ToString());
-            }
-        }
+			if (MultiplayerConfiguration.LoadNumberOfPlayers() != 1)
+			{
+				NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST, NetworkID.NetID.ToString(), NetworkID.UID.ToString());
+			}
+		}
 
 		// -------------------------------------------
 		/* 
 		 * SetSinglePlayerNetworkID
 		 */
 		public void SetSinglePlayerNetworkID(int _NetID, int _UID)
-        {
+		{
 			m_networkID = this.gameObject.GetComponent<NetworkID>();
 			m_networkID.SetID(_NetID, _UID);
 		}
@@ -182,6 +183,64 @@ namespace YourNetworkingTools
 			Debug.LogError("[ActorNetwork] --RECEIVE-- SIGNAL FOR AUTODESTRUCTION");
 #endif
 					GameObject.Destroy(this.gameObject);
+				}
+			}
+		}
+
+		public const float UPDATE_INTERPOLATION_TIME = 0.2f;
+
+		private GameObject m_interpolatorPosition = null;
+		private GameObject m_interpolatorForward = null;
+
+		private float m_timeAcumInterpolation = 0;
+
+		// -------------------------------------------
+		/* 
+		 * GetCameraPosition
+		 */
+		public Vector3 GetCameraPosition()
+		{
+			if (m_interpolatorPosition == null)
+			{
+				m_interpolatorPosition = new GameObject();
+				m_interpolatorPosition.transform.position = this.gameObject.transform.position;
+			}
+
+			return m_interpolatorPosition.transform.position;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * GetCameraForward
+		 */
+		public Vector3 GetCameraForward()
+		{
+			if (m_interpolatorForward == null)
+			{
+				m_interpolatorForward = new GameObject();
+				m_interpolatorForward.transform.position = this.gameObject.transform.forward;
+			}
+
+			return m_interpolatorForward.transform.position;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * Update
+		 */
+		void Update()
+		{
+			m_timeAcumInterpolation += Time.deltaTime;
+			if (m_timeAcumInterpolation >= UPDATE_INTERPOLATION_TIME)
+			{
+				m_timeAcumInterpolation = 0;
+				if (m_interpolatorPosition != null)
+				{
+					InterpolatorController.Instance.InterpolatePosition(m_interpolatorPosition, this.gameObject.transform.position, UPDATE_INTERPOLATION_TIME);
+				}
+				if (m_interpolatorForward != null)
+				{
+					InterpolatorController.Instance.InterpolatePosition(m_interpolatorForward, this.gameObject.transform.forward, UPDATE_INTERPOLATION_TIME);
 				}
 			}
 		}
