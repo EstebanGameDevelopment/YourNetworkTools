@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using YourCommonTools;
 
 namespace YourNetworkingTools
 {
@@ -197,6 +198,64 @@ namespace YourNetworkingTools
 			Debug.LogError("[ActorNetwork] --RECEIVE-- SIGNAL FOR AUTODESTRUCTION");
 #endif
 					GameObject.Destroy(this.gameObject);
+				}
+			}
+		}
+
+		public const float UPDATE_INTERPOLATION_TIME = 0.2f;
+
+		private GameObject m_interpolatorPosition = null;
+		private GameObject m_interpolatorForward = null;
+
+		private float m_timeAcumInterpolation = 0;
+
+		// -------------------------------------------
+		/* 
+		 * GetCameraPosition
+		 */
+		public Vector3 GetCameraPosition()
+		{
+			if (m_interpolatorPosition == null)
+			{
+				m_interpolatorPosition = new GameObject();
+				m_interpolatorPosition.transform.position = this.gameObject.transform.position;
+			}
+
+			return m_interpolatorPosition.transform.position;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * GetCameraForward
+		 */
+		public Vector3 GetCameraForward()
+		{
+			if (m_interpolatorForward == null)
+			{
+				m_interpolatorForward = new GameObject();
+				m_interpolatorForward.transform.position = this.gameObject.transform.forward;
+			}
+
+			return m_interpolatorForward.transform.position;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * Update
+		 */
+		void Update()
+		{
+			m_timeAcumInterpolation += Time.deltaTime;
+			if (m_timeAcumInterpolation >= UPDATE_INTERPOLATION_TIME)
+			{
+				m_timeAcumInterpolation = 0;
+				if (m_interpolatorPosition != null)
+				{
+					InterpolatorController.Instance.InterpolatePosition(m_interpolatorPosition, this.gameObject.transform.position, UPDATE_INTERPOLATION_TIME);
+				}
+				if (m_interpolatorForward != null)
+				{
+					InterpolatorController.Instance.InterpolatePosition(m_interpolatorForward, this.gameObject.transform.forward, UPDATE_INTERPOLATION_TIME);
 				}
 			}
 		}
