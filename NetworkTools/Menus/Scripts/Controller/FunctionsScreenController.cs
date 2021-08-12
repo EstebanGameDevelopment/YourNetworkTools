@@ -234,7 +234,7 @@ namespace YourNetworkingTools
 		 */
         public override void Awake()
         {
-#if ENABLE_WORLDSENSE || ENABLE_OCULUS || ENABLE_HTCVIVE
+#if ENABLE_WORLDSENSE || ENABLE_OCULUS || ENABLE_HTCVIVE || ENABLE_PICONEO
             if (MainCamera2D != null) MainCamera2D.SetActive(false);
             if (VRComponents != null) VRComponents.SetActive(true);
 #else
@@ -263,7 +263,7 @@ namespace YourNetworkingTools
 				Debug.Log("YourVRUIScreenController::Start::First class to initialize for the whole system to work");
 			}
 
-#if !ENABLE_OCULUS && !ENABLE_WORLDSENSE && !ENABLE_HTCVIVE
+#if !ENABLE_OCULUS && !ENABLE_WORLDSENSE && !ENABLE_HTCVIVE && !ENABLE_PICONEO
             Screen.orientation = ScreenOrientation.Portrait;
 #endif
 
@@ -282,7 +282,7 @@ namespace YourNetworkingTools
             UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
             BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
 
-#if ENABLE_WORLDSENSE || ENABLE_OCULUS || ENABLE_HTCVIVE
+#if ENABLE_WORLDSENSE || ENABLE_OCULUS || ENABLE_HTCVIVE || ENABLE_PICONEO
             KeysEventInputController.Instance.EnableActionOnMouseDown = false;
 #endif
             StartSplashScreen();
