@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using System.Text;
 using YourCommonTools;
-#if ENABLE_PHOTON_VOICE
+#if ENABLE_PHOTON_VOICE && ENABLE_PHOTON
 using Photon.Voice.Unity;
 using Photon.Voice.Unity.UtilityScripts;
 #endif
@@ -135,7 +135,7 @@ namespace YourNetworkingTools
             get { return m_serverIPAddress; }
             set { m_serverIPAddress = value; }
         }
-#if ENABLE_PHOTON_VOICE
+#if ENABLE_PHOTON_VOICE && ENABLE_PHOTON
         public bool VoiceEnabled
         {
             get { return m_voiceEnabled; }
@@ -326,7 +326,7 @@ namespace YourNetworkingTools
             return false;
         }
 
-#if ENABLE_PHOTON_VOICE
+#if ENABLE_PHOTON_VOICE && ENABLE_PHOTON
         // -------------------------------------------
         /* 
 		* VoiceActivation
@@ -423,7 +423,7 @@ namespace YourNetworkingTools
             }
             if (_nameEvent == EVENT_PHOTONCONTROLLER_VOICE_ENABLED)
             {
-#if ENABLE_PHOTON_VOICE
+#if ENABLE_PHOTON_VOICE && ENABLE_PHOTON
                 bool activationVoice = (bool)_list[0];
                 VoiceActivation(activationVoice);
 #endif
@@ -680,13 +680,13 @@ namespace YourNetworkingTools
             // Debug.LogError("PhotonController::RefreshPlayerConnections::m_playersConnections.COUNT=" + m_playersConnections.Count);
         }
 
-#if ENABLE_PHOTON_VOICE
+#if ENABLE_PHOTON_VOICE && ENABLE_PHOTON
         private VoiceConnection m_voiceConnection = null;
         private Speaker m_speakerVoice = null;
         private bool m_voiceEnabled = true;
 #endif
 
-#if ENABLE_PHOTON_VOICE
+#if ENABLE_PHOTON_VOICE && ENABLE_PHOTON
         // -------------------------------------------
         /* 
 		* StartVoiceStreaming
