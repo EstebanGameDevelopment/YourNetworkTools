@@ -153,10 +153,12 @@ namespace YourNetworkingTools
             {
 #if ENABLE_PHOTON
                 return PhotonController.Instance.RoomsLobby;
+#elif ENABLE_NAKAMA
+				return NakamaController.Instance.RoomsLobby;
 #else
                 return ClientTCPEventsController.Instance.RoomsLobby;
 #endif
-            }
+			}
         }
         public bool IsConnected
         {
@@ -164,30 +166,36 @@ namespace YourNetworkingTools
             {
 #if ENABLE_PHOTON
                 return PhotonController.Instance.IsConnected;
+#elif ENABLE_NAKAMA
+				return NakamaController.Instance.IsConnected;
 #else
                 return ClientTCPEventsController.Instance.SocketConnected;
 #endif
-            }
-        }
+			}
+		}
         public string ServerIPAdress
         {
             get
             {
 #if ENABLE_PHOTON
                 return PhotonController.Instance.ServerIPAdress;
+#elif ENABLE_NAKAMA
+				return NakamaController.Instance.ServerIPAddress;
 #else
                 return ClientTCPEventsController.Instance.ServerIPAddress;
 #endif
-            }
+			}
             set
             {
 #if ENABLE_PHOTON
                 PhotonController.Instance.ServerIPAdress = value;
+#elif ENABLE_NAKAMA
+				NakamaController.Instance.ServerIPAddress = value;
 #else
                 ClientTCPEventsController.Instance.ServerIPAddress = value; 
 #endif
-            }
-        }
+			}
+		}
 
         // -------------------------------------------
         /* 
@@ -240,6 +248,8 @@ namespace YourNetworkingTools
                     {
 #if ENABLE_PHOTON
                         PhotonController.Instance.Destroy();
+#elif ENABLE_NAKAMA
+						NakamaController.Instance.Destroy();
 #else
                         ClientTCPEventsController.Instance.Destroy();
 #endif
@@ -257,10 +267,12 @@ namespace YourNetworkingTools
         {
 #if ENABLE_PHOTON
             return PhotonController.Instance.GetRoomIDByName(_roomName);
+#elif ENABLE_NAKAMA
+			return NakamaController.Instance.GetRoomIDByName(_roomName);
 #else
             return ClientTCPEventsController.Instance.GetRoomIDByName(_roomName);
 #endif
-        }
+		}
 
         // -------------------------------------------
         /* 
@@ -270,17 +282,19 @@ namespace YourNetworkingTools
         {
 #if ENABLE_PHOTON
             return PhotonController.Instance.GetExtraDataForRoom(_roomID);
+#elif ENABLE_NAKAMA
+			return NakamaController.Instance.GetExtraDataForRoom(_roomID);
 #else
             return ClientTCPEventsController.Instance.GetExtraDataForRoom(_roomID);
 #endif
-        }
+		}
 
 
-        // -------------------------------------------
-        /* 
+		// -------------------------------------------
+		/* 
 		 * CheckToIgnoreEvent
 		 */
-        private bool CheckToApplyEvent(string _nameEvent)
+		private bool CheckToApplyEvent(string _nameEvent)
         {
             if (m_checkIgnoreEvent)
             {
@@ -492,6 +506,8 @@ namespace YourNetworkingTools
 		{
 #if ENABLE_PHOTON
             PhotonController.Instance.Login();
+#elif ENABLE_NAKAMA
+			NakamaController.Instance.Initialitzation();
 #else
             ClientTCPEventsController.Instance.Initialitzation(MultiplayerConfiguration.LoadIPAddressServer(), MultiplayerConfiguration.LoadPortServer(), MultiplayerConfiguration.LoadRoomNumberInServer(_numberRoom), MultiplayerConfiguration.LoadMachineIDServer(_idMachineHost), MultiplayerConfiguration.LoadBufferSizeReceive(), MultiplayerConfiguration.LoadTimeoutReceive(), MultiplayerConfiguration.LoadBufferSizeSend(), MultiplayerConfiguration.LoadTimeoutSend());
 #endif
@@ -505,6 +521,8 @@ namespace YourNetworkingTools
 		{
 #if ENABLE_PHOTON
             PhotonController.Instance.CreateRoom(_nameLobby, _finalNumberOfPlayers, _extraData);
+#elif ENABLE_NAKAMA
+			NakamaController.Instance.FindMatch(_nameLobby, _finalNumberOfPlayers, _extraData);
 #else
 			ClientTCPEventsController.Instance.CreateRoomForLobby(_nameLobby, _finalNumberOfPlayers, _extraData);
 #endif
@@ -525,7 +543,7 @@ namespace YourNetworkingTools
 		 */
 		public void MenuController_JoinRoomOfLobby(int _room, string _players, string _extraData)
 		{
-#if !ENABLE_PHOTON
+#if !ENABLE_PHOTON && !ENABLE_NAKAMA
 			ClientTCPEventsController.Instance.JoinRoomOfLobby(_room, _players, _extraData);
 #endif
         }
@@ -538,8 +556,10 @@ namespace YourNetworkingTools
         {
 #if ENABLE_PHOTON
            PhotonController.Instance.JoinRoom(_room, _players, _extraData);
+#elif ENABLE_NAKAMA
+			NakamaController.Instance.FindMatch(_room, -1, _extraData);
 #endif
-        }
+		}
 
         // -------------------------------------------
         /* 

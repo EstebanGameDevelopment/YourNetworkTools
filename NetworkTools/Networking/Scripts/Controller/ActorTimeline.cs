@@ -103,6 +103,8 @@ namespace YourNetworkingTools
 
         protected Dictionary<string, int> m_customAnimations = new Dictionary<string, int>();
 
+        protected bool m_isHumanControlled = false;
+
         // ----------------------------------------------
         // GETTERS/SETTERS
         // ----------------------------------------------
@@ -258,7 +260,10 @@ namespace YourNetworkingTools
         {
             get { return m_owner; }
         }
-
+        public bool IsHumanControlled
+        {
+            get { return m_isHumanControlled; }
+        }
 
         // -------------------------------------------
         /* 
@@ -352,6 +357,7 @@ namespace YourNetworkingTools
             if (IsMine())
             {
                 BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_GAMEPLAYER_SETUP_AVATAR, this.gameObject);
+                // Debug.LogError("***********************************ACTOR TIMELINE::InitializeWithData::REPORT INITIAL DATA(" + NetworkID.GetID() + ")(" + m_initialData + ")");
                 NetworkEventController.Instance.PriorityDelayNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, 0.1f, NetworkID.GetID(), m_initialData);
             }
             InitializeCommon();

@@ -96,6 +96,7 @@ namespace YourNetworkingTools
 		private Int32 m_port;
 
 		private int m_room = -1;
+		private string m_nameRoom = "";
 		private int m_hostRoomID = -1;
 		private List<string> m_events = new List<string>();
 		private List<byte[]> m_transforms = new List<byte[]>();
@@ -183,6 +184,15 @@ namespace YourNetworkingTools
 		}
 
 		private bool m_hasBeenDestroyed = false;
+
+		// -------------------------------------------
+		/* 
+		* OnDestroy
+		*/
+		void OnDestroy()
+		{
+			Destroy();
+		}
 
 		// -------------------------------------------
 		/* 
@@ -741,6 +751,7 @@ namespace YourNetworkingTools
 		public void CreateRoomForLobby(int _room, string _nameRoom, int _playerNumber, string _extraData)
 		{
 			m_room = _room;
+			m_nameRoom = _nameRoom;
 			CreateRoomForLobby(_nameRoom, _playerNumber, _extraData);
 		}
 
@@ -869,7 +880,7 @@ namespace YourNetworkingTools
 			}
 			else
 			{
-				GUILayout.Label(new GUIContent("++[SOCKET]++MACHINE CONNECTION[" + m_uniqueNetworkID + "][" + (IsServer() ? "SERVER" : "CLIENT") + "]::ROOM["+m_room+"]"));
+				GUILayout.Label(new GUIContent("++[SOCKET]["+ m_nameRoom + "]++CONN ID[" + m_uniqueNetworkID + "][" + (IsServer() ? "SERVER" : "CLIENT") + "]::ROOM["+m_room+"]"));
 			}
 			GUILayout.EndVertical();
 #endif

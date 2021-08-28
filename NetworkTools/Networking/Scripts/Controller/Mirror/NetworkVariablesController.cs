@@ -63,6 +63,15 @@ namespace YourNetworkingTools
 
 		// -------------------------------------------
 		/* 
+		* OnDestroy
+		*/
+		void OnDestroy()
+		{
+			Destroy();
+		}
+
+		// -------------------------------------------
+		/* 
 		 * Destroy
 		 */
 		public override void Destroy()

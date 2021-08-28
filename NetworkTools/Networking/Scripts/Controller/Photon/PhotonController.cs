@@ -659,7 +659,7 @@ namespace YourNetworkingTools
                 }
                 else
                 {
-                    GUILayout.Box(new GUIContent("++[PHOTON]++MACHINE CONNECTION[" + m_uniqueNetworkID + "][" + (IsServer() ? "SERVER" : "CLIENT") + "]"));
+                    GUILayout.Box(new GUIContent("++[PHOTON]["+PhotonNetwork.CurrentRoom.Name+"]++CONN ID[" + m_uniqueNetworkID + "][" + (IsServer() ? "SERVER" : "CLIENT") + "]"));
                 }
                 GUILayout.EndVertical();
             }

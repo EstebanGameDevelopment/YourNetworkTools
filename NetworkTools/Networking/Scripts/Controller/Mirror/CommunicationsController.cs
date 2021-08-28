@@ -119,6 +119,15 @@ namespace YourNetworkingTools
 
 		// -------------------------------------------
 		/* 
+		* OnDestroy
+		*/
+		void OnDestroy()
+        {
+			Destroy();
+		}
+
+		// -------------------------------------------
+		/* 
 		* Destroy all references
 		*/
 		public void Destroy()
@@ -128,7 +137,7 @@ namespace YourNetworkingTools
 				if (m_clientInstalledApps != null) m_clientInstalledApps.Destroy();
 				NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
 				UIEventController.Instance.UIEvent -= OnUIEvent;
-				Destroy(_instance);
+				Destroy(_instance.gameObject);
 				_instance = null;
 			}
 		}

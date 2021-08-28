@@ -1165,7 +1165,7 @@ namespace YourNetworkingTools
 		{
 			if (NetworkEventController.Instance.IsLobbyMode)
 			{
-#if ENABLE_PHOTON
+#if ENABLE_PHOTON || ENABLE_NAKAMA
                 NetworkEventController.Instance.MenuController_JoinRoomOfLobby(MultiplayerConfiguration.LoadRoomNameInServer(""), "null", "");
 #else
                 // JOIN ROOM IN LOBBY

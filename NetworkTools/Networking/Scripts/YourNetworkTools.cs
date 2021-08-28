@@ -91,11 +91,13 @@ namespace YourNetworkingTools
 				{
 #if ENABLE_PHOTON
                     return PhotonController.Instance.IsServer();
+#elif ENABLE_NAKAMA
+					return NakamaController.Instance.IsServer();
 #else
                     return ClientTCPEventsController.Instance.IsServer();
 #endif
-                }
-            }
+				}
+			}
 		}
 		public bool ActivateTransformUpdate
 		{
@@ -205,16 +207,18 @@ namespace YourNetworkingTools
             }
 			else
 			{
-#if !ENABLE_PHOTON
-                    // CONNECT TO THE SERVER
-                    ClientTCPEventsController.Instance.Initialitzation(MultiplayerConfiguration.LoadIPAddressServer(), MultiplayerConfiguration.LoadPortServer(), MultiplayerConfiguration.LoadRoomNumberInServer(0), MultiplayerConfiguration.LoadMachineIDServer(0), MultiplayerConfiguration.LoadBufferSizeReceive(), MultiplayerConfiguration.LoadTimeoutReceive(), MultiplayerConfiguration.LoadBufferSizeSend(), MultiplayerConfiguration.LoadTimeoutSend());
+#if !ENABLE_PHOTON && !ENABLE_NAKAMA
+                // CONNECT TO THE SERVER
+                ClientTCPEventsController.Instance.Initialitzation(MultiplayerConfiguration.LoadIPAddressServer(), MultiplayerConfiguration.LoadPortServer(), MultiplayerConfiguration.LoadRoomNumberInServer(0), MultiplayerConfiguration.LoadMachineIDServer(0), MultiplayerConfiguration.LoadBufferSizeReceive(), MultiplayerConfiguration.LoadTimeoutReceive(), MultiplayerConfiguration.LoadBufferSizeSend(), MultiplayerConfiguration.LoadTimeoutSend());
 
-                    // NETWORK VARIABLES MANAGER
-                    Utilities.AddChild(transform, NetworkVariablesManager);
+                // NETWORK VARIABLES MANAGER
+                Utilities.AddChild(transform, NetworkVariablesManager);
+#elif !ENABLE_PHOTON && ENABLE_NAKAMA
+				NakamaController.Instance.Initialitzation();
 #endif
 
-                    // ADD NETWORK IDENTIFICATION TO THE GAME OBJECTS
-                    for (int i = 0; i < GameObjects.Length; i++)
+				// ADD NETWORK IDENTIFICATION TO THE GAME OBJECTS
+				for (int i = 0; i < GameObjects.Length; i++)
                     {
                         GameObject prefabToNetwork = GameObjects[i];
                         if (prefabToNetwork.GetComponent<NetworkID>() == null)
@@ -248,6 +252,14 @@ namespace YourNetworkingTools
 		public void Destroy()
 		{
 			NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
+
+			if (instance != null)
+            {
+				GameObject.Destroy(instance.gameObject);
+				instance = null;
+
+			}
+
 		}
 
 		// -------------------------------------------
@@ -271,11 +283,13 @@ namespace YourNetworkingTools
 			{
 #if ENABLE_PHOTON
                 return PhotonController.Instance.UniqueNetworkID;
+#elif ENABLE_NAKAMA
+				return NakamaController.Instance.UniqueNetworkID;
 #else
-                return ClientTCPEventsController.Instance.UniqueNetworkID;
+				return ClientTCPEventsController.Instance.UniqueNetworkID;
 #endif
-            }
-        }
+			}
+		}
 
         // -------------------------------------------
         /* 
@@ -403,6 +417,8 @@ namespace YourNetworkingTools
 				{
 #if ENABLE_PHOTON
                 finalNameNetworkAssets += "Photon/" + _nameNetworkAsset + (_addExtension?"Photon":"");
+#elif ENABLE_NAKAMA
+					finalNameNetworkAssets += "Nakama/" + _nameNetworkAsset + (_addExtension ? "Nakama" : "");
 #else
 					finalNameNetworkAssets += "Socket/" + _nameNetworkAsset + (_addExtension ? "Socket" : "");
 #endif
@@ -461,9 +477,13 @@ namespace YourNetworkingTools
 				{
 					networkGameObject.GetComponent<IGameNetworkActor>().Initialize(_initialData);
 				}
+#if ENABLE_NAKAMA
+				NakamaController.Instance.SendTransform(networkGameObject.GetComponent<NetworkID>().NetID, networkGameObject.GetComponent<NetworkID>().UID, networkGameObject.GetComponent<NetworkID>().IndexPrefab, networkGameObject.transform.position, networkGameObject.transform.forward, networkGameObject.transform.localScale);
+#else
 				ClientTCPEventsController.Instance.SendTranform(networkGameObject.GetComponent<NetworkID>().NetID, networkGameObject.GetComponent<NetworkID>().UID, networkGameObject.GetComponent<NetworkID>().IndexPrefab, networkGameObject.transform.position, networkGameObject.transform.forward, networkGameObject.transform.localScale);
 #endif
-            }
+#endif
+			}
 		}
 
 		// -------------------------------------------
@@ -552,7 +572,8 @@ namespace YourNetworkingTools
 				if (m_initialData.TryGetValue(_keyID, out initialData))
 				{
 					// _objectToInit.GetComponent<IGameNetworkActor>().Initialize(initialData);
-					// Debug.LogError("+++++++++++++++++SENDING INITIAL DATA TO ["+ _keyID + "]");
+					// Debug.LogError("+++++++++++++++++SENDING INITIAL DATA TO ["+ _keyID + "]::DATA("+ initialData + ")");
+					// NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA, 0.01f, _keyID, initialData);
 					NetworkEventController.Instance.PriorityDelayNetworkEvent(EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA, 0.01f, _keyID, initialData);
 					return true;
 				}
@@ -637,7 +658,7 @@ namespace YourNetworkingTools
 				string targetNetworkID = (string)_list[0];
 				string initialDataNetwork = (string)_list[1];
 				ActorNetwork[] networkActors = GameObject.FindObjectsOfType<ActorNetwork>();
-				// Debug.LogError("EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA::TARGET[" + targetNetworkID + "]::data[" + initialDataNetwork + "]::TOTAL NETWORK ACTORS["+ networkActors.Length + "]");
+				// Debug.LogError("+++++++++++++EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA::TARGET[" + targetNetworkID + "]::data[" + initialDataNetwork + "]::TOTAL NETWORK ACTORS["+ networkActors.Length + "]");
 				for (int i = 0; i < networkActors.Length; i++)
                 {
 					IGameNetworkActor networkActor = networkActors[i].GetComponentInParent<IGameNetworkActor>();
@@ -727,8 +748,17 @@ namespace YourNetworkingTools
 						string keyNetworkGO = (string)_list[0];
 						string dataNetworkGO = (string)_list[1];
 						m_initialData.Add(keyNetworkGO, dataNetworkGO);
+						// Debug.LogError("*************************************DATA ADDED TO LIST(" + keyNetworkGO + ")("+ dataNetworkGO + ")::TOTAL INITIAL DATA["+ m_initialData.Count + "]::TOTAL TCP PLAYERS["+m_tcpNetworkObjects.Count+"]");
 						CheckInitializationObjects(keyNetworkGO);
 					}
+				}
+			}
+			if (_nameEvent == EVENT_YOURNETWORKTOOLS_NETID_NEW)
+            {
+				if (IsServer)
+				{
+					// Debug.LogError("*************************************NEW TCP NETWORK OBJECT REGISTERED(" + m_tcpNetworkObjects.Count + "]");
+					CheckInitializationObjects();
 				}
 			}
 			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST)
@@ -776,7 +806,7 @@ namespace YourNetworkingTools
 					networkGameObject.transform.position = position;
 					networkGameObject.transform.forward = forward;
 					networkGameObject.transform.localScale = scale;
-					NetworkEventController.Instance.DispatchLocalEvent(EVENT_YOURNETWORKTOOLS_NETID_NEW, NetID);
+					NetworkEventController.Instance.DispatchLocalEvent(EVENT_YOURNETWORKTOOLS_NETID_NEW, networkGameObject.GetComponent<NetworkID>().GetID());
 				}
 				else
 				{
@@ -876,14 +906,18 @@ namespace YourNetworkingTools
 								{
 									if ((networkGameObject.GetComponent<NetworkID>().NetID == GetUniversalNetworkID()) || _force)
 									{
+#if ENABLE_NAKAMA
+										NakamaController.Instance.SendTransform(networkGameObject.GetComponent<NetworkID>().NetID, networkGameObject.GetComponent<NetworkID>().UID, networkGameObject.GetComponent<NetworkID>().IndexPrefab, networkGameObject.transform.position, networkGameObject.transform.forward, networkGameObject.transform.localScale);
+#else
 										ClientTCPEventsController.Instance.SendTranform(networkGameObject.GetComponent<NetworkID>().NetID, networkGameObject.GetComponent<NetworkID>().UID, networkGameObject.GetComponent<NetworkID>().IndexPrefab, networkGameObject.transform.position, networkGameObject.transform.forward, networkGameObject.transform.localScale);
+#endif
 									}
 								}
 							}
 						}
 					}
 #endif
-                }
+									}
 				else
 				{
 #if !DISABLE_UNET_COMMS

@@ -100,6 +100,11 @@ namespace YourNetworkingTools
             {
                 PhotonController.Instance.Destroy();
             }
+#elif ENABLE_NAKAMA
+            if (GameObject.FindObjectOfType<NakamaController>() != null)
+            {
+                NakamaController.Instance.Destroy();
+            }
 #endif
 
             NetworkEventController.Instance.MenuController_SetLocalGame(true);
