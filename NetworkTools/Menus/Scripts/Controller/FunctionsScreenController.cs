@@ -551,7 +551,7 @@ namespace YourNetworkingTools
 #else
 #if ENABLE_GOOGLE_ARCORE
             CardboardLoaderVR.Instance.SaveEnableCardboard(false);
-#else
+#elif ENABLE_YOURVRUI
             if (YourVRUIScreenController.Instance == null)
             {
                 CardboardLoaderVR.Instance.SaveEnableCardboard(false);
@@ -560,6 +560,8 @@ namespace YourNetworkingTools
             {
                 CardboardLoaderVR.Instance.SaveEnableCardboard(true);
             }
+#else
+            CardboardLoaderVR.Instance.SaveEnableCardboard(false);
 #endif
             MenuScreenController.Instance.CreateOrJoinRoomInServer(false);
             UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenLoadingView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, null);
