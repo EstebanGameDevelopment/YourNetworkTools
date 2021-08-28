@@ -28,8 +28,13 @@ namespace YourNetworkingTools
 		public int Port = 7350;
 		public string ServerKey = "defaultkey";
 
+#if EXTRA_NAKAMA_SESSION
+		private const string SessionPrefName = "nakama.extra.session";
+		private const string DeviceIdentifierPrefName = "nakama.extra.deviceUniqueIdentifier";
+#else
 		private const string SessionPrefName = "nakama.session";
 		private const string DeviceIdentifierPrefName = "nakama.deviceUniqueIdentifier";
+#endif
 
 		public IClient Client;
 		public ISession Session;
@@ -63,6 +68,8 @@ namespace YourNetworkingTools
 			Client = new Nakama.Client(Scheme, Host, Port, ServerKey, UnityWebRequestAdapter.Instance);
 
 			// Attempt to restore an existing user session.
+			if (NakamaController.DEBUG) Debug.LogError("NakamaController::Connect::SessionPrefName[" + SessionPrefName + "]");
+
 			var authToken = PlayerPrefs.GetString(SessionPrefName);
 			if (!string.IsNullOrEmpty(authToken))
 			{
@@ -99,6 +106,7 @@ namespace YourNetworkingTools
 
 				Session = await Client.AuthenticateDeviceAsync(deviceId);
 
+				if (NakamaController.DEBUG) Debug.LogError("NakamaController::Connect::deviceId[" + deviceId + "]");
 				PlayerPrefs.SetString(SessionPrefName, Session.AuthToken);
 			}
 
