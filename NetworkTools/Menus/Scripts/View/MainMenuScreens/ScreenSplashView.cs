@@ -131,13 +131,22 @@ namespace YourNetworkingTools
                 }
                 else
                 {
+                    Destroy();
+#if ENABLE_WORLDSENSE || ENABLE_OCULUS || ENABLE_HTCVIVE || ENABLE_PICONEO
                     if (MenuScreenController.Instance.VRComponents != null)
                     {
-                        Destroy();
                         MenuScreenController.Instance.MainCamera2D.SetActive(false);
                         MenuScreenController.Instance.VRComponents.SetActive(true);
-                        UIEventController.Instance.DelayUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, 0.2f, ScreenMenuMainView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false);
                     }
+                    else
+                    {
+                        MenuScreenController.Instance.MainCamera2D.SetActive(true);
+                    }
+#else
+                    MenuScreenController.Instance.MainCamera2D.SetActive(true);
+                    if (MenuScreenController.Instance.VRComponents != null) MenuScreenController.Instance.VRComponents.SetActive(false);
+#endif
+                    UIEventController.Instance.DelayUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, 0.2f, ScreenMenuMainView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, false);
                 }
             }
         }
