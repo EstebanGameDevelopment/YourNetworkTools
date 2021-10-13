@@ -201,7 +201,7 @@ namespace YourNetworkingTools
                     options = new RoomOptions { MaxPlayers = (byte)_finalNumberOfPlayers, PlayerTtl = 10000 };
                 }
                 PhotonNetwork.CreateRoom(_nameLobby, options, null);
-                if (DEBUG) Debug.LogError("PhotonController::CreateRoom::CREATING THE ROOM...");
+                if (DEBUG) Debug.LogError("PhotonController::CreateRoom::CREATING THE ROOM["+ _nameLobby + "] WITH PLAYERS["+ m_totalNumberOfPlayers + "]...");
             }
         }
 
