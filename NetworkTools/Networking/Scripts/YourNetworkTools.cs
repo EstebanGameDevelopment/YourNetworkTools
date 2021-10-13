@@ -782,7 +782,8 @@ namespace YourNetworkingTools
                 if (!m_tcpNetworkObjects.Contains(newGO))
                 {
                     m_tcpNetworkObjects.Add(newGO);
-                }
+					NetworkEventController.Instance.DispatchLocalEvent(EVENT_YOURNETWORKTOOLS_NETID_NEW);
+				}
             }
 #endif
             if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_TRANSFORM_DATA)
@@ -806,7 +807,7 @@ namespace YourNetworkingTools
 					networkGameObject.transform.position = position;
 					networkGameObject.transform.forward = forward;
 					networkGameObject.transform.localScale = scale;
-					NetworkEventController.Instance.DispatchLocalEvent(EVENT_YOURNETWORKTOOLS_NETID_NEW, networkGameObject.GetComponent<NetworkID>().GetID());
+					NetworkEventController.Instance.DispatchLocalEvent(EVENT_YOURNETWORKTOOLS_NETID_NEW);
 				}
 				else
 				{
