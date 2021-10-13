@@ -26,6 +26,7 @@ namespace YourNetworkingTools
         public const string EVENT_YOURNETWORKTOOLS_CREATED_GAMEOBJECT = "EVENT_YOURNETWORKTOOLS_CREATED_GAMEOBJECT";
         public const string EVENT_YOURNETWORKTOOLS_DESTROYED_GAMEOBJECT = "EVENT_YOURNETWORKTOOLS_DESTROYED_GAMEOBJECT";
 		public const string EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA = "EVENT_YOURNETWORKTOOLS_INITIALITZATION_DATA";
+		public const string EVENT_YOURNETWORKTOOLS_CONTROLLER_STARTED = "EVENT_YOURNETWORKTOOLS_CONTROLLER_STARTED";
 
 		public const string COOCKIE_IS_LOCAL_GAME = "COOCKIE_IS_LOCAL_GAME";
 		public const char TOKEN_SEPARATOR_NAME = '_';
@@ -234,6 +235,8 @@ namespace YourNetworkingTools
             }
 
             m_hasBeenInitialized = true;
+
+			NetworkEventController.Instance.DispatchLocalEvent(EVENT_YOURNETWORKTOOLS_CONTROLLER_STARTED);
 		}
 
 		// -------------------------------------------
