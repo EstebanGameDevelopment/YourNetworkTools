@@ -695,6 +695,13 @@ namespace YourNetworkingTools
 					}
 				}
 			}
+			if (_nameEvent == EVENT_YOURNETWORKTOOLS_NETID_NEW)
+			{
+				if (IsServer)
+				{
+					CheckInitializationObjects();
+				}
+			}
 			if (_nameEvent == NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_DESTROY_REQUEST)
 			{
 				DestroyNetworkObject(int.Parse((string)_list[0]), int.Parse((string)_list[1]));
@@ -716,10 +723,11 @@ namespace YourNetworkingTools
                 if (!m_tcpNetworkObjects.Contains(newGO))
                 {
                     m_tcpNetworkObjects.Add(newGO);
+					NetworkEventController.Instance.DispatchLocalEvent(EVENT_YOURNETWORKTOOLS_NETID_NEW);
                 }
             }
 #endif
-            if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_TRANSFORM_DATA)
+			if (_nameEvent == ClientTCPEventsController.EVENT_CLIENT_TCP_TRANSFORM_DATA)
 			{
 				int NetID = (int)_list[0];
 				int UID = (int)_list[1];
@@ -740,7 +748,7 @@ namespace YourNetworkingTools
 					networkGameObject.transform.position = position;
 					networkGameObject.transform.forward = forward;
 					networkGameObject.transform.localScale = scale;
-					NetworkEventController.Instance.DispatchLocalEvent(EVENT_YOURNETWORKTOOLS_NETID_NEW, NetID);
+					NetworkEventController.Instance.DispatchLocalEvent(EVENT_YOURNETWORKTOOLS_NETID_NEW);
 				}
 				else
 				{
