@@ -106,6 +106,8 @@ namespace YourNetworkingTools
 
 		private List<PlayerConnectionData> m_playersConnections = new List<PlayerConnectionData>();
 
+		private bool m_requestToConsumWhenReady = false;
+
 		public bool SocketConnected
 		{
 			get { return m_socketConnected; }
@@ -388,8 +390,23 @@ namespace YourNetworkingTools
 				{
 					if (ClientNewConnection(networkIDPlayer))
 					{
-						NetworkEventController.Instance.DelayNetworkEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_REMOTE_COMPLETED, 0.2f, m_uniqueNetworkID.ToString());
+						if (YourNetworkTools.Instance != null)
+						{
+							NetworkEventController.Instance.PriorityDelayNetworkEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_REMOTE_COMPLETED, 0.2f, m_uniqueNetworkID.ToString());
+						}
+						else
+						{
+							m_requestToConsumWhenReady = true;
+						}
 					}
+				}
+			}
+			if (_nameEvent == YourNetworkTools.EVENT_YOURNETWORKTOOLS_CONTROLLER_STARTED)
+			{
+				if (m_requestToConsumWhenReady)
+				{
+					m_requestToConsumWhenReady = false;
+					NetworkEventController.Instance.PriorityDelayNetworkEvent(NetworkEventController.EVENT_SYSTEM_INITIALITZATION_REMOTE_COMPLETED, 0.2f, m_uniqueNetworkID.ToString());
 				}
 			}
 			if (_nameEvent == NetworkEventController.EVENT_SYSTEM_PLAYER_HAS_BEEN_DESTROYED)
