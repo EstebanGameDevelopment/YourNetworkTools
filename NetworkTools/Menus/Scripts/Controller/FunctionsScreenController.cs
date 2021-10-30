@@ -40,15 +40,15 @@ namespace YourNetworkingTools
         public const string BLOCKCHAIN_TAG_BEGIN = "<blockchain>";
         public const string BLOCKCHAIN_TAG_END = "</blockchain>";
 
-        private const string PREFS_ALL_SETTINGS = "APP_ALL_SETTINGS";
+        public const string PREFS_ALL_SETTINGS = "APP_ALL_SETTINGS";
 
-        private const string PREFS_NAME_ROOM = "APP_NAME_ROOM";
-        private const string PREFS_NUMBER_PLAYERS = "APP_NUMBER_PLAYERS";
-        private const string PREFS_PROFILE = "APP_PROFILE";
-        private const string PREFS_AVATAR = "APP_AVATAR";
-        private const string PREFS_LEVEL = "APP_LEVEL";
-        private const string PREFS_LOCAL_OR_NETWORK = "APP_LOCAL_OR_NETWORK";
-        private const string PREFS_ARCORE_ENABLED = "PREFS_ARCORE_ENABLED";
+        public const string PREFS_NAME_ROOM = "APP_NAME_ROOM";
+        public const string PREFS_NUMBER_PLAYERS = "APP_NUMBER_PLAYERS";
+        public const string PREFS_PROFILE = "APP_PROFILE";
+        public const string PREFS_AVATAR = "APP_AVATAR";
+        public const string PREFS_LEVEL = "APP_LEVEL";
+        public const string PREFS_LOCAL_OR_NETWORK = "APP_LOCAL_OR_NETWORK";
+        public const string PREFS_ARCORE_ENABLED = "PREFS_ARCORE_ENABLED";
 
         public const char TOKEN_SEPARATOR_CONFIG = ',';
 
