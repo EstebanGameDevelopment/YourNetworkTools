@@ -335,12 +335,12 @@ namespace YourNetworkingTools
         {
             if (!_activationVoice && m_voiceEnabled)
             {
-                m_speakerVoice.StopPlayback();
+                m_voiceConnection.enabled = false;
                 m_voiceEnabled = false;
             }
             if (_activationVoice && !m_voiceEnabled)
             {
-                m_speakerVoice.RestartPlayback();
+                m_voiceConnection.enabled = true;
                 m_voiceEnabled = true;
             }
             BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_PHOTONCONTROLLER_VOICE_CHANGE_REPORTED);
