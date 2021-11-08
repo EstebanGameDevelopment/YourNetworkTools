@@ -306,7 +306,7 @@ namespace YourNetworkingTools
         /* 
 		 * InitConfigurationSession
 		 */
-        protected void InitConfigurationSession()
+        protected virtual void InitConfigurationSession()
         {
             m_profileSelected = (PROFILE_PLAYER)PlayerPrefs.GetInt(PREFS_PROFILE, 0);
             m_appTotalNumberOfPlayers = PlayerPrefs.GetInt(PREFS_NUMBER_PLAYERS, 5);
