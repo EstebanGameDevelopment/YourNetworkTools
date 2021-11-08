@@ -99,6 +99,8 @@ namespace YourNetworkingTools
 
 		private List<PlayerConnectionData> m_playersConnections = new List<PlayerConnectionData>();
 
+        private GameObject m_voiceGO;
+
         private RaiseEventOptions m_raiseEventOptions = new RaiseEventOptions
         {
             Receivers = ReceiverGroup.All,
@@ -187,6 +189,19 @@ namespace YourNetworkingTools
             BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
             Destroy(_instance.gameObject);
 			_instance = null;
+
+#if ENABLE_PHOTON_VOICE && ENABLE_PHOTON
+            if (m_voiceConnection != null)
+            {
+                m_voiceConnection.SpeakerLinked -= this.OnSpeakerCreated;
+                m_voiceConnection = null;
+            }
+            if (m_voiceGO != null)
+            {
+                GameObject.Destroy(m_voiceGO);
+                m_voiceGO = null;
+            }
+#endif
 
             if (DEBUG) Debug.LogError("PhotonController::Destroy::PHOTON CONNECTION HAS BEEN SUCCESSFULLY DESTROYED!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
@@ -701,8 +716,8 @@ namespace YourNetworkingTools
                 if (voicePrefab != null)
                 {
                     voiceHasBeenFound = true;
-                    GameObject voiceGO = GameObject.Instantiate(voicePrefab);
-                    ConnectAndJoin joinVoice = voiceGO.transform.GetComponentInChildren<ConnectAndJoin>();
+                    m_voiceGO = GameObject.Instantiate(voicePrefab);
+                    ConnectAndJoin joinVoice = m_voiceGO.transform.GetComponentInChildren<ConnectAndJoin>();
                     m_voiceConnection = GameObject.FindObjectOfType<VoiceConnection>();
                     m_voiceConnection.SpeakerLinked += this.OnSpeakerCreated;
                     if ((joinVoice != null) && (m_voiceConnection != null))
