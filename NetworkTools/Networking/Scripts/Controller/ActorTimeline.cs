@@ -868,6 +868,21 @@ namespace YourNetworkingTools
 
         // -------------------------------------------
         /* 
+		 * Will draw the vision of the actor
+		 */
+        public override void UpdateVision(GameObject _planeAreaVision, Material _material, float _viewDistance, float _angleView, float _shift)
+        {
+            int checkRadiusInstances = 10;
+            if (m_planeAreaVisionDetection == null)
+            {
+                m_planeAreaVisionDetection = (GameObject)Instantiate(_planeAreaVision, Vector3.zero, new Quaternion(0, 0, 0, 0));
+                m_planeAreaVisionDetection.transform.parent = this.gameObject.transform;
+                DrawAreaVision(m_planeAreaVisionDetection, checkRadiusInstances, _viewDistance, _angleView, -1, _material, _shift);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Logic
 		 */
         public override void Logic()
@@ -889,6 +904,7 @@ namespace YourNetworkingTools
         protected Vector3 m_shiftLocalPosition = Vector3.zero;
         protected Vector3 m_customForwardPlayer = Vector3.zero;
         protected GameObject m_modelActor = null;
+
 
         // -------------------------------------------
         /* 
