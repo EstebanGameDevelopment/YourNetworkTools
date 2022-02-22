@@ -49,6 +49,10 @@ namespace YourNetworkingTools
 		{
 			get { return m_referenceObject; }
 		}
+		public int TotalMessages
+        {
+			get { return m_messages.Count; }
+        }
 
 
 		// -------------------------------------------

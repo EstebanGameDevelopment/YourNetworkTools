@@ -539,19 +539,16 @@ namespace YourNetworkingTools
 		 */
 		private void ProcessClientMessages()
 		{
-			if (m_playersConnections.Count > 0)
+			for (int i = 0; i < m_playersConnections.Count; i++)
 			{
-				Dictionary<string, object> message = null;
-				if (m_currentProcessedClient < m_playersConnections.Count)
-				{
-					message = m_playersConnections[m_currentProcessedClient].PopMessage();
+				while (m_playersConnections[i].TotalMessages > 0)
+                {
+					Dictionary<string, object> message = m_playersConnections[i].PopMessage();
+					if (message != null)
+					{
+						ProcessMessage(message);
+					}
 				}
-				if (message != null)
-				{
-					ProcessMessage(message);
-				}
-				m_currentProcessedClient++;
-				if (m_currentProcessedClient >= m_playersConnections.Count) m_currentProcessedClient = 0;
 			}
 		}
 
