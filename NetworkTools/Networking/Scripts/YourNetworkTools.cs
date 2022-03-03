@@ -72,8 +72,10 @@ namespace YourNetworkingTools
 		private bool m_hasBeenInitialized = false;
 
         private bool m_enabledPhotonEngine = false;
+		private bool m_hasBeenDestroyed = false;
 
-        public bool IsServer
+
+		public bool IsServer
 		{
 			get
 			{
@@ -254,6 +256,9 @@ namespace YourNetworkingTools
 		 */
 		public void Destroy()
 		{
+			if (m_hasBeenDestroyed) return;
+			m_hasBeenDestroyed = true;
+
 			NetworkEventController.Instance.NetworkEvent -= OnNetworkEvent;
 
 			if (instance != null)
