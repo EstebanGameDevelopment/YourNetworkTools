@@ -51,7 +51,11 @@ namespace YourNetworkingTools
 			m_root = this.gameObject;
 			m_container = m_root.transform.Find("Content");
 
+#if !ALTERNATIVE_TITLE
 			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.title");
+#else
+			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.mobile.title");
+#endif
 
 			m_container.Find("Description").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.lobby.create.with.description.room");
 			m_container.Find("RoomName").GetComponent<InputField>().text = PlayerPrefs.GetString(PLAYERPREFS_YNT_ROOMNAME, "");

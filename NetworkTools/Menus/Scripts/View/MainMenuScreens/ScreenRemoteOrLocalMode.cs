@@ -44,7 +44,11 @@ namespace YourNetworkingTools
 			m_root = this.gameObject;
 			m_container = m_root.transform.Find("Content");
 
-			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.title");
+#if !ALTERNATIVE_TITLE
+            m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.title");
+#else
+			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.mobile.title");
+#endif
 
             GameObject playLocalGame = m_container.Find("Button_Local").gameObject;
 #if UNITY_WEBGL

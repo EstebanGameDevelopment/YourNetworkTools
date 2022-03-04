@@ -67,7 +67,11 @@ namespace YourNetworkingTools
 			m_root = this.gameObject;
 			m_container = m_root.transform.Find("Content/MaskScroll/ScrollPage/Page");
 
+#if !ALTERNATIVE_TITLE
 			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.title");
+#else
+			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.mobile.title");
+#endif
 
 			// LOCAL OR REMOTE
 			GameObject remotePartyGame = m_container.Find("Button_LocalOrRemote").gameObject;

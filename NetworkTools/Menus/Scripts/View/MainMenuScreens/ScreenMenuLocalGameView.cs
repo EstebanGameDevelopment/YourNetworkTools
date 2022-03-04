@@ -48,8 +48,12 @@ namespace YourNetworkingTools
             }
             else
             {
-                m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.title");
-            }
+#if !ALTERNATIVE_TITLE
+				m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.title");
+#else
+				m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.mobile.title");
+#endif
+			}
 
 			GameObject createGame = m_container.Find("Button_CreateGame").gameObject;
 			createGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.local.game.start.a.new.game");

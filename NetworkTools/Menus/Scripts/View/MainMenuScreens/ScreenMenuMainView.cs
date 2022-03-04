@@ -46,9 +46,13 @@ namespace YourNetworkingTools
 			m_root = this.gameObject;
 			m_container = m_root.transform.Find("Content");
 
+#if !ALTERNATIVE_TITLE
 			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.title");
+#else
+			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.mobile.title");
+#endif
 
-            if (m_container.Find("Button_LocalParty") != null)
+			if (m_container.Find("Button_LocalParty") != null)
             {
                 GameObject localPartyGame = m_container.Find("Button_LocalParty").gameObject;
                 localPartyGame.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.main.menu.local.party");
