@@ -282,8 +282,10 @@ namespace YourNetworkingTools
             UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
             BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
 
+
 #if ENABLE_WORLDSENSE || ENABLE_OCULUS || ENABLE_HTCVIVE || ENABLE_PICONEO
             KeysEventInputController.Instance.EnableActionOnMouseDown = false;
+            YourVRUIScreenController.Instance.Initialitzation();
 #endif
             StartSplashScreen();
         }
